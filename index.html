@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
         }
 
         body {
@@ -51,6 +50,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 25px;
+            margin-bottom: 30px;
         }
 
         .controls-panel {
@@ -69,8 +69,10 @@
             border-radius: 12px;
             padding: 15px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-            overflow: auto;
             position: relative;
+            min-height: 650px;
+            display: flex;
+            flex-direction: column;
         }
 
         .control-group {
@@ -127,7 +129,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            touch-action: manipulation;
         }
 
         .button-primary {
@@ -216,23 +217,34 @@
             line-height: 1.5;
         }
 
-        .board {
+        .board-title {
+            margin-bottom: 15px;
+            color: #6ca6e1;
+        }
+
+        .board-wrapper {
+            flex: 1;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
             background-color: #0a2912;
             background-image: 
                 radial-gradient(circle at 25% 25%, rgba(20, 80, 30, 0.2) 2%, transparent 2.5%),
                 radial-gradient(circle at 75% 75%, rgba(20, 80, 30, 0.2) 2%, transparent 2.5%);
             background-size: 60px 60px;
             border: 12px solid #2c1b0e;
-            border-radius: 8px;
-            position: relative;
-            min-height: 600px;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+            padding: 15px;
+        }
+
+        .board {
+            min-height: 600px;
             display: flex;
             flex-wrap: wrap;
             align-content: flex-start;
-            padding: 20px;
             gap: 20px;
-            touch-action: none;
+            width: max-content;
+            min-width: 100%;
         }
 
         .grid-item {
@@ -241,7 +253,7 @@
             height: 120px;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            touch-action: none;
+            flex-shrink: 0;
         }
 
         .grid-background {
@@ -300,7 +312,9 @@
             width: 100%;
             height: 100%;
             cursor: crosshair;
-            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none; /* 只对画布禁用滚动 */
         }
 
         .grid-number {
@@ -351,16 +365,13 @@
             
             .board {
                 min-height: 500px;
+            }
+            
+            .board-wrapper {
                 padding: 10px;
-                gap: 15px;
             }
             
             .grid-item {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .grid-canvas {
                 width: 100px;
                 height: 100px;
             }
@@ -371,26 +382,40 @@
         }
         
         @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
             .grid-item {
                 width: 90px;
                 height: 90px;
             }
             
-            .grid-canvas {
-                width: 90px;
-                height: 90px;
+            .board {
+                gap: 15px;
             }
             
-            .board {
-                justify-content: center;
+            .button {
+                padding: 10px 16px;
+                font-size: 0.9rem;
             }
         }
         
         /* 防止移动端长按菜单 */
         .grid-canvas {
             -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+        }
+        
+        /* 修复滚动问题 */
+        html, body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
+        }
+        
+        /* 移动端优化 */
+        input[type="number"] {
+            font-size: 16px; /* 防止iOS缩放 */
         }
     </style>
 </head>
@@ -477,15 +502,18 @@
                             <li><strong>撤销功能只针对当前选中的格子</strong></li>
                             <li>点击格子可选中（高亮显示）</li>
                             <li><strong>支持触摸屏设备</strong></li>
+                            <li><strong>可以上下滚动查看所有格子</strong></li>
                         </ul>
                     </div>
                 </div>
             </div>
             
             <div class="board-container">
-                <h2>书写板</h2>
-                <div class="board" id="board">
-                    <!-- 米字格将通过JavaScript动态生成 -->
+                <h2 class="board-title">书写板</h2>
+                <div class="board-wrapper">
+                    <div class="board" id="board">
+                        <!-- 米字格将通过JavaScript动态生成 -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -682,7 +710,7 @@
                     gridItem.appendChild(gridNumber);
                     
                     // 添加点击/触摸选中事件
-                    gridItem.addEventListener('click', function() {
+                    gridItem.addEventListener('click', function(e) {
                         // 移除其他格子的选中状态
                         document.querySelectorAll('.grid-item').forEach(item => {
                             item.classList.remove('grid-active');
@@ -700,7 +728,6 @@
                     
                     // 添加触摸事件
                     gridItem.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
                         // 移除其他格子的选中状态
                         document.querySelectorAll('.grid-item').forEach(item => {
                             item.classList.remove('grid-active');
@@ -714,7 +741,10 @@
                         
                         // 更新显示
                         updateCurrentGridDisplay();
-                    }, { passive: false });
+                        
+                        // 防止触发父级滚动
+                        e.stopPropagation();
+                    }, { passive: true });
                     
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
@@ -723,7 +753,9 @@
                 }
                 
                 // 默认选中第一个格子
-                document.querySelector('.grid-item').classList.add('grid-active');
+                if (document.querySelector('.grid-item')) {
+                    document.querySelector('.grid-item').classList.add('grid-active');
+                }
                 currentGridIndex = 0;
                 updateCurrentGridDisplay();
             }
@@ -844,6 +876,7 @@
                 });
                 
                 canvas.addEventListener('mousemove', function(e) {
+                    if (!isDrawing) return;
                     e.preventDefault();
                     continueDrawing(getMousePos(e));
                 });
@@ -854,43 +887,41 @@
                 });
                 
                 canvas.addEventListener('mouseleave', function(e) {
-                    e.preventDefault();
-                    endDrawing();
+                    if (isDrawing) {
+                        e.preventDefault();
+                        endDrawing();
+                    }
                 });
                 
-                // 触摸事件
+                // 触摸事件 - 使用passive: true以允许滚动
                 canvas.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    startDrawing(getTouchPos(e));
-                }, { passive: false });
+                    if (e.touches.length === 1) {
+                        startDrawing(getTouchPos(e));
+                        e.stopPropagation(); // 防止触发父级滚动
+                    }
+                }, { passive: true });
                 
                 canvas.addEventListener('touchmove', function(e) {
-                    e.preventDefault();
-                    continueDrawing(getTouchPos(e));
+                    if (isDrawing && e.touches.length === 1) {
+                        continueDrawing(getTouchPos(e));
+                        e.preventDefault(); // 仅在绘图时阻止滚动
+                        e.stopPropagation();
+                    }
                 }, { passive: false });
                 
                 canvas.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    endDrawing();
-                }, { passive: false });
+                    if (isDrawing) {
+                        endDrawing();
+                        e.stopPropagation();
+                    }
+                }, { passive: true });
                 
                 canvas.addEventListener('touchcancel', function(e) {
-                    e.preventDefault();
-                    endDrawing();
-                }, { passive: false });
-                
-                // 防止页面滚动
-                canvas.addEventListener('touchstart', function(e) {
-                    if (e.touches.length === 1) {
-                        e.preventDefault();
+                    if (isDrawing) {
+                        endDrawing();
+                        e.stopPropagation();
                     }
-                }, { passive: false });
-                
-                canvas.addEventListener('touchmove', function(e) {
-                    if (e.touches.length === 1) {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
+                }, { passive: true });
             }
             
             // 绘制完整的一笔（从深到浅渐变）
@@ -953,12 +984,6 @@
             // 防止移动端页面缩放
             document.addEventListener('gesturestart', function(e) {
                 e.preventDefault();
-            });
-            
-            document.addEventListener('touchmove', function(e) {
-                if (e.scale !== 1) {
-                    e.preventDefault();
-                }
             }, { passive: false });
         });
     </script>
