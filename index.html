@@ -67,6 +67,7 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
             position: relative;
             min-height: 650px;
+            overflow: hidden;
         }
 
         .control-group {
@@ -219,24 +220,22 @@
             background-size: 60px 60px;
             border: 12px solid #2c1b0e;
             border-radius: 8px;
-            position: relative;
             min-height: 600px;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-wrap: wrap;
-            align-content: flex-start;
-            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 20px;
+            padding: 20px;
             overflow: auto;
+            max-height: 650px;
         }
 
         .grid-item {
             position: relative;
-            width: 120px;
+            width: 100%;
             height: 120px;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            flex-shrink: 0;
         }
 
         .grid-background {
@@ -344,11 +343,13 @@
             }
             
             .board {
-                min-height: 500px;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 15px;
+                padding: 15px;
+                max-height: 500px;
             }
             
             .grid-item {
-                width: 100px;
                 height: 100px;
             }
             
@@ -362,14 +363,31 @@
         }
         
         @media (max-width: 480px) {
+            .board {
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 12px;
+                padding: 12px;
+            }
+            
             .grid-item {
-                width: 90px;
                 height: 90px;
             }
             
+            .button {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
             .board {
-                gap: 15px;
-                padding: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .grid-item {
+                height: 85px;
             }
         }
     </style>
@@ -457,7 +475,7 @@
                             <li><strong>撤销功能只针对当前选中的格子</strong></li>
                             <li>点击格子可选中（高亮显示）</li>
                             <li><strong>支持触摸屏设备</strong></li>
-                            <li><strong>可以上下滚动查看所有格子</strong></li>
+                            <li><strong>格子会自动换行排列</strong></li>
                         </ul>
                     </div>
                 </div>
@@ -653,6 +671,10 @@
                     canvas.width = 120;
                     canvas.height = 120;
                     
+                    // 设置画布尺寸与实际显示尺寸一致
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    
                     // 添加格子编号
                     const gridNumber = document.createElement('div');
                     gridNumber.className = 'grid-number';
@@ -686,9 +708,12 @@
                 }
                 
                 // 默认选中第一个格子
-                document.querySelector('.grid-item').classList.add('grid-active');
-                currentGridIndex = 0;
-                updateCurrentGridDisplay();
+                const firstGrid = document.querySelector('.grid-item');
+                if (firstGrid) {
+                    firstGrid.classList.add('grid-active');
+                    currentGridIndex = 0;
+                    updateCurrentGridDisplay();
+                }
             }
             
             // 为画布添加绘图事件（支持鼠标和触摸）
@@ -700,18 +725,24 @@
                 // 获取触摸点坐标
                 function getTouchPos(touchEvent) {
                     const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    
                     return {
-                        x: touchEvent.touches[0].clientX - rect.left,
-                        y: touchEvent.touches[0].clientY - rect.top
+                        x: (touchEvent.touches[0].clientX - rect.left) * scaleX,
+                        y: (touchEvent.touches[0].clientY - rect.top) * scaleY
                     };
                 }
                 
                 // 获取鼠标坐标
                 function getMousePos(mouseEvent) {
                     const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    
                     return {
-                        x: mouseEvent.clientX - rect.left,
-                        y: mouseEvent.clientY - rect.top
+                        x: (mouseEvent.clientX - rect.left) * scaleX,
+                        y: (mouseEvent.clientY - rect.top) * scaleY
                     };
                 }
                 
@@ -824,7 +855,7 @@
                     }
                 });
                 
-                // 触摸事件 - 简化处理
+                // 触摸事件
                 canvas.addEventListener('touchstart', function(e) {
                     if (e.touches.length === 1) {
                         // 防止页面滚动
@@ -910,6 +941,22 @@
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
             }
+            
+            // 窗口大小变化时重新调整画布
+            window.addEventListener('resize', function() {
+                const canvases = document.querySelectorAll('.grid-canvas');
+                canvases.forEach(canvas => {
+                    const ctx = canvas.getContext('2d');
+                    const gridIndex = parseInt(canvas.id.split('-')[2]);
+                    const gridStrokes = strokesHistory[gridIndex] || [];
+                    
+                    // 清除并重新绘制
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    gridStrokes.forEach(stroke => {
+                        drawCompleteStroke(ctx, stroke.points, stroke.colorIndex);
+                    });
+                });
+            });
         });
     </script>
 </body>
