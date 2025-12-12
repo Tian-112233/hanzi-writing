@@ -9,6 +9,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         body {
@@ -17,6 +19,8 @@
             color: #e0e0e0;
             padding: 20px;
             min-height: 100vh;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .container {
@@ -123,6 +127,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            touch-action: manipulation;
         }
 
         .button-primary {
@@ -227,6 +232,7 @@
             align-content: flex-start;
             padding: 20px;
             gap: 20px;
+            touch-action: none;
         }
 
         .grid-item {
@@ -235,6 +241,7 @@
             height: 120px;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            touch-action: none;
         }
 
         .grid-background {
@@ -293,6 +300,7 @@
             width: 100%;
             height: 100%;
             cursor: crosshair;
+            touch-action: none;
         }
 
         .grid-number {
@@ -343,7 +351,46 @@
             
             .board {
                 min-height: 500px;
+                padding: 10px;
+                gap: 15px;
             }
+            
+            .grid-item {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .grid-canvas {
+                width: 100px;
+                height: 100px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-item {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .grid-canvas {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .board {
+                justify-content: center;
+            }
+        }
+        
+        /* 防止移动端长按菜单 */
+        .grid-canvas {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
     </style>
 </head>
@@ -351,7 +398,7 @@
     <div class="container">
         <header>
             <h1>汉字书写练习板</h1>
-            <p class="subtitle">米字格黑板 - 整笔渐变效果</p>
+            <p class="subtitle">米字格黑板 - 整笔渐变效果（支持触屏）</p>
         </header>
         
         <div class="main-content">
@@ -423,12 +470,13 @@
                         <h3>使用说明</h3>
                         <ul>
                             <li>点击"生成米字格"按钮创建指定数量的格子</li>
-                            <li>在米字格中拖动鼠标书写汉字</li>
+                            <li>在米字格中用手指或鼠标书写汉字</li>
                             <li>每笔按红→橙→黄→蓝→紫的顺序循环变色</li>
                             <li><strong>每笔都是完整的从深到浅渐变</strong></li>
                             <li>在新格子写字时颜色从红色重新开始</li>
                             <li><strong>撤销功能只针对当前选中的格子</strong></li>
                             <li>点击格子可选中（高亮显示）</li>
+                            <li><strong>支持触摸屏设备</strong></li>
                         </ul>
                     </div>
                 </div>
@@ -443,7 +491,7 @@
         </div>
         
         <footer>
-            <p>汉字书写练习板 &copy; 2023 | 设计：黑板样式米字格 | 功能：整笔渐变效果</p>
+            <p>汉字书写练习板 &copy; 2023 | 设计：黑板样式米字格 | 功能：整笔渐变效果 | 支持触屏</p>
         </footer>
     </div>
 
@@ -633,7 +681,7 @@
                     gridItem.appendChild(canvas);
                     gridItem.appendChild(gridNumber);
                     
-                    // 添加点击选中事件
+                    // 添加点击/触摸选中事件
                     gridItem.addEventListener('click', function() {
                         // 移除其他格子的选中状态
                         document.querySelectorAll('.grid-item').forEach(item => {
@@ -650,6 +698,24 @@
                         updateCurrentGridDisplay();
                     });
                     
+                    // 添加触摸事件
+                    gridItem.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        // 移除其他格子的选中状态
+                        document.querySelectorAll('.grid-item').forEach(item => {
+                            item.classList.remove('grid-active');
+                        });
+                        
+                        // 选中当前格子
+                        this.classList.add('grid-active');
+                        
+                        // 更新当前格子索引
+                        currentGridIndex = i;
+                        
+                        // 更新显示
+                        updateCurrentGridDisplay();
+                    }, { passive: false });
+                    
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
                     
@@ -662,12 +728,32 @@
                 updateCurrentGridDisplay();
             }
             
-            // 为画布添加绘图事件
+            // 为画布添加绘图事件（支持鼠标和触摸）
             function addDrawingEvents(canvas, gridIndex) {
                 const ctx = canvas.getContext('2d');
                 let points = [];
+                let isDrawing = false;
                 
-                canvas.addEventListener('mousedown', function(e) {
+                // 获取触摸点坐标
+                function getTouchPos(touchEvent) {
+                    const rect = canvas.getBoundingClientRect();
+                    return {
+                        x: touchEvent.touches[0].clientX - rect.left,
+                        y: touchEvent.touches[0].clientY - rect.top
+                    };
+                }
+                
+                // 获取鼠标坐标
+                function getMousePos(mouseEvent) {
+                    const rect = canvas.getBoundingClientRect();
+                    return {
+                        x: mouseEvent.clientX - rect.left,
+                        y: mouseEvent.clientY - rect.top
+                    };
+                }
+                
+                // 开始绘制
+                function startDrawing(pos) {
                     if (!canvas.parentElement.classList.contains('grid-active')) {
                         // 如果这个格子没有被选中，先选中它
                         document.querySelectorAll('.grid-item').forEach(item => {
@@ -680,30 +766,24 @@
                         updateCurrentGridDisplay();
                     }
                     
-                    const rect = canvas.getBoundingClientRect();
-                    const startX = e.clientX - rect.left;
-                    const startY = e.clientY - rect.top;
-                    
                     // 重置点数组
-                    points = [{x: startX, y: startY}];
+                    points = [{x: pos.x, y: pos.y}];
+                    isDrawing = true;
                     
                     // 开始绘制路径
                     ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                });
+                    ctx.moveTo(pos.x, pos.y);
+                }
                 
-                canvas.addEventListener('mousemove', function(e) {
-                    if (points.length === 0) return;
-                    
-                    const rect = canvas.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
+                // 继续绘制
+                function continueDrawing(pos) {
+                    if (!isDrawing) return;
                     
                     // 添加到点数组
-                    points.push({x, y});
+                    points.push({x: pos.x, y: pos.y});
                     
                     // 绘制临时线条
-                    ctx.lineTo(x, y);
+                    ctx.lineTo(pos.x, pos.y);
                     ctx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
                     ctx.lineWidth = 3;
                     ctx.lineCap = 'round';
@@ -712,10 +792,13 @@
                     
                     // 继续路径
                     ctx.beginPath();
-                    ctx.moveTo(x, y);
-                });
+                    ctx.moveTo(pos.x, pos.y);
+                }
                 
-                canvas.addEventListener('mouseup', function() {
+                // 结束绘制
+                function endDrawing() {
+                    if (!isDrawing) return;
+                    
                     if (points.length > 1) {
                         // 获取当前格子的颜色索引
                         const colorIdx = currentColorIndex[gridIndex];
@@ -751,45 +834,63 @@
                     }
                     
                     points = [];
+                    isDrawing = false;
+                }
+                
+                // 鼠标事件
+                canvas.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    startDrawing(getMousePos(e));
                 });
                 
-                canvas.addEventListener('mouseleave', function() {
-                    if (points.length > 1) {
-                        // 获取当前格子的颜色索引
-                        const colorIdx = currentColorIndex[gridIndex];
-                        
-                        // 清除刚才绘制的临时线条
-                        const tempCtx = canvas.getContext('2d');
-                        tempCtx.clearRect(0, 0, canvas.width, canvas.height);
-                        
-                        // 重绘所有历史笔画
-                        const gridStrokes = strokesHistory[gridIndex] || [];
-                        gridStrokes.forEach(stroke => {
-                            drawCompleteStroke(tempCtx, stroke.points, stroke.colorIndex);
-                        });
-                        
-                        // 绘制当前笔画（带完整渐变）
-                        drawCompleteStroke(tempCtx, points, colorIdx);
-                        
-                        // 保存到历史记录
-                        strokesHistory[gridIndex] = [...gridStrokes, {
-                            gridIndex: gridIndex,
-                            colorIndex: colorIdx,
-                            points: [...points]
-                        }];
-                        
-                        // 更新笔画计数
-                        strokeCount[gridIndex] = (strokeCount[gridIndex] || 0) + 1;
-                        
-                        // 更新颜色索引（循环到下一个颜色）
-                        currentColorIndex[gridIndex] = (colorIdx + 1) % colorSequence.length;
-                        
-                        // 更新显示
-                        updateCurrentGridDisplay();
-                    }
-                    
-                    points = [];
+                canvas.addEventListener('mousemove', function(e) {
+                    e.preventDefault();
+                    continueDrawing(getMousePos(e));
                 });
+                
+                canvas.addEventListener('mouseup', function(e) {
+                    e.preventDefault();
+                    endDrawing();
+                });
+                
+                canvas.addEventListener('mouseleave', function(e) {
+                    e.preventDefault();
+                    endDrawing();
+                });
+                
+                // 触摸事件
+                canvas.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startDrawing(getTouchPos(e));
+                }, { passive: false });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    continueDrawing(getTouchPos(e));
+                }, { passive: false });
+                
+                canvas.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    endDrawing();
+                }, { passive: false });
+                
+                canvas.addEventListener('touchcancel', function(e) {
+                    e.preventDefault();
+                    endDrawing();
+                }, { passive: false });
+                
+                // 防止页面滚动
+                canvas.addEventListener('touchstart', function(e) {
+                    if (e.touches.length === 1) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                canvas.addEventListener('touchmove', function(e) {
+                    if (e.touches.length === 1) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
             }
             
             // 绘制完整的一笔（从深到浅渐变）
@@ -848,6 +949,17 @@
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
             }
+            
+            // 防止移动端页面缩放
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (e.scale !== 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         });
     </script>
 </body>
