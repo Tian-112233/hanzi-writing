@@ -67,7 +67,6 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
             position: relative;
             min-height: 650px;
-            overflow: hidden;
         }
 
         .control-group {
@@ -222,20 +221,26 @@
             border-radius: 8px;
             min-height: 600px;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 20px;
             padding: 20px;
             overflow: auto;
-            max-height: 650px;
+            max-height: 600px;
+        }
+
+        .grid-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
         }
 
         .grid-item {
             position: relative;
-            width: 100%;
+            width: 120px;
             height: 120px;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
         }
 
         .grid-background {
@@ -343,13 +348,16 @@
             }
             
             .board {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 15px;
                 padding: 15px;
                 max-height: 500px;
             }
             
+            .grid-wrapper {
+                gap: 15px;
+            }
+            
             .grid-item {
+                width: 100px;
                 height: 100px;
             }
             
@@ -364,12 +372,15 @@
         
         @media (max-width: 480px) {
             .board {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-                gap: 12px;
                 padding: 12px;
             }
             
+            .grid-wrapper {
+                gap: 12px;
+            }
+            
             .grid-item {
+                width: 90px;
                 height: 90px;
             }
             
@@ -379,15 +390,28 @@
             }
         }
         
-        @media (max-width: 360px) {
-            .board {
-                grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-                gap: 10px;
-                padding: 10px;
-            }
-            
+        /* 在手机竖屏上每行显示2-3个格子 */
+        @media (max-width: 640px) {
             .grid-item {
-                height: 85px;
+                flex: 0 0 calc(33.333% - 20px);
+                max-width: calc(33.333% - 20px);
+                width: auto;
+                height: auto;
+                aspect-ratio: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-item {
+                flex: 0 0 calc(50% - 12px);
+                max-width: calc(50% - 12px);
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .grid-item {
+                flex: 0 0 calc(50% - 10px);
+                max-width: calc(50% - 10px);
             }
         }
     </style>
@@ -637,6 +661,11 @@
             // 生成指定数量的米字格
             function generateGrids(count) {
                 board.innerHTML = '';
+                
+                // 创建网格包装器
+                const gridWrapper = document.createElement('div');
+                gridWrapper.className = 'grid-wrapper';
+                
                 strokesHistory = {};
                 currentColorIndex = {};
                 strokeCount = {};
@@ -668,12 +697,9 @@
                     const canvas = document.createElement('canvas');
                     canvas.className = 'grid-canvas';
                     canvas.id = `grid-canvas-${i}`;
-                    canvas.width = 120;
-                    canvas.height = 120;
                     
-                    // 设置画布尺寸与实际显示尺寸一致
-                    canvas.style.width = '100%';
-                    canvas.style.height = '100%';
+                    // 根据屏幕大小动态设置画布尺寸
+                    setCanvasSize(canvas, gridItem);
                     
                     // 添加格子编号
                     const gridNumber = document.createElement('div');
@@ -704,8 +730,10 @@
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
                     
-                    board.appendChild(gridItem);
+                    gridWrapper.appendChild(gridItem);
                 }
+                
+                board.appendChild(gridWrapper);
                 
                 // 默认选中第一个格子
                 const firstGrid = document.querySelector('.grid-item');
@@ -714,6 +742,50 @@
                     currentGridIndex = 0;
                     updateCurrentGridDisplay();
                 }
+                
+                // 监听窗口大小变化，重新调整画布尺寸
+                window.addEventListener('resize', function() {
+                    const canvases = document.querySelectorAll('.grid-canvas');
+                    canvases.forEach((canvas, index) => {
+                        const gridItem = canvas.parentElement;
+                        setCanvasSize(canvas, gridItem);
+                        
+                        // 重新绘制已有笔画
+                        const ctx = canvas.getContext('2d');
+                        const gridStrokes = strokesHistory[index] || [];
+                        
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        gridStrokes.forEach(stroke => {
+                            // 重新缩放点坐标
+                            const scaledPoints = stroke.points.map(point => ({
+                                x: point.x * (canvas.width / 120), // 120是原始画布宽度
+                                y: point.y * (canvas.height / 120) // 120是原始画布高度
+                            }));
+                            drawCompleteStroke(ctx, scaledPoints, stroke.colorIndex);
+                        });
+                    });
+                });
+            }
+            
+            // 设置画布尺寸
+            function setCanvasSize(canvas, gridItem) {
+                // 获取格子实际显示尺寸
+                const rect = gridItem.getBoundingClientRect();
+                const displayWidth = Math.floor(rect.width);
+                const displayHeight = Math.floor(rect.height);
+                
+                // 设置画布显示尺寸
+                canvas.style.width = displayWidth + 'px';
+                canvas.style.height = displayHeight + 'px';
+                
+                // 设置画布内存尺寸（考虑设备像素比）
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = displayWidth * dpr;
+                canvas.height = displayHeight * dpr;
+                
+                // 缩放绘图上下文
+                const ctx = canvas.getContext('2d');
+                ctx.scale(dpr, dpr);
             }
             
             // 为画布添加绘图事件（支持鼠标和触摸）
@@ -725,8 +797,8 @@
                 // 获取触摸点坐标
                 function getTouchPos(touchEvent) {
                     const rect = canvas.getBoundingClientRect();
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
+                    const scaleX = canvas.width / (rect.width * window.devicePixelRatio);
+                    const scaleY = canvas.height / (rect.height * window.devicePixelRatio);
                     
                     return {
                         x: (touchEvent.touches[0].clientX - rect.left) * scaleX,
@@ -737,8 +809,8 @@
                 // 获取鼠标坐标
                 function getMousePos(mouseEvent) {
                     const rect = canvas.getBoundingClientRect();
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
+                    const scaleX = canvas.width / (rect.width * window.devicePixelRatio);
+                    const scaleY = canvas.height / (rect.height * window.devicePixelRatio);
                     
                     return {
                         x: (mouseEvent.clientX - rect.left) * scaleX,
@@ -941,22 +1013,6 @@
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
             }
-            
-            // 窗口大小变化时重新调整画布
-            window.addEventListener('resize', function() {
-                const canvases = document.querySelectorAll('.grid-canvas');
-                canvases.forEach(canvas => {
-                    const ctx = canvas.getContext('2d');
-                    const gridIndex = parseInt(canvas.id.split('-')[2]);
-                    const gridStrokes = strokesHistory[gridIndex] || [];
-                    
-                    // 清除并重新绘制
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    gridStrokes.forEach(stroke => {
-                        drawCompleteStroke(ctx, stroke.points, stroke.colorIndex);
-                    });
-                });
-            });
         });
     </script>
 </body>
