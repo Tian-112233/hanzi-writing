@@ -429,23 +429,23 @@
                     <h2>颜色顺序</h2>
                     <div class="color-sequence">
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #ff0000;"></div>
+                            <div class="color-box" style="background-color: #cc0000;"></div>
                             <span class="color-label">红色</span>
                         </div>
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #ff8000;"></div>
+                            <div class="color-box" style="background-color: #cc6600;"></div>
                             <span class="color-label">橙色</span>
                         </div>
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #ffff00;"></div>
-                            <span class="color-label">黄色</span>
+                            <div class="color-box" style="background-color: #009900;"></div>
+                            <span class="color-label">绿色</span>
                         </div>
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #0080ff;"></div>
+                            <div class="color-box" style="background-color: #0033cc;"></div>
                             <span class="color-label">蓝色</span>
                         </div>
                         <div class="color-item">
-                            <div class="color-box" style="background-color: #8000ff;"></div>
+                            <div class="color-box" style="background-color: #6600cc;"></div>
                             <span class="color-label">紫色</span>
                         </div>
                     </div>
@@ -493,7 +493,7 @@
                         <ul>
                             <li>点击"生成米字格"按钮创建指定数量的格子</li>
                             <li>在米字格中用手指或鼠标书写汉字</li>
-                            <li>每笔按红→橙→黄→蓝→紫的顺序循环变色</li>
+                            <li>每笔按红→橙→绿→蓝→紫的顺序循环变色</li>
                             <li><strong>每笔都是完整的从深到浅渐变</strong></li>
                             <li>在新格子写字时颜色从红色重新开始</li>
                             <li><strong>撤销功能只针对当前选中的格子</strong></li>
@@ -520,7 +520,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 定义颜色序列 - 每色包含深色和浅色
+            // 定义颜色序列 - 每色包含深色和浅色（红、橙、绿、蓝、紫）
             const colorSequence = [
                 { 
                     name: '红色', 
@@ -529,23 +529,23 @@
                 },
                 { 
                     name: '橙色', 
-                    start: '#cc6600', 
-                    end: '#ffcc66' 
+                    start: '#cc6600',    // 深橙色
+                    end: '#ffcc66'       // 浅橙色
                 },
                 { 
-                    name: '黄色', 
-                    start: '#cc9900', 
-                    end: '#ffff66' 
+                    name: '绿色', 
+                    start: '#006600',    // 深绿色
+                    end: '#66cc66'       // 浅绿色
                 },
                 { 
                     name: '蓝色', 
-                    start: '#0033cc', 
-                    end: '#6699ff' 
+                    start: '#0033cc',    // 深蓝色
+                    end: '#6699ff'       // 浅蓝色
                 },
                 { 
                     name: '紫色', 
-                    start: '#6600cc', 
-                    end: '#cc66ff' 
+                    start: '#6600cc',    // 深紫色
+                    end: '#cc66ff'       // 浅紫色
                 }
             ];
             
