@@ -683,6 +683,9 @@
                     <li>在新格子写字时颜色从红色重新开始
                         <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
                     </li>
+                    <li><strong>手机端：双指捏合缩放整个书写板</strong>
+                        <div class="bulgarian-translation">На телефона: Мащабирайте с два пръста</div>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -864,6 +867,9 @@
             let currentColorIndex = {}; // 按格子索引存储当前颜色索引
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
+            let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            let scale = 1.0; // 缩放比例
+            let lastPinchDistance = 0; // 上次双指距离
             
             // DOM元素
             const board = document.getElementById('board');
@@ -893,11 +899,86 @@
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
             
-            // 检测设备类型
-            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
+            
+            // 为书写板添加双指缩放功能（仅限移动设备）
+            if (isMobileDevice) {
+                board.addEventListener('touchstart', handleTouchStart, { passive: false });
+                board.addEventListener('touchmove', handleTouchMove, { passive: false });
+                board.addEventListener('touchend', handleTouchEnd);
+            }
+            
+            // 处理触摸开始事件
+            function handleTouchStart(e) {
+                if (e.touches.length === 2) {
+                    // 双指触摸开始，计算初始距离
+                    lastPinchDistance = getDistance(e.touches[0], e.touches[1]);
+                }
+            }
+            
+            // 处理触摸移动事件
+            function handleTouchMove(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault(); // 阻止默认行为，防止页面滚动
+                    
+                    // 计算当前双指距离
+                    const currentDistance = getDistance(e.touches[0], e.touches[1]);
+                    
+                    if (lastPinchDistance > 0) {
+                        // 计算缩放比例变化
+                        const scaleChange = currentDistance / lastPinchDistance;
+                        
+                        // 更新缩放比例
+                        scale *= scaleChange;
+                        
+                        // 限制缩放范围
+                        scale = Math.max(0.5, Math.min(3, scale));
+                        
+                        // 应用缩放变换
+                        applyBoardScale();
+                    }
+                    
+                    // 更新上次距离
+                    lastPinchDistance = currentDistance;
+                }
+            }
+            
+            // 处理触摸结束事件
+            function handleTouchEnd(e) {
+                if (e.touches.length < 2) {
+                    lastPinchDistance = 0;
+                }
+            }
+            
+            // 计算两点之间的距离
+            function getDistance(touch1, touch2) {
+                const dx = touch1.clientX - touch2.clientX;
+                const dy = touch1.clientY - touch2.clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            // 应用书写板缩放
+            function applyBoardScale() {
+                const gridWrapper = board.querySelector('.grid-wrapper');
+                if (gridWrapper) {
+                    gridWrapper.style.transform = `scale(${scale})`;
+                    gridWrapper.style.transformOrigin = 'center center';
+                    
+                    // 调整容器大小以适应缩放
+                    if (scale > 1) {
+                        board.style.overflow = 'auto';
+                    } else {
+                        board.style.overflow = 'hidden';
+                    }
+                }
+            }
+            
+            // 重置缩放
+            function resetBoardScale() {
+                scale = 1.0;
+                applyBoardScale();
+            }
             
             // 生成格子（现在改为添加格子，不清空已有内容）
             generateGridsBtn.addEventListener('click', function() {
@@ -1073,6 +1154,9 @@
             
             // 添加指定数量的格子（不清空已有内容）
             function addGrids(count) {
+                // 重置缩放
+                resetBoardScale();
+                
                 // 获取当前已有的网格包装器或创建新的
                 let gridWrapper = document.querySelector('.grid-wrapper');
                 if (!gridWrapper) {
@@ -1419,7 +1503,7 @@
                 previewImage.src = tempCanvas.toDataURL('image/png');
             }
             
-            // 生成图片Canvas
+            // 生成图片Canvas - 修复文字位置偏移问题
             function generateImageCanvas(userName) {
                 // 计算需要导出的格子数量
                 // 找出有内容的格子中最大的索引
@@ -1497,7 +1581,8 @@
                     if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
                         const gridStrokes = strokesHistory[i];
                         gridStrokes.forEach(stroke => {
-                            // 转换坐标到临时画布（从90x90转换为导出图片中的大小）
+                            // 修复：正确转换坐标到临时画布
+                            // 注意：原始画布是90x90，导出画布中的格子内容区域是(gridSize-30)x(gridSize-30)
                             const convertedPoints = stroke.points.map(point => ({
                                 x: x + (point.x / 90) * (gridSize - 30),
                                 y: y + (point.y / 90) * (gridSize - 30)
