@@ -315,17 +315,16 @@
             padding: 15px;
             overflow: auto;
             max-height: 500px;
-            position: relative;
         }
 
-        /* 关键修改：网格布局 */
+        /* 关键修改：手机上也保持每行3个格子 */
         .grid-wrapper {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             justify-items: center;
             width: 100%;
-            min-width: 300px; /* 确保有足够的最小宽度 */
+            max-width: 360px; /* 手机上的最大宽度 */
             margin: 0 auto;
         }
 
@@ -333,7 +332,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
         }
 
         /* 手机上的格子大小调整 */
@@ -344,23 +342,6 @@
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             flex-shrink: 0;
-            transition: transform 0.1s ease;
-            touch-action: none;
-        }
-
-        /* 放大状态的格子 */
-        .grid-item.zoomed {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1.8);
-            width: 90px;
-            height: 90px;
-            z-index: 2000;
-            border: 3px solid #f0d26e;
-            box-shadow: 0 0 30px rgba(240, 210, 110, 0.5);
-            border-radius: 8px;
-            background-color: rgba(10, 41, 18, 0.95);
         }
 
         .grid-background {
@@ -438,22 +419,6 @@
         .grid-active + .grid-label {
             color: #f0d26e;
             font-weight: bold;
-        }
-
-        /* 放大遮罩 */
-        .zoom-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            z-index: 1999;
-            display: none;
-        }
-
-        .zoom-overlay.active {
-            display: block;
         }
 
         /* 模态框样式 */
@@ -628,7 +593,7 @@
             
             .grid-wrapper {
                 gap: 25px;
-                min-width: 480px; /* 平板上最小宽度 */
+                max-width: 480px; /* 平板上稍大一些 */
             }
             
             .grid-item {
@@ -639,18 +604,12 @@
             .board {
                 max-height: 600px;
             }
-            
-            .grid-item.zoomed {
-                width: 110px;
-                height: 110px;
-                transform: translate(-50%, -50%) scale(2);
-            }
         }
 
         @media (min-width: 1024px) {
             .grid-wrapper {
                 gap: 30px;
-                min-width: 540px; /* 电脑上最小宽度 */
+                max-width: 540px; /* 电脑上最大宽度 */
             }
             
             .grid-item {
@@ -665,19 +624,13 @@
             .preview-image {
                 max-height: 250px;
             }
-            
-            .grid-item.zoomed {
-                width: 120px;
-                height: 120px;
-                transform: translate(-50%, -50%) scale(2);
-            }
         }
 
         /* 超小屏幕设备（非常小的手机） */
         @media (max-width: 360px) {
             .grid-wrapper {
                 gap: 10px;
-                min-width: 300px;
+                max-width: 300px;
             }
             
             .grid-item {
@@ -707,32 +660,6 @@
             .modal-buttons .button {
                 width: 100%;
             }
-            
-            .grid-item.zoomed {
-                width: 85px;
-                height: 85px;
-                transform: translate(-50%, -50%) scale(1.8);
-            }
-        }
-        
-        /* 双指缩放提示 */
-        .pinch-hint {
-            position: absolute;
-            bottom: 10px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.8rem;
-            z-index: 2001;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 5px;
-            border-radius: 4px;
-            display: none;
-        }
-        
-        .pinch-hint.active {
-            display: block;
         }
     </style>
 </head>
@@ -755,9 +682,6 @@
                     </li>
                     <li>在新格子写字时颜色从红色重新开始
                         <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
-                    </li>
-                    <li><strong>手机端：双击格子可放大，双指可缩放放大的格子</strong>
-                        <div class="bulgarian-translation">На телефона: Натиснете двукратно върху клетка, за да я увеличите, и мащабирайте с два пръста</div>
                     </li>
                 </ul>
             </div>
@@ -862,9 +786,6 @@
             </div>
         </div>
         
-        <!-- 放大遮罩 -->
-        <div class="zoom-overlay" id="zoomOverlay"></div>
-        
         <!-- 导出模态框 -->
         <div class="modal" id="exportModal">
             <div class="modal-content">
@@ -943,9 +864,6 @@
             let currentColorIndex = {}; // 按格子索引存储当前颜色索引
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
-            let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            let zoomedGrid = null; // 当前放大的格子
-            let zoomTransform = { scale: 1.8 }; // 放大格子的变换参数
             
             // DOM元素
             const board = document.getElementById('board');
@@ -967,7 +885,6 @@
             const nextColorNameBg = document.getElementById('nextColorNameBg');
             const currentGridTotal = document.getElementById('currentGridTotal');
             const currentGridTotalBg = document.getElementById('currentGridTotalBg');
-            const zoomOverlay = document.getElementById('zoomOverlay');
             
             // 模态框元素
             const exportModal = document.getElementById('exportModal');
@@ -975,6 +892,9 @@
             const cancelExportBtn = document.getElementById('cancelExport');
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
+            
+            // 检测设备类型
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
@@ -1226,12 +1146,7 @@
                     gridContainer.appendChild(gridLabel);
                     
                     // 添加点击/触摸选中事件
-                    gridItem.addEventListener('click', function(e) {
-                        // 如果格子已放大，则不处理选中事件
-                        if (this.classList.contains('zoomed')) return;
-                        
-                        e.stopPropagation();
-                        
+                    gridItem.addEventListener('click', function() {
                         // 移除其他格子的选中状态
                         document.querySelectorAll('.grid-item').forEach(item => {
                             item.classList.remove('grid-active');
@@ -1258,32 +1173,6 @@
                         updateCurrentGridDisplay();
                     });
                     
-                    // 添加双击放大事件（移动设备）
-                    if (isMobileDevice) {
-                        let lastTap = 0;
-                        
-                        gridItem.addEventListener('touchstart', function(e) {
-                            if (e.touches.length === 1) {
-                                const currentTime = new Date().getTime();
-                                const tapLength = currentTime - lastTap;
-                                
-                                if (tapLength < 500 && tapLength > 0) {
-                                    // 双击事件
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    
-                                    if (this.classList.contains('zoomed')) {
-                                        closeZoomedGrid();
-                                    } else {
-                                        zoomGrid(i);
-                                    }
-                                }
-                                
-                                lastTap = currentTime;
-                            }
-                        });
-                    }
-                    
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
                     
@@ -1309,131 +1198,6 @@
                     currentGridIndex = 0;
                     updateCurrentGridDisplay();
                 }
-                
-                // 确保可以滚动查看所有格子
-                updateBoardScrollability();
-            }
-            
-            // 更新书写板的滚动能力
-            function updateBoardScrollability() {
-                // 计算需要的总行数
-                const rows = Math.ceil(totalGrids / 3);
-                
-                // 根据行数调整最大高度
-                if (rows > 3) {
-                    // 超过3行时启用滚动
-                    board.style.overflow = 'auto';
-                    board.style.maxHeight = '500px';
-                } else {
-                    // 3行以内时固定高度
-                    board.style.overflow = 'hidden';
-                    board.style.maxHeight = 'none';
-                }
-            }
-            
-            // 放大格子函数
-            function zoomGrid(gridIndex) {
-                // 如果已经有格子放大，先关闭
-                if (zoomedGrid) {
-                    closeZoomedGrid();
-                }
-                
-                // 获取要放大的格子
-                const gridItem = document.querySelector(`.grid-item[data-index="${gridIndex}"]`);
-                if (!gridItem) return;
-                
-                // 保存当前放大格子
-                zoomedGrid = gridItem;
-                
-                // 添加放大样式和遮罩
-                gridItem.classList.add('zoomed');
-                zoomOverlay.classList.add('active');
-                
-                // 添加双指缩放提示
-                if (isMobileDevice) {
-                    const pinchHint = document.createElement('div');
-                    pinchHint.className = 'pinch-hint active';
-                    pinchHint.innerHTML = '双指缩放 | Мащабиране с два пръста';
-                    gridItem.appendChild(pinchHint);
-                    
-                    // 5秒后隐藏提示
-                    setTimeout(() => {
-                        pinchHint.classList.remove('active');
-                    }, 5000);
-                }
-                
-                // 添加放大格子的触摸事件
-                addZoomedGridTouchEvents(gridItem);
-                
-                // 添加遮罩点击事件（关闭放大）
-                zoomOverlay.addEventListener('click', closeZoomedGrid);
-            }
-            
-            // 关闭放大格子
-            function closeZoomedGrid() {
-                if (!zoomedGrid) return;
-                
-                // 移除放大样式
-                zoomedGrid.classList.remove('zoomed');
-                zoomOverlay.classList.remove('active');
-                
-                // 移除遮罩事件
-                zoomOverlay.removeEventListener('click', closeZoomedGrid);
-                
-                // 清除提示
-                const pinchHint = zoomedGrid.querySelector('.pinch-hint');
-                if (pinchHint) {
-                    pinchHint.remove();
-                }
-                
-                zoomedGrid = null;
-                zoomTransform = { scale: 1.8 };
-            }
-            
-            // 为放大格子添加触摸事件
-            function addZoomedGridTouchEvents(gridItem) {
-                let initialDistance = 0;
-                let isZooming = false;
-                
-                gridItem.addEventListener('touchstart', function(e) {
-                    if (e.touches.length === 2) {
-                        isZooming = true;
-                        initialDistance = getDistance(e.touches[0], e.touches[1]);
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-                
-                gridItem.addEventListener('touchmove', function(e) {
-                    if (isZooming && e.touches.length === 2) {
-                        const currentDistance = getDistance(e.touches[0], e.touches[1]);
-                        const scaleChange = currentDistance / initialDistance;
-                        
-                        // 更新缩放比例
-                        zoomTransform.scale *= scaleChange;
-                        zoomTransform.scale = Math.max(1, Math.min(3, zoomTransform.scale)); // 限制缩放范围
-                        
-                        // 应用缩放
-                        gridItem.style.transform = `translate(-50%, -50%) scale(${zoomTransform.scale})`;
-                        
-                        // 更新起始距离
-                        initialDistance = currentDistance;
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-                
-                gridItem.addEventListener('touchend', function(e) {
-                    if (e.touches.length < 2) {
-                        isZooming = false;
-                        initialDistance = 0;
-                    }
-                });
-            }
-            
-            // 计算两点之间的距离
-            function getDistance(touch1, touch2) {
-                const dx = touch1.clientX - touch2.clientX;
-                const dy = touch1.clientY - touch2.clientY;
-                return Math.sqrt(dx * dx + dy * dy);
             }
             
             // 为画布添加绘图事件（支持鼠标和触摸）
@@ -1442,7 +1206,7 @@
                 let points = [];
                 let isDrawing = false;
                 
-                // 获取坐标
+                // 获取坐标（简化版）
                 function getPos(event) {
                     const rect = canvas.getBoundingClientRect();
                     let x, y;
@@ -1467,10 +1231,7 @@
                 
                 // 开始绘制
                 function startDrawing(pos) {
-                    if (canvas.closest('.grid-item').classList.contains('zoomed')) {
-                        // 在放大状态下，阻止默认的选中行为
-                        event.preventDefault();
-                    } else if (!canvas.closest('.grid-item').classList.contains('grid-active')) {
+                    if (!canvas.parentElement.classList.contains('grid-active')) {
                         // 如果这个格子没有被选中，先选中它
                         document.querySelectorAll('.grid-item').forEach(item => {
                             item.classList.remove('grid-active');
@@ -1482,7 +1243,7 @@
                             label.style.fontWeight = 'normal';
                         });
                         
-                        canvas.closest('.grid-item').classList.add('grid-active');
+                        canvas.parentElement.classList.add('grid-active');
                         
                         // 高亮当前格子标签
                         const label = document.getElementById(`grid-label-${gridIndex}`);
@@ -1515,7 +1276,7 @@
                     // 绘制临时线条
                     ctx.lineTo(pos.x, pos.y);
                     ctx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 2; // 手机上线条稍细一些
                     ctx.lineCap = 'round';
                     ctx.lineJoin = 'round';
                     ctx.stroke();
@@ -1591,9 +1352,10 @@
                     }
                 });
                 
-                // 触摸事件
+                // 触摸事件 - 为手机优化
                 canvas.addEventListener('touchstart', function(e) {
                     if (e.touches.length === 1) {
+                        // 防止页面滚动
                         e.stopPropagation();
                         startDrawing(getPos(e));
                     }
@@ -1601,6 +1363,7 @@
                 
                 canvas.addEventListener('touchmove', function(e) {
                     if (isDrawing && e.touches.length === 1) {
+                        // 仅在绘图时阻止页面滚动
                         e.preventDefault();
                         continueDrawing(getPos(e));
                     }
@@ -1644,7 +1407,7 @@
                 }
                 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 2; // 手机上线条稍细一些
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
@@ -1656,9 +1419,10 @@
                 previewImage.src = tempCanvas.toDataURL('image/png');
             }
             
-            // 生成图片Canvas - 修复导出图片文字偏移问题
+            // 生成图片Canvas
             function generateImageCanvas(userName) {
                 // 计算需要导出的格子数量
+                // 找出有内容的格子中最大的索引
                 let maxUsedGridIndex = -1;
                 for (let i = 0; i < totalGrids; i++) {
                     if (strokesHistory[i] && strokesHistory[i].length > 0) {
@@ -1674,16 +1438,17 @@
                 let rows = Math.ceil(gridsToExport / maxCols);
                 
                 // 如果最后一个格子所在的行不是完整的，也导出完整的空行
+                // 例如：使用了第10个格子（第4行第1个），需要导出4行完整的格子（共12个）
                 const lastRowIndex = Math.floor(maxUsedGridIndex / maxCols);
-                if (lastRowIndex >= 3) {
+                if (lastRowIndex >= 3) { // 如果是第4行或更多
                     rows = Math.max(3, lastRowIndex + 1);
                     gridsToExport = rows * maxCols;
                 }
                 
-                // 计算画布大小 - 关键修复：使用更精确的计算
-                const gridSize = 120;
-                const padding = 30;
-                const infoHeight = 80;
+                // 计算画布大小 - 根据实际格子大小调整
+                const gridSize = 120; // 导出图片中每个格子的大小（包含边距）
+                const padding = 30; // 内边距
+                const infoHeight = 80; // 底部信息区域高度
                 
                 const canvasWidth = maxCols * gridSize + padding * 2;
                 const canvasHeight = rows * gridSize + padding * 2 + infoHeight;
@@ -1722,7 +1487,7 @@
                     tempCtx.lineWidth = 1;
                     tempCtx.strokeRect(x - 1, y - 1, gridSize - 13, gridSize - 13);
                     
-                    // 绘制格子编号
+                    // 绘制格子编号（在图片中放在格子下方）- 现在只显示数字
                     tempCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                     tempCtx.font = 'bold 14px Microsoft YaHei';
                     tempCtx.textAlign = 'center';
@@ -1732,15 +1497,10 @@
                     if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
                         const gridStrokes = strokesHistory[i];
                         gridStrokes.forEach(stroke => {
-                            // 修复：使用正确的坐标转换公式
-                            // 原始画布是90x90，导出画布中的有效绘制区域是(gridSize-30)x(gridSize-30)
-                            const scale = (gridSize - 30) / 90;
-                            const offsetX = 15; // 格子内边距
-                            const offsetY = 15;
-                            
+                            // 转换坐标到临时画布（从90x90转换为导出图片中的大小）
                             const convertedPoints = stroke.points.map(point => ({
-                                x: x + offsetX + point.x * scale,
-                                y: y + offsetY + point.y * scale
+                                x: x + (point.x / 90) * (gridSize - 30),
+                                y: y + (point.y / 90) * (gridSize - 30)
                             }));
                             
                             // 绘制笔画
@@ -1780,20 +1540,21 @@
                 return tempCanvas;
             }
             
-            // 绘制导出图片中的笔画
+            // 绘制导出图片中的笔画（线条稍粗一些）
             function drawExportStroke(ctx, points, colorIndex) {
                 if (points.length < 2) return;
                 
                 const color = colorSequence[colorIndex];
                 
-                // 创建线性渐变
+                // 创建线性渐变（从起点到终点）
                 const gradient = ctx.createLinearGradient(
                     points[0].x, points[0].y,
                     points[points.length-1].x, points[points.length-1].y
                 );
                 
-                gradient.addColorStop(0, color.start);
-                gradient.addColorStop(1, color.end);
+                // 设置渐变颜色
+                gradient.addColorStop(0, color.start);  // 起点深色
+                gradient.addColorStop(1, color.end);    // 终点浅色
                 
                 // 绘制路径
                 ctx.beginPath();
@@ -1804,7 +1565,7 @@
                 }
                 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 3; // 导出图片中线条稍粗
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
@@ -1814,13 +1575,16 @@
             function drawGridBackground(ctx, width, height) {
                 const gridSize = 60;
                 
+                // 径向渐变背景
                 for (let y = 0; y < height; y += gridSize) {
                     for (let x = 0; x < width; x += gridSize) {
+                        // 左上角点
                         ctx.fillStyle = 'rgba(20, 80, 30, 0.2)';
                         ctx.beginPath();
                         ctx.arc(x + gridSize * 0.25, y + gridSize * 0.25, 2, 0, Math.PI * 2);
                         ctx.fill();
                         
+                        // 右下角点
                         ctx.beginPath();
                         ctx.arc(x + gridSize * 0.75, y + gridSize * 0.75, 2, 0, Math.PI * 2);
                         ctx.fill();
@@ -1875,14 +1639,14 @@
                 
                 // 更新显示
                 currentGridNumber.textContent = currentGridIndex + 1;
-                currentGridNumberBg.textContent = currentGridIndex + 1;
+                currentGridNumberBg.textContent = currentGridIndex + 1; // 更新保加利亚语数字
                 currentGridStrokeCount.textContent = currentStrokesCount;
-                currentGridStrokeCountBg.textContent = currentStrokesCount;
+                currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
                 currentColorBox.style.backgroundColor = displayColor.start;
                 currentColorName.textContent = displayColor.nameZh;
-                currentColorNameBg.textContent = displayColor.nameBg;
+                currentColorNameBg.textContent = displayColor.nameBg; // 更新保加利亚语颜色名
                 nextColorName.textContent = nextColor.nameZh;
-                nextColorNameBg.textContent = nextColor.nameBg;
+                nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
                 
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
