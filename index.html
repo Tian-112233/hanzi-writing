@@ -891,8 +891,9 @@
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
             
-            // 新增：为每个格子存储缩放和平移状态
-            let gridTransforms = {}; // 存储每个格子的变换状态 {scale, translateX, translateY}
+            // 新增：为每个格子存储缩放状态
+            let gridTransforms = {}; // 存储每个格子的变换状态 {scale, offsetX, offsetY}
+            let originalGridSize = { width: 90, height: 90 }; // 原始格子大小
             
             // DOM元素
             const board = document.getElementById('board');
@@ -1023,7 +1024,6 @@
                 if (activeGrid) {
                     const gridIndex = parseInt(activeGrid.dataset.index);
                     resetGridTransform(gridIndex);
-                    redrawGrid(gridIndex);
                     updateZoomIndicator(gridIndex, 1); // 隐藏缩放指示器
                 }
             });
@@ -1142,7 +1142,7 @@
                     strokesHistory[i] = strokesHistory[i] || [];
                     currentColorIndex[i] = currentColorIndex[i] || 0;
                     strokeCount[i] = strokeCount[i] || 0;
-                    gridTransforms[i] = gridTransforms[i] || { scale: 1, translateX: 0, translateY: 0 };
+                    gridTransforms[i] = gridTransforms[i] || { scale: 1, offsetX: 0, offsetY: 0 };
                     
                     // 创建格子容器
                     const gridContainer = document.createElement('div');
@@ -1157,6 +1157,7 @@
                     const gridItem = document.createElement('div');
                     gridItem.className = 'grid-item';
                     gridItem.dataset.index = i;
+                    gridItem.id = `grid-item-${i}`;
                     
                     // 添加格子背景
                     const gridBackground = document.createElement('div');
@@ -1260,9 +1261,10 @@
                 let points = [];
                 let isDrawing = false;
                 
-                // 获取坐标（考虑缩放和平移）
+                // 获取坐标（考虑缩放）
                 function getPos(event) {
-                    const rect = canvas.getBoundingClientRect();
+                    const gridItem = canvas.parentElement;
+                    const rect = gridItem.getBoundingClientRect();
                     let x, y;
                     
                     if (event.type.includes('touch')) {
@@ -1273,15 +1275,21 @@
                         y = event.clientY - rect.top;
                     }
                     
-                    // 转换为画布坐标（考虑缩放和平移）
-                    const transform = gridTransforms[gridIndex] || { scale: 1, translateX: 0, translateY: 0 };
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
+                    // 获取当前缩放状态
+                    const transform = gridTransforms[gridIndex] || { scale: 1, offsetX: 0, offsetY: 0 };
                     
-                    // 应用逆变换：先减去平移，再除以缩放
+                    // 转换为画布坐标（考虑缩放）
+                    const scale = transform.scale;
+                    const scaleX = canvas.width / (originalGridSize.width * scale);
+                    const scaleY = canvas.height / (originalGridSize.height * scale);
+                    
+                    // 考虑偏移量
+                    const offsetX = transform.offsetX * scale;
+                    const offsetY = transform.offsetY * scale;
+                    
                     return {
-                        x: (x * scaleX - transform.translateX) / transform.scale,
-                        y: (y * scaleY - transform.translateY) / transform.scale
+                        x: (x - offsetX) * scaleX,
+                        y: (y - offsetY) * scaleY
                     };
                 }
                 
@@ -1318,31 +1326,9 @@
                     points = [{x: pos.x, y: pos.y}];
                     isDrawing = true;
                     
-                    // 开始绘制路径（使用临时画布）
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = canvas.height;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    
-                    // 应用当前变换
-                    const transform = gridTransforms[gridIndex] || { scale: 1, translateX: 0, translateY: 0 };
-                    tempCtx.save();
-                    tempCtx.translate(transform.translateX, transform.translateY);
-                    tempCtx.scale(transform.scale, transform.scale);
-                    
-                    // 绘制临时线条
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(pos.x, pos.y);
-                    tempCtx.lineTo(pos.x, pos.y);
-                    tempCtx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
-                    tempCtx.lineWidth = 2 / transform.scale; // 根据缩放调整线条宽度
-                    tempCtx.lineCap = 'round';
-                    tempCtx.lineJoin = 'round';
-                    tempCtx.stroke();
-                    tempCtx.restore();
-                    
-                    // 将临时绘制的内容合并到主画布
-                    ctx.drawImage(tempCanvas, 0, 0);
+                    // 开始绘制路径
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
                 }
                 
                 // 继续绘制
@@ -1352,34 +1338,17 @@
                     // 添加到点数组
                     points.push({x: pos.x, y: pos.y});
                     
-                    // 获取上一个点
-                    const prevPoint = points[points.length - 2];
-                    
-                    // 创建临时画布用于绘制
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = canvas.height;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    
-                    // 应用当前变换
-                    const transform = gridTransforms[gridIndex] || { scale: 1, translateX: 0, translateY: 0 };
-                    tempCtx.save();
-                    tempCtx.translate(transform.translateX, transform.translateY);
-                    tempCtx.scale(transform.scale, transform.scale);
-                    
                     // 绘制临时线条
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(prevPoint.x, prevPoint.y);
-                    tempCtx.lineTo(pos.x, pos.y);
-                    tempCtx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
-                    tempCtx.lineWidth = 2 / transform.scale; // 根据缩放调整线条宽度
-                    tempCtx.lineCap = 'round';
-                    tempCtx.lineJoin = 'round';
-                    tempCtx.stroke();
-                    tempCtx.restore();
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
+                    ctx.lineWidth = 2; // 固定线条宽度，不随缩放变化
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.stroke();
                     
-                    // 将临时绘制的内容合并到主画布
-                    ctx.drawImage(tempCanvas, 0, 0);
+                    // 继续路径
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x, pos.y);
                 }
                 
                 // 结束绘制
@@ -1404,7 +1373,7 @@
                         // 更新颜色索引（循环到下一个颜色）
                         currentColorIndex[gridIndex] = (colorIdx + 1) % colorSequence.length;
                         
-                        // 重新绘制整个格子（确保笔画正确应用变换）
+                        // 重新绘制整个格子（确保笔画正确）
                         redrawGrid(gridIndex);
                         
                         // 更新显示
@@ -1469,10 +1438,10 @@
                 });
             }
             
-            // 添加双指缩放事件
+            // 添加双指缩放事件（缩放整个格子）
             function addPinchZoomEvents(gridItem, canvas, gridIndex) {
                 let initialDistance = null;
-                let initialTransform = null;
+                let initialScale = null;
                 let initialCenter = null;
                 let isPinching = false;
                 
@@ -1490,21 +1459,15 @@
                             touch2.clientY - touch1.clientY
                         );
                         
-                        // 计算中心点（相对于画布）
-                        const rect = canvas.getBoundingClientRect();
+                        // 计算中心点（相对于grid-item）
+                        const rect = gridItem.getBoundingClientRect();
                         const centerX = (touch1.clientX + touch2.clientX) / 2 - rect.left;
                         const centerY = (touch1.clientY + touch2.clientY) / 2 - rect.top;
                         
-                        // 转换为画布坐标
-                        const scaleX = canvas.width / rect.width;
-                        const scaleY = canvas.height / rect.height;
-                        initialCenter = {
-                            x: centerX * scaleX,
-                            y: centerY * scaleY
-                        };
+                        initialCenter = { x: centerX, y: centerY };
                         
-                        // 保存初始变换状态
-                        initialTransform = { ...gridTransforms[gridIndex] };
+                        // 保存初始缩放状态
+                        initialScale = (gridTransforms[gridIndex] || { scale: 1 }).scale;
                         isPinching = true;
                         
                         // 确保这个格子被选中
@@ -1546,39 +1509,27 @@
                         
                         // 计算缩放比例
                         const scaleChange = currentDistance / initialDistance;
-                        const newScale = Math.max(0.5, Math.min(3, initialTransform.scale * scaleChange));
+                        const newScale = Math.max(0.5, Math.min(3, initialScale * scaleChange));
                         
-                        // 计算中心点移动
-                        const rect = canvas.getBoundingClientRect();
+                        // 计算当前中心点
+                        const rect = gridItem.getBoundingClientRect();
                         const currentCenterX = (touch1.clientX + touch2.clientX) / 2 - rect.left;
                         const currentCenterY = (touch1.clientY + touch2.clientY) / 2 - rect.top;
                         
-                        // 转换为画布坐标
-                        const scaleX = canvas.width / rect.width;
-                        const scaleY = canvas.height / rect.height;
-                        const currentCenter = {
-                            x: currentCenterX * scaleX,
-                            y: currentCenterY * scaleY
-                        };
+                        // 计算偏移量：基于中心点的变化
+                        // 当缩放时，我们希望以双指中心为缩放中心
+                        const offsetX = (currentCenterX - initialCenter.x) + (initialCenter.x * (newScale - initialScale));
+                        const offsetY = (currentCenterY - initialCenter.y) + (initialCenter.y * (newScale - initialScale));
                         
-                        // 计算平移：基于缩放中心的变化
-                        const translateX = initialTransform.translateX + 
-                            (currentCenter.x - initialCenter.x) - 
-                            (initialCenter.x - initialTransform.translateX) * (newScale / initialTransform.scale - 1);
-                        
-                        const translateY = initialTransform.translateY + 
-                            (currentCenter.y - initialCenter.y) - 
-                            (initialCenter.y - initialTransform.translateY) * (newScale / initialTransform.scale - 1);
-                        
-                        // 应用变换
+                        // 更新变换状态
                         gridTransforms[gridIndex] = {
                             scale: newScale,
-                            translateX: translateX,
-                            translateY: translateY
+                            offsetX: offsetX,
+                            offsetY: offsetY
                         };
                         
-                        // 重新绘制格子
-                        redrawGrid(gridIndex);
+                        // 应用变换到grid-item
+                        applyGridTransform(gridItem, gridIndex);
                         
                         // 更新缩放指示器
                         updateZoomIndicator(gridIndex, newScale);
@@ -1589,7 +1540,7 @@
                     if (isPinching) {
                         isPinching = false;
                         initialDistance = null;
-                        initialTransform = null;
+                        initialScale = null;
                         initialCenter = null;
                     }
                 });
@@ -1598,10 +1549,25 @@
                     if (isPinching) {
                         isPinching = false;
                         initialDistance = null;
-                        initialTransform = null;
+                        initialScale = null;
                         initialCenter = null;
                     }
                 });
+            }
+            
+            // 应用格子变换
+            function applyGridTransform(gridItem, gridIndex) {
+                const transform = gridTransforms[gridIndex] || { scale: 1, offsetX: 0, offsetY: 0 };
+                
+                // 应用CSS变换
+                gridItem.style.transform = `translate(${transform.offsetX}px, ${transform.offsetY}px) scale(${transform.scale})`;
+                
+                // 更新z-index确保缩放后的格子在最前面
+                if (transform.scale !== 1) {
+                    gridItem.style.zIndex = '1000';
+                } else {
+                    gridItem.style.zIndex = '';
+                }
             }
             
             // 重新绘制指定格子的所有笔画
@@ -1611,26 +1577,18 @@
                 
                 const ctx = canvas.getContext('2d');
                 const gridStrokes = strokesHistory[gridIndex] || [];
-                const transform = gridTransforms[gridIndex] || { scale: 1, translateX: 0, translateY: 0 };
                 
                 // 清除画布
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // 应用变换
-                ctx.save();
-                ctx.translate(transform.translateX, transform.translateY);
-                ctx.scale(transform.scale, transform.scale);
-                
                 // 绘制所有笔画
                 gridStrokes.forEach(stroke => {
-                    drawCompleteStroke(ctx, stroke.points, stroke.colorIndex, transform.scale);
+                    drawCompleteStroke(ctx, stroke.points, stroke.colorIndex);
                 });
-                
-                ctx.restore();
             }
             
             // 绘制完整的一笔（从深到浅渐变）
-            function drawCompleteStroke(ctx, points, colorIndex, currentScale = 1) {
+            function drawCompleteStroke(ctx, points, colorIndex) {
                 if (points.length < 2) return;
                 
                 const color = colorSequence[colorIndex];
@@ -1654,7 +1612,7 @@
                 }
                 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 2 / currentScale; // 根据缩放调整线条宽度
+                ctx.lineWidth = 2; // 固定线条宽度
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
@@ -1672,12 +1630,13 @@
             
             // 重置格子变换
             function resetGridTransform(gridIndex) {
-                gridTransforms[gridIndex] = { scale: 1, translateX: 0, translateY: 0 };
+                gridTransforms[gridIndex] = { scale: 1, offsetX: 0, offsetY: 0 };
                 
                 // 更新格子样式
-                const gridItem = document.querySelector(`.grid-item[data-index="${gridIndex}"]`);
+                const gridItem = document.getElementById(`grid-item-${gridIndex}`);
                 if (gridItem) {
                     gridItem.style.transform = 'none';
+                    gridItem.style.zIndex = '';
                 }
             }
             
@@ -1714,12 +1673,13 @@
                 }
                 
                 // 计算画布大小 - 根据实际格子大小调整
-                const gridSize = 120; // 导出图片中每个格子的大小（包含边距）
+                const gridSize = 90; // 导出图片中每个格子的大小（与原始格子大小一致）
                 const padding = 30; // 内边距
                 const infoHeight = 80; // 底部信息区域高度
+                const labelHeight = 20; // 格子标签高度
                 
                 const canvasWidth = maxCols * gridSize + padding * 2;
-                const canvasHeight = rows * gridSize + padding * 2 + infoHeight;
+                const canvasHeight = rows * (gridSize + labelHeight) + padding * 2 + infoHeight;
                 
                 // 创建临时画布
                 const tempCanvas = document.createElement('canvas');
@@ -1745,63 +1705,37 @@
                     const col = i % maxCols;
                     
                     const x = padding + col * gridSize;
-                    const y = padding + row * gridSize;
+                    const y = padding + row * (gridSize + labelHeight);
                     
                     // 绘制格子背景
-                    drawGridTemplate(tempCtx, x, y, gridSize - 15, gridSize - 15);
+                    drawGridTemplate(tempCtx, x, y, gridSize, gridSize);
                     
                     // 绘制格子边框
                     tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                     tempCtx.lineWidth = 1;
-                    tempCtx.strokeRect(x - 1, y - 1, gridSize - 13, gridSize - 13);
+                    tempCtx.strokeRect(x - 1, y - 1, gridSize + 2, gridSize + 2);
                     
                     // 绘制格子编号（在图片中放在格子下方）- 现在只显示数字
                     tempCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                     tempCtx.font = 'bold 14px Microsoft YaHei';
                     tempCtx.textAlign = 'center';
-                    tempCtx.fillText(`${i + 1}`, x + (gridSize - 15) / 2, y + gridSize - 5);
+                    tempCtx.fillText(`${i + 1}`, x + gridSize / 2, y + gridSize + 15);
                     
                     // 绘制格子内的笔画（只绘制有内容的格子）
                     if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
                         const gridStrokes = strokesHistory[i];
                         
-                        // 获取格子的变换状态
-                        const transform = gridTransforms[i] || { scale: 1, translateX: 0, translateY: 0 };
-                        
-                        // 计算偏移量，使笔画在格子内居中
-                        const offset = (gridSize - 15 - (gridSize - 30)) / 2;
-                        
-                        // 保存状态，应用变换
-                        tempCtx.save();
-                        
-                        // 计算变换中心（格子中心）
-                        const centerX = x + offset + (gridSize - 30) / 2;
-                        const centerY = y + offset + (gridSize - 30) / 2;
-                        
-                        // 应用平移和缩放（相对于格子中心）
-                        tempCtx.translate(centerX, centerY);
-                        tempCtx.scale(transform.scale, transform.scale);
-                        tempCtx.translate(-centerX, -centerY);
-                        
-                        // 应用额外的平移（考虑格子内的原始平移）
-                        const scaleRatio = (gridSize - 30) / 90;
-                        tempCtx.translate(
-                            transform.translateX * scaleRatio,
-                            transform.translateY * scaleRatio
-                        );
-                        
                         gridStrokes.forEach(stroke => {
                             // 转换坐标到临时画布（从90x90转换为导出图片中的大小）
+                            // 由于导出图片的格子大小也是90x90，所以直接映射
                             const convertedPoints = stroke.points.map(point => ({
-                                x: x + offset + (point.x / 90) * (gridSize - 30),
-                                y: y + offset + (point.y / 90) * (gridSize - 30)
+                                x: x + point.x,
+                                y: y + point.y
                             }));
                             
                             // 绘制笔画
-                            drawExportStroke(tempCtx, convertedPoints, stroke.colorIndex, transform.scale);
+                            drawExportStroke(tempCtx, convertedPoints, stroke.colorIndex);
                         });
-                        
-                        tempCtx.restore();
                     }
                 }
                 
@@ -1837,7 +1771,7 @@
             }
             
             // 绘制导出图片中的笔画（线条稍粗一些）
-            function drawExportStroke(ctx, points, colorIndex, currentScale = 1) {
+            function drawExportStroke(ctx, points, colorIndex) {
                 if (points.length < 2) return;
                 
                 const color = colorSequence[colorIndex];
@@ -1861,7 +1795,7 @@
                 }
                 
                 ctx.strokeStyle = gradient;
-                ctx.lineWidth = 3 / currentScale; // 根据缩放调整线条宽度
+                ctx.lineWidth = 3; // 导出图片中线条稍粗
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
