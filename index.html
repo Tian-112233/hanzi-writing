@@ -333,6 +333,7 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+            transition: all 0.3s ease;
         }
 
         /* 手机上的格子大小调整 */
@@ -345,7 +346,7 @@
             flex-shrink: 0;
             overflow: hidden;
             transform-origin: center center;
-            transition: transform 0.1s ease-out;
+            transition: transform 0.3s ease;
             will-change: transform;
         }
 
@@ -419,7 +420,6 @@
         .grid-active {
             box-shadow: 0 0 0 3px #f0d26e;
             border-color: #f0d26e;
-            z-index: 100;
         }
 
         .grid-active + .grid-label {
@@ -689,8 +689,8 @@
                     <li>在新格子写字时颜色从红色重新开始
                         <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
                     </li>
-                    <li><strong>手机双指缩放：双指可缩放当前选中格子（捏合缩放）</strong>
-                        <div class="bulgarian-translation">Мащабиране с два пръста на телефон: с два пръста можете да мащабирате текущата избрана клетка (щипване)</div>
+                    <li><strong>手机双指缩放：双指可缩放当前选中格子</strong>
+                        <div class="bulgarian-translation">Мащабиране с два пръста на телефон: с два пръста можете да мащабирате текущата избрана клетка</div>
                     </li>
                 </ul>
             </div>
@@ -878,7 +878,7 @@
             let totalGrids = 0; // 总格子数
             
             // 新增：为每个格子存储缩放状态
-            let gridTransforms = {}; // 存储每个格子的变换状态 {scale, lastScale}
+            let gridScales = {}; // 存储每个格子的缩放比例，默认1
             
             // DOM元素
             const board = document.getElementById('board');
@@ -990,7 +990,7 @@
                     strokeCount[i] = 0;
                     currentColorIndex[i] = 0;
                     // 同时重置缩放
-                    resetGridTransform(i);
+                    resetGridScale(i);
                 }
                 
                 updateCurrentGridDisplay();
@@ -1001,7 +1001,7 @@
                 const activeGrid = document.querySelector('.grid-active');
                 if (activeGrid) {
                     const gridIndex = parseInt(activeGrid.dataset.index);
-                    resetGridTransform(gridIndex);
+                    resetGridScale(gridIndex);
                 }
             });
             
@@ -1119,11 +1119,12 @@
                     strokesHistory[i] = strokesHistory[i] || [];
                     currentColorIndex[i] = currentColorIndex[i] || 0;
                     strokeCount[i] = strokeCount[i] || 0;
-                    gridTransforms[i] = gridTransforms[i] || { scale: 1, lastScale: 1 };
+                    gridScales[i] = gridScales[i] || 1;
                     
                     // 创建格子容器
                     const gridContainer = document.createElement('div');
                     gridContainer.className = 'grid-container';
+                    gridContainer.id = `grid-container-${i}`;
                     
                     const gridItem = document.createElement('div');
                     gridItem.className = 'grid-item';
@@ -1246,8 +1247,7 @@
                     }
                     
                     // 获取当前缩放状态
-                    const transform = gridTransforms[gridIndex] || { scale: 1, lastScale: 1 };
-                    const scale = transform.scale;
+                    const scale = gridScales[gridIndex] || 1;
                     
                     // 转换为画布坐标（考虑缩放）
                     const scaleX = canvas.width / rect.width;
@@ -1426,7 +1426,7 @@
                         );
                         
                         // 记录初始缩放比例
-                        initialScale = (gridTransforms[gridIndex] || { scale: 1 }).scale;
+                        initialScale = gridScales[gridIndex] || 1;
                         isPinching = true;
                         
                         // 确保这个格子被选中
@@ -1472,14 +1472,11 @@
                         // 限制缩放范围
                         scale = Math.max(0.5, Math.min(3, scale));
                         
-                        // 更新变换状态
-                        gridTransforms[gridIndex] = { 
-                            scale: scale,
-                            lastScale: initialScale
-                        };
+                        // 更新缩放比例
+                        gridScales[gridIndex] = scale;
                         
                         // 应用缩放变换到grid-item
-                        applyGridTransform(gridItem, gridIndex);
+                        applyGridScale(gridItem, gridIndex);
                     }
                 }, { passive: false });
                 
@@ -1493,7 +1490,7 @@
                         const now = Date.now();
                         if (now - lastTouchEnd < 300) {
                             // 双击事件：重置缩放
-                            resetGridTransform(gridIndex);
+                            resetGridScale(gridIndex);
                         }
                         lastTouchEnd = now;
                     }
@@ -1508,13 +1505,14 @@
                 });
             }
             
-            // 应用格子变换
-            function applyGridTransform(gridItem, gridIndex) {
-                const transform = gridTransforms[gridIndex] || { scale: 1, lastScale: 1 };
+            // 应用格子缩放
+            function applyGridScale(gridItem, gridIndex) {
+                const scale = gridScales[gridIndex] || 1;
                 
                 // 应用CSS变换
-                gridItem.style.transform = `scale(${transform.scale})`;
-                gridItem.style.zIndex = '100';
+                gridItem.style.transform = `scale(${scale})`;
+                // 确保放大的格子不影响其他格子布局
+                gridItem.style.transformOrigin = 'center center';
             }
             
             // 重新绘制指定格子的所有笔画
@@ -1565,15 +1563,14 @@
                 ctx.stroke();
             }
             
-            // 重置格子变换
-            function resetGridTransform(gridIndex) {
-                gridTransforms[gridIndex] = { scale: 1, lastScale: 1 };
+            // 重置格子缩放
+            function resetGridScale(gridIndex) {
+                gridScales[gridIndex] = 1;
                 
                 // 更新格子样式
                 const gridItem = document.getElementById(`grid-item-${gridIndex}`);
                 if (gridItem) {
                     gridItem.style.transform = 'none';
-                    gridItem.style.zIndex = '';
                 }
             }
             
