@@ -542,8 +542,15 @@
             border-radius: 8px;
             border: 2px solid #4a4a6e;
             margin-bottom: 12px;
-            max-height: 150px;
+            max-height: 200px;
             object-fit: contain;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .save-instructions {
@@ -615,7 +622,7 @@
             }
             
             .preview-image {
-                max-height: 200px;
+                max-height: 250px;
             }
         }
 
@@ -710,7 +717,7 @@
                 <div class="current-color-box" id="currentColorBox"></div>
                 <div>
                     <div>当前笔画颜色：<strong id="currentColorName">红色</strong>
-                        <div class="bulgarian-translation">Текущ цвят на щрих: <strong>Червено</strong></div>
+                        <div class="bulgarian-translation">Текущ цвят на щрих: <strong id="currentColorNameBg">Червено</strong></div>
                     </div>
                     <div class="color-gradient-preview" id="gradientPreview"></div>
                 </div>
@@ -790,19 +797,16 @@
                 <div class="preview-container" id="previewContainer" style="display: none;">
                     <img id="previewImage" class="preview-image" alt="预览图片 | Преглед на снимка">
                     <div class="save-instructions">
-                        <p><strong>保存方法 | Начин за запазване:</strong></p>
-                        <p><strong>手机 | Телефон:</strong> 长按图片，选择"保存图片"</p>
-                        <div class="bulgarian-translation">Натиснете дълго върху снимката и изберете "Запази снимка"</div>
-                        <p><strong>电脑 | Компютър:</strong> 右键点击图片，选择"另存为"或直接复制图片</p>
-                        <div class="bulgarian-translation">Кликнете с десния бутон върху снимката и изберете "Запази като" или копирайте снимката</div>
+                        <p><strong>保存说明 | Инструкции за запазване:</strong></p>
+                        <p>• 电脑：点击图片即可复制到剪贴板</p>
+                        <div class="bulgarian-translation">Компютър: Кликнете върху снимката, за да я копирате в клипборда</div>
+                        <p>• 手机：长按图片，选择"保存图片"</p>
+                        <div class="bulgarian-translation">Телефон: Натиснете дълго върху снимката и изберете "Запази снимка"</div>
                     </div>
                 </div>
                 <div class="modal-buttons">
                     <button id="cancelExport" class="button button-secondary">
                         <span class="button-text-main">取消 | Отказ</span>
-                    </button>
-                    <button id="generateImage" class="button button-success">
-                        <span class="button-text-main">生成图片 | Създай снимка</span>
                     </button>
                 </div>
             </div>
@@ -871,6 +875,7 @@
             const exportImageBtn = document.getElementById('exportImage');
             const currentColorBox = document.getElementById('currentColorBox');
             const currentColorName = document.getElementById('currentColorName');
+            const currentColorNameBg = document.getElementById('currentColorNameBg');
             const gradientPreview = document.getElementById('gradientPreview');
             const currentGridNumber = document.getElementById('currentGridNumber');
             const currentGridNumberBg = document.getElementById('currentGridNumberBg');
@@ -885,7 +890,6 @@
             const exportModal = document.getElementById('exportModal');
             const userNameInput = document.getElementById('userName');
             const cancelExportBtn = document.getElementById('cancelExport');
-            const generateImageBtn = document.getElementById('generateImage');
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
             
@@ -1016,26 +1020,22 @@
                 exportModal.classList.remove('active');
             });
             
-            // 生成图片按钮
-            generateImageBtn.addEventListener('click', function() {
+            // 输入姓名时实时生成图片
+            userNameInput.addEventListener('input', function() {
                 const userName = userNameInput.value.trim();
-                if (!userName) {
-                    alert('请输入您的姓名！\nМоля, въведете вашето име!');
-                    userNameInput.focus();
-                    return;
-                }
-                
-                // 生成预览图片并显示
-                generatePreviewImage(userName);
-                previewContainer.style.display = 'block';
-                
-                // 电脑端：添加点击复制功能
-                if (!isMobileDevice) {
-                    previewImage.style.cursor = 'pointer';
-                    previewImage.title = '点击复制图片到剪贴板 | Кликнете, за да копирате снимката';
-                    previewImage.addEventListener('click', function() {
-                        copyImageToClipboard(this.src, userName);
-                    });
+                if (userName) {
+                    // 生成预览图片
+                    generatePreviewImage(userName);
+                    previewContainer.style.display = 'block';
+                    
+                    // 为图片添加点击事件（电脑端）
+                    if (!isMobileDevice) {
+                        previewImage.addEventListener('click', function() {
+                            copyImageToClipboard(this.src, userName);
+                        });
+                    }
+                } else {
+                    previewContainer.style.display = 'none';
                 }
             });
             
@@ -1062,6 +1062,7 @@
                         // 复制到剪贴板
                         navigator.clipboard.write([item]).then(function() {
                             alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
+                            exportModal.classList.remove('active');
                         }).catch(function(err) {
                             console.error('复制失败:', err);
                             alert('复制失败，请尝试右键另存为图片。\nКопирането не бе успешно, опитайте да запазите снимката с десен бутон.');
@@ -1069,18 +1070,6 @@
                     }, 'image/png');
                 };
             }
-            
-            // 输入姓名时实时预览
-            userNameInput.addEventListener('input', function() {
-                const userName = userNameInput.value.trim();
-                if (userName) {
-                    // 生成预览图片
-                    generatePreviewImage(userName);
-                    previewContainer.style.display = 'block';
-                } else {
-                    previewContainer.style.display = 'none';
-                }
-            });
             
             // 添加指定数量的格子（不清空已有内容）
             function addGrids(count) {
@@ -1655,6 +1644,7 @@
                 currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
                 currentColorBox.style.backgroundColor = displayColor.start;
                 currentColorName.textContent = displayColor.nameZh;
+                currentColorNameBg.textContent = displayColor.nameBg; // 更新保加利亚语颜色名
                 nextColorName.textContent = nextColor.nameZh;
                 nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
                 
