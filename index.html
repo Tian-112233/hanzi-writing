@@ -447,7 +447,7 @@
             border-radius: 10px;
             padding: 20px;
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             margin: auto;
             position: relative;
@@ -546,6 +546,25 @@
             object-fit: contain;
         }
 
+        .save-instructions {
+            background-color: rgba(240, 210, 110, 0.1);
+            border-left: 3px solid #f0d26e;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+        }
+
+        .save-instructions p {
+            margin-bottom: 5px;
+        }
+
+        .save-instructions .bulgarian-translation {
+            color: #b8b8d0;
+            font-size: 0.75rem;
+        }
+
         /* 移除所有媒体查询中影响网格布局的代码，保持一致的3列布局 */
         @media (min-width: 768px) {
             body {
@@ -592,7 +611,7 @@
             }
             
             .modal-content {
-                max-width: 400px;
+                max-width: 450px;
             }
             
             .preview-image {
@@ -700,17 +719,17 @@
             <div class="current-grid-info">
                 <div>
                     <div>当前格子：<span id="currentGridNumber">1</span> 号
-                        <div class="bulgarian-translation">Текуща клетка: № <span id="currentGridNumber">1</span></div>
+                        <div class="bulgarian-translation">Текуща клетка: № <span id="currentGridNumberBg">1</span></div>
                     </div>
                 </div>
                 <div>
                     <div>当前格子笔画数：<span id="currentGridStrokeCount">0</span> 笔
-                        <div class="bulgarian-translation">Брой щрихове в текущата клетка: <span id="currentGridStrokeCount">0</span></div>
+                        <div class="bulgarian-translation">Брой щрихове в текущата клетка: <span id="currentGridStrokeCountBg">0</span></div>
                     </div>
                 </div>
                 <div>
                     <div>下一笔颜色：<span id="nextColorName">红色</span>
-                        <div class="bulgarian-translation">Следващ цвят на щрих: <span id="nextColorName">Червено</span></div>
+                        <div class="bulgarian-translation">Следващ цвят на щрих: <span id="nextColorNameBg">Червено</span></div>
                     </div>
                 </div>
             </div>
@@ -726,7 +745,7 @@
                 </div>
                 <div class="grid-count-info">
                     已有 <span id="currentGridTotal">9</span> 个格子
-                    <div class="bulgarian-translation">Има <span id="currentGridTotal">9</span> клетки</div>
+                    <div class="bulgarian-translation">Има <span id="currentGridTotalBg">9</span> клетки</div>
                 </div>
             </div>
         </div>
@@ -770,14 +789,20 @@
                 </div>
                 <div class="preview-container" id="previewContainer" style="display: none;">
                     <img id="previewImage" class="preview-image" alt="预览图片 | Преглед на снимка">
+                    <div class="save-instructions">
+                        <p><strong>保存方法 | Начин за запазване:</strong></p>
+                        <p><strong>手机 | Телефон:</strong> 长按图片，选择"保存图片"</p>
+                        <div class="bulgarian-translation">Натиснете дълго върху снимката и изберете "Запази снимка"</div>
+                        <p><strong>电脑 | Компютър:</strong> 右键点击图片，选择"另存为"或直接复制图片</p>
+                        <div class="bulgarian-translation">Кликнете с десния бутон върху снимката и изберете "Запази като" или копирайте снимката</div>
+                    </div>
                 </div>
                 <div class="modal-buttons">
                     <button id="cancelExport" class="button button-secondary">
                         <span class="button-text-main">取消 | Отказ</span>
                     </button>
-                    <button id="confirmExport" class="button button-success">
-                        <span class="button-text-main" id="exportButtonText">保存图片 | Запази снимка</span>
-                        <span class="button-text-sub" id="exportButtonSubtext">长按图片可保存到相册</span>
+                    <button id="generateImage" class="button button-success">
+                        <span class="button-text-main">生成图片 | Създай снимка</span>
                     </button>
                 </div>
             </div>
@@ -848,19 +873,21 @@
             const currentColorName = document.getElementById('currentColorName');
             const gradientPreview = document.getElementById('gradientPreview');
             const currentGridNumber = document.getElementById('currentGridNumber');
+            const currentGridNumberBg = document.getElementById('currentGridNumberBg');
             const currentGridStrokeCount = document.getElementById('currentGridStrokeCount');
+            const currentGridStrokeCountBg = document.getElementById('currentGridStrokeCountBg');
             const nextColorName = document.getElementById('nextColorName');
+            const nextColorNameBg = document.getElementById('nextColorNameBg');
             const currentGridTotal = document.getElementById('currentGridTotal');
+            const currentGridTotalBg = document.getElementById('currentGridTotalBg');
             
             // 模态框元素
             const exportModal = document.getElementById('exportModal');
             const userNameInput = document.getElementById('userName');
             const cancelExportBtn = document.getElementById('cancelExport');
-            const confirmExportBtn = document.getElementById('confirmExport');
+            const generateImageBtn = document.getElementById('generateImage');
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
-            const exportButtonText = document.getElementById('exportButtonText');
-            const exportButtonSubtext = document.getElementById('exportButtonSubtext');
             
             // 检测设备类型
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -989,8 +1016,8 @@
                 exportModal.classList.remove('active');
             });
             
-            // 确认导出
-            confirmExportBtn.addEventListener('click', function() {
+            // 生成图片按钮
+            generateImageBtn.addEventListener('click', function() {
                 const userName = userNameInput.value.trim();
                 if (!userName) {
                     alert('请输入您的姓名！\nМоля, въведете вашето име!');
@@ -1002,15 +1029,10 @@
                 generatePreviewImage(userName);
                 previewContainer.style.display = 'block';
                 
-                // 让用户长按保存图片（手机推荐方式）
-                if (isMobileDevice) {
-                    setTimeout(() => {
-                        alert('图片已生成！\n请长按图片，选择"保存图片"到相册。\n\nСнимката е готова!\nНатиснете дълго върху снимката и изберете "Запази снимка" в галерията.');
-                    }, 300);
-                } else {
-                    // 电脑端：添加点击复制功能
+                // 电脑端：添加点击复制功能
+                if (!isMobileDevice) {
                     previewImage.style.cursor = 'pointer';
-                    previewImage.title = '点击复制图片到剪贴板';
+                    previewImage.title = '点击复制图片到剪贴板 | Кликнете, за да копирате снимката';
                     previewImage.addEventListener('click', function() {
                         copyImageToClipboard(this.src, userName);
                     });
@@ -1077,6 +1099,7 @@
                 const previousTotal = totalGrids;
                 totalGrids = endIndex;
                 currentGridTotal.textContent = totalGrids;
+                currentGridTotalBg.textContent = totalGrids; // 更新保加利亚语数字
                 
                 // 清除现有的格子，重新按顺序添加
                 board.innerHTML = '';
@@ -1627,10 +1650,13 @@
                 
                 // 更新显示
                 currentGridNumber.textContent = currentGridIndex + 1;
+                currentGridNumberBg.textContent = currentGridIndex + 1; // 更新保加利亚语数字
                 currentGridStrokeCount.textContent = currentStrokesCount;
+                currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
                 currentColorBox.style.backgroundColor = displayColor.start;
                 currentColorName.textContent = displayColor.nameZh;
                 nextColorName.textContent = nextColor.nameZh;
+                nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
                 
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
