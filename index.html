@@ -770,15 +770,14 @@
                 </div>
                 <div class="preview-container" id="previewContainer" style="display: none;">
                     <img id="previewImage" class="preview-image" alt="预览图片 | Преглед на снимка">
-                    <!-- 已删除提示文字 -->
                 </div>
                 <div class="modal-buttons">
                     <button id="cancelExport" class="button button-secondary">
                         <span class="button-text-main">取消 | Отказ</span>
                     </button>
                     <button id="confirmExport" class="button button-success">
-                        <span class="button-text-main" id="exportButtonText">生成图片 | Създай снимка</span>
-                        <span class="button-text-sub" id="exportButtonSubtext">根据设备自动选择方式</span>
+                        <span class="button-text-main" id="exportButtonText">保存图片 | Запази снимка</span>
+                        <span class="button-text-sub" id="exportButtonSubtext">长按图片可保存到相册</span>
                     </button>
                 </div>
             </div>
@@ -865,15 +864,6 @@
             
             // 检测设备类型
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            // 根据设备类型更新按钮文字
-            if (isMobileDevice) {
-                exportButtonText.textContent = '保存到相册 | Запази в галерия';
-                exportButtonSubtext.textContent = '图片将保存到手机相册';
-            } else {
-                exportButtonText.textContent = '复制图片 | Копирай снимка';
-                exportButtonSubtext.textContent = '图片将复制到剪贴板';
-            }
             
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
@@ -1008,15 +998,55 @@
                     return;
                 }
                 
-                // 根据设备类型选择导出方式
+                // 生成预览图片并显示
+                generatePreviewImage(userName);
+                previewContainer.style.display = 'block';
+                
+                // 让用户长按保存图片（手机推荐方式）
                 if (isMobileDevice) {
-                    // 手机：保存到相册
-                    saveToGallery(userName);
+                    setTimeout(() => {
+                        alert('图片已生成！\n请长按图片，选择"保存图片"到相册。\n\nСнимката е готова!\nНатиснете дълго върху снимката и изберете "Запази снимка" в галерията.');
+                    }, 300);
                 } else {
-                    // 电脑：复制到剪贴板
-                    copyToClipboard(userName);
+                    // 电脑端：添加点击复制功能
+                    previewImage.style.cursor = 'pointer';
+                    previewImage.title = '点击复制图片到剪贴板';
+                    previewImage.addEventListener('click', function() {
+                        copyImageToClipboard(this.src, userName);
+                    });
                 }
             });
+            
+            // 复制图片到剪贴板（电脑端）
+            function copyImageToClipboard(imageSrc, userName) {
+                // 创建临时图像元素
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = imageSrc;
+                
+                img.onload = function() {
+                    // 创建canvas并绘制图像
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 将Canvas转换为Blob
+                    canvas.toBlob(function(blob) {
+                        // 创建ClipboardItem
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        
+                        // 复制到剪贴板
+                        navigator.clipboard.write([item]).then(function() {
+                            alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
+                        }).catch(function(err) {
+                            console.error('复制失败:', err);
+                            alert('复制失败，请尝试右键另存为图片。\nКопирането не бе успешно, опитайте да запазите снимката с десен бутон.');
+                        });
+                    }, 'image/png');
+                };
+            }
             
             // 输入姓名时实时预览
             userNameInput.addEventListener('input', function() {
@@ -1377,50 +1407,6 @@
                 previewImage.src = tempCanvas.toDataURL('image/png');
             }
             
-            // 生成并复制图片到剪贴板（电脑端）
-            function copyToClipboard(userName) {
-                const tempCanvas = generateImageCanvas(userName);
-                
-                // 将Canvas转换为Blob
-                tempCanvas.toBlob(function(blob) {
-                    // 创建ClipboardItem
-                    const item = new ClipboardItem({ 'image/png': blob });
-                    
-                    // 复制到剪贴板
-                    navigator.clipboard.write([item]).then(function() {
-                        alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
-                        exportModal.classList.remove('active');
-                    }).catch(function(err) {
-                        console.error('复制失败:', err);
-                        // 如果复制失败，转为下载方式
-                        downloadImage(tempCanvas, userName);
-                    });
-                }, 'image/png');
-            }
-            
-            // 保存图片到相册（手机端）
-            function saveToGallery(userName) {
-                const tempCanvas = generateImageCanvas(userName);
-                const dataUrl = tempCanvas.toDataURL('image/png');
-                
-                // 创建临时链接用于下载
-                const link = document.createElement('a');
-                const timeStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                const fileName = `汉字练习_${userName}_${timeStr}.png`;
-                
-                link.download = fileName;
-                link.href = dataUrl;
-                
-                // 在iOS Safari中，需要将链接添加到文档中并触发点击
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                // 显示保存提示
-                alert('图片已保存！\n请检查手机相册或下载文件夹。\n\nСнимката е запазена!\nМоля проверете галерията или папката за изтегляния.');
-                exportModal.classList.remove('active');
-            }
-            
             // 生成图片Canvas
             function generateImageCanvas(userName) {
                 // 计算需要导出的格子数量
@@ -1622,18 +1608,6 @@
                 ctx.moveTo(x, y + height);
                 ctx.lineTo(x + width, y);
                 ctx.stroke();
-            }
-            
-            // 下载图片（备用方案）
-            function downloadImage(canvas, userName) {
-                const link = document.createElement('a');
-                const timeStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                link.download = `汉字练习_${userName}_${timeStr}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                
-                alert('图片已保存，请检查下载文件夹！\nСнимката е запазена, моля проверете папката за изтегляния!');
-                exportModal.classList.remove('active');
             }
             
             // 更新当前格子显示
