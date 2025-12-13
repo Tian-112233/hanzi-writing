@@ -777,7 +777,8 @@
                         <span class="button-text-main">取消 | Отказ</span>
                     </button>
                     <button id="confirmExport" class="button button-success">
-                        <span class="button-text-main">复制图片 | Копирай снимка</span>
+                        <span class="button-text-main" id="exportButtonText">生成图片 | Създай снимка</span>
+                        <span class="button-text-sub" id="exportButtonSubtext">根据设备自动选择方式</span>
                     </button>
                 </div>
             </div>
@@ -859,6 +860,20 @@
             const confirmExportBtn = document.getElementById('confirmExport');
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
+            const exportButtonText = document.getElementById('exportButtonText');
+            const exportButtonSubtext = document.getElementById('exportButtonSubtext');
+            
+            // 检测设备类型
+            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // 根据设备类型更新按钮文字
+            if (isMobileDevice) {
+                exportButtonText.textContent = '保存到相册 | Запази в галерия';
+                exportButtonSubtext.textContent = '图片将保存到手机相册';
+            } else {
+                exportButtonText.textContent = '复制图片 | Копирай снимка';
+                exportButtonSubtext.textContent = '图片将复制到剪贴板';
+            }
             
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
@@ -993,8 +1008,14 @@
                     return;
                 }
                 
-                // 生成并复制图片
-                generateAndCopyImage(userName);
+                // 根据设备类型选择导出方式
+                if (isMobileDevice) {
+                    // 手机：保存到相册
+                    saveToGallery(userName);
+                } else {
+                    // 电脑：复制到剪贴板
+                    copyToClipboard(userName);
+                }
             });
             
             // 输入姓名时实时预览
@@ -1356,8 +1377,8 @@
                 previewImage.src = tempCanvas.toDataURL('image/png');
             }
             
-            // 生成并复制图片
-            function generateAndCopyImage(userName) {
+            // 生成并复制图片到剪贴板（电脑端）
+            function copyToClipboard(userName) {
                 const tempCanvas = generateImageCanvas(userName);
                 
                 // 将Canvas转换为Blob
@@ -1371,10 +1392,33 @@
                         exportModal.classList.remove('active');
                     }).catch(function(err) {
                         console.error('复制失败:', err);
-                        // 如果复制失败，提供下载选项
+                        // 如果复制失败，转为下载方式
                         downloadImage(tempCanvas, userName);
                     });
                 }, 'image/png');
+            }
+            
+            // 保存图片到相册（手机端）
+            function saveToGallery(userName) {
+                const tempCanvas = generateImageCanvas(userName);
+                const dataUrl = tempCanvas.toDataURL('image/png');
+                
+                // 创建临时链接用于下载
+                const link = document.createElement('a');
+                const timeStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                const fileName = `汉字练习_${userName}_${timeStr}.png`;
+                
+                link.download = fileName;
+                link.href = dataUrl;
+                
+                // 在iOS Safari中，需要将链接添加到文档中并触发点击
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 显示保存提示
+                alert('图片已保存！\n请检查手机相册或下载文件夹。\n\nСнимката е запазена!\nМоля проверете галерията или папката за изтегляния.');
+                exportModal.classList.remove('active');
             }
             
             // 生成图片Canvas
