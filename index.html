@@ -315,6 +315,7 @@
             padding: 15px;
             overflow: auto;
             max-height: 500px;
+            position: relative;
         }
 
         /* 关键修改：手机上也保持每行3个格子 */
@@ -326,6 +327,7 @@
             width: 100%;
             max-width: 360px; /* 手机上的最大宽度 */
             margin: 0 auto;
+            transition: transform 0.1s ease;
         }
 
         .grid-container {
@@ -780,6 +782,9 @@
                     <button id="exportImage" class="button button-success">
                         <span>导出图片 | Експортирай снимка</span>
                     </button>
+                    <button id="resetZoom" class="button button-utility" style="display:none;">
+                        <span>重置缩放 | Нулиране на мащаба</span>
+                    </button>
                 </div>
             </div>
             
@@ -868,8 +873,8 @@
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
             let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            let scale = 1.0; // 缩放比例
-            let lastPinchDistance = 0; // 上次双指距离
+            let currentScale = 1.0; // 当前缩放比例
+            let initialPinchDistance = 0; // 初始双指距离
             
             // DOM元素
             const board = document.getElementById('board');
@@ -879,6 +884,7 @@
             const clearCurrentBtn = document.getElementById('clearCurrent');
             const clearAllBtn = document.getElementById('clearAll');
             const exportImageBtn = document.getElementById('exportImage');
+            const resetZoomBtn = document.getElementById('resetZoom');
             const currentColorBox = document.getElementById('currentColorBox');
             const currentColorName = document.getElementById('currentColorName');
             const currentColorNameBg = document.getElementById('currentColorNameBg');
@@ -902,71 +908,76 @@
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
             
+            // 如果是移动设备，显示重置缩放按钮
+            if (isMobileDevice) {
+                resetZoomBtn.style.display = 'flex';
+            }
+            
+            // 重置缩放按钮点击事件
+            resetZoomBtn.addEventListener('click', function() {
+                resetBoardZoom();
+            });
+            
             // 为书写板添加双指缩放功能（仅限移动设备）
             if (isMobileDevice) {
-                board.addEventListener('touchstart', handleTouchStart, { passive: false });
-                board.addEventListener('touchmove', handleTouchMove, { passive: false });
-                board.addEventListener('touchend', handleTouchEnd);
+                setupMobileZoom();
             }
             
-            // 处理触摸开始事件
-            function handleTouchStart(e) {
-                if (e.touches.length === 2) {
-                    // 双指触摸开始，计算初始距离
-                    lastPinchDistance = getDistance(e.touches[0], e.touches[1]);
-                }
-            }
-            
-            // 处理触摸移动事件
-            function handleTouchMove(e) {
-                if (e.touches.length === 2) {
-                    e.preventDefault(); // 阻止默认行为，防止页面滚动
-                    
-                    // 计算当前双指距离
-                    const currentDistance = getDistance(e.touches[0], e.touches[1]);
-                    
-                    if (lastPinchDistance > 0) {
-                        // 计算缩放比例变化
-                        const scaleChange = currentDistance / lastPinchDistance;
+            // 设置移动设备缩放功能
+            function setupMobileZoom() {
+                let isZooming = false;
+                let startDistance = 0;
+                
+                board.addEventListener('touchstart', function(e) {
+                    if (e.touches.length === 2) {
+                        isZooming = true;
+                        startDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                
+                board.addEventListener('touchmove', function(e) {
+                    if (isZooming && e.touches.length === 2) {
+                        const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                        const scaleChange = currentDistance / startDistance;
                         
                         // 更新缩放比例
-                        scale *= scaleChange;
+                        currentScale *= scaleChange;
+                        currentScale = Math.max(0.5, Math.min(3, currentScale)); // 限制缩放范围
                         
-                        // 限制缩放范围
-                        scale = Math.max(0.5, Math.min(3, scale));
+                        // 应用缩放
+                        applyBoardZoom();
                         
-                        // 应用缩放变换
-                        applyBoardScale();
+                        // 更新起始距离
+                        startDistance = currentDistance;
+                        e.preventDefault();
                     }
-                    
-                    // 更新上次距离
-                    lastPinchDistance = currentDistance;
-                }
+                }, { passive: false });
+                
+                board.addEventListener('touchend', function(e) {
+                    if (e.touches.length < 2) {
+                        isZooming = false;
+                        startDistance = 0;
+                    }
+                });
             }
             
-            // 处理触摸结束事件
-            function handleTouchEnd(e) {
-                if (e.touches.length < 2) {
-                    lastPinchDistance = 0;
-                }
-            }
-            
-            // 计算两点之间的距离
-            function getDistance(touch1, touch2) {
+            // 获取两点之间的距离
+            function getTouchDistance(touch1, touch2) {
                 const dx = touch1.clientX - touch2.clientX;
                 const dy = touch1.clientY - touch2.clientY;
                 return Math.sqrt(dx * dx + dy * dy);
             }
             
-            // 应用书写板缩放
-            function applyBoardScale() {
+            // 应用缩放
+            function applyBoardZoom() {
                 const gridWrapper = board.querySelector('.grid-wrapper');
                 if (gridWrapper) {
-                    gridWrapper.style.transform = `scale(${scale})`;
+                    gridWrapper.style.transform = `scale(${currentScale})`;
                     gridWrapper.style.transformOrigin = 'center center';
                     
-                    // 调整容器大小以适应缩放
-                    if (scale > 1) {
+                    // 如果缩放大于1，允许滚动
+                    if (currentScale > 1) {
                         board.style.overflow = 'auto';
                     } else {
                         board.style.overflow = 'hidden';
@@ -975,9 +986,9 @@
             }
             
             // 重置缩放
-            function resetBoardScale() {
-                scale = 1.0;
-                applyBoardScale();
+            function resetBoardZoom() {
+                currentScale = 1.0;
+                applyBoardZoom();
             }
             
             // 生成格子（现在改为添加格子，不清空已有内容）
@@ -1155,7 +1166,7 @@
             // 添加指定数量的格子（不清空已有内容）
             function addGrids(count) {
                 // 重置缩放
-                resetBoardScale();
+                resetBoardZoom();
                 
                 // 获取当前已有的网格包装器或创建新的
                 let gridWrapper = document.querySelector('.grid-wrapper');
@@ -1303,7 +1314,7 @@
                         y = event.clientY - rect.top;
                     }
                     
-                    // 转换为画布坐标
+                    // 转换为画布坐标 - 考虑缩放
                     const scaleX = canvas.width / rect.width;
                     const scaleY = canvas.height / rect.height;
                     
@@ -1582,10 +1593,12 @@
                         const gridStrokes = strokesHistory[i];
                         gridStrokes.forEach(stroke => {
                             // 修复：正确转换坐标到临时画布
-                            // 注意：原始画布是90x90，导出画布中的格子内容区域是(gridSize-30)x(gridSize-30)
+                            // 原始画布是90x90，导出画布中的格子内容区域是(gridSize-30)x(gridSize-30)
+                            // 需要确保坐标正确映射
+                            const scale = (gridSize - 30) / 90;
                             const convertedPoints = stroke.points.map(point => ({
-                                x: x + (point.x / 90) * (gridSize - 30),
-                                y: y + (point.y / 90) * (gridSize - 30)
+                                x: x + 15 + point.x * scale, // 15是格子内边距
+                                y: y + 15 + point.y * scale
                             }));
                             
                             // 绘制笔画
