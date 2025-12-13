@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汉字书写练习板 - 整笔渐变效果</title>
+    <title>汉字书写练习板</title>
     <style>
         * {
             margin: 0;
@@ -38,39 +38,144 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .subtitle {
-            color: #b8b8d0;
-            font-size: 1.2rem;
+        .instructions-section {
+            background-color: rgba(240, 210, 110, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #f0d26e;
         }
 
-        .main-content {
+        .instructions-section h3 {
+            color: #f0d26e;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .instructions-content ul {
+            padding-left: 20px;
+        }
+
+        .instructions-content li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        .bulgarian-translation {
+            color: #b8b8d0;
+            font-size: 0.85rem;
+            margin-top: 2px;
+        }
+
+        /* 固定颜色顺序栏 */
+        .fixed-colors-bar {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            background-color: rgba(45, 45, 68, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .fixed-colors-bar h2 {
+            color: #6ca6e1;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #4a4a6e;
+            text-align: center;
+        }
+
+        .color-sequence {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-label {
+            font-size: 0.85rem;
+        }
+
+        .color-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .current-color-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .color-gradient-preview {
+            width: 100px;
+            height: 18px;
+            border-radius: 4px;
+            margin-left: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .current-grid-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background-color: rgba(240, 210, 110, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #f0d26e;
+        }
+
+        .current-grid-info > div {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .current-grid-info .bulgarian-translation {
+            margin-top: 2px;
+            font-size: 0.8rem;
+        }
+
+        /* 工具区域 */
+        .tools-section {
             display: flex;
             flex-wrap: wrap;
             gap: 25px;
+            margin-bottom: 25px;
         }
 
-        .controls-panel {
+        .grid-controls {
             flex: 1;
-            min-width: 280px;
+            min-width: 250px;
             background-color: #2d2d44;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .board-container {
-            flex: 3;
-            min-width: 400px;
-            background-color: #0c0c14;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-            position: relative;
-            min-height: 650px;
-        }
-
-        .control-group {
-            margin-bottom: 25px;
         }
 
         h2 {
@@ -81,38 +186,26 @@
             border-bottom: 1px solid #4a4a6e;
         }
 
-        .color-sequence {
+        .add-grid-control {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .color-item {
-            display: flex;
             align-items: center;
-            gap: 5px;
-        }
-
-        .color-box {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .color-label {
-            font-size: 0.9rem;
-        }
-
-        .grid-controls {
-            display: flex;
-            gap: 10px;
             margin-bottom: 15px;
         }
 
+        .add-grid-control input {
+            width: 80px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #4a4a6e;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1rem;
+            text-align: center;
+        }
+
         .button {
-            padding: 12px 20px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -155,60 +248,53 @@
             transform: translateY(-2px);
         }
 
+        .button-success {
+            background-color: #2ea44f;
+            color: white;
+        }
+
+        .button-success:hover {
+            background-color: #2c974b;
+            transform: translateY(-2px);
+        }
+
         .button:active {
             transform: translateY(0);
         }
 
-        .button-full-width {
-            width: 100%;
+        .grid-count-info {
+            color: #8888aa;
+            font-size: 0.9rem;
             margin-top: 10px;
         }
 
-        .color-indicator {
+        /* 书写板区域 */
+        .board-container {
+            background-color: #0c0c14;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .board-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .board-title {
+            color: #6ca6e1;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .board-actions {
             display: flex;
-            align-items: center;
+            justify-content: center;
             gap: 15px;
-            padding: 12px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-
-        .current-color-box {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .color-gradient-preview {
-            width: 120px;
-            height: 20px;
-            border-radius: 4px;
-            margin-left: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .instructions {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-left: 4px solid #f0d26e;
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-            margin-top: 25px;
-        }
-
-        .instructions h3 {
-            color: #f0d26e;
-            margin-bottom: 10px;
-        }
-
-        .instructions ul {
-            padding-left: 20px;
-        }
-
-        .instructions li {
-            margin-bottom: 8px;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .board {
@@ -219,19 +305,26 @@
             background-size: 60px 60px;
             border: 12px solid #2c1b0e;
             border-radius: 8px;
-            min-height: 600px;
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
             padding: 20px;
             overflow: auto;
-            max-height: 600px;
+            max-height: 600px; /* 限制书写板的最大高度 */
         }
 
         .grid-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            justify-items: center;
             width: 100%;
+            max-width: 540px; /* 3个格子 * 120px + 2个间隔 * 30px = 540px */
+            margin: 0 auto;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .grid-item {
@@ -257,7 +350,6 @@
             background-color: rgba(255, 255, 255, 0.15);
         }
 
-        /* 米字格样式 */
         .grid-background::before {
             width: 100%;
             height: 1px;
@@ -301,13 +393,13 @@
             cursor: crosshair;
         }
 
-        .grid-number {
-            position: absolute;
-            bottom: -20px;
-            right: 2px;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
-            pointer-events: none;
+        .grid-label {
+            margin-top: 5px;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            min-height: 20px;
+            font-weight: bold;
         }
 
         .grid-active {
@@ -315,18 +407,110 @@
             border-color: #f0d26e;
         }
 
-        .stroke-info {
-            margin-top: 10px;
-            font-size: 0.9rem;
+        .grid-active + .grid-label {
+            color: #f0d26e;
+            font-weight: bold;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #2d2d44;
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin: auto;
+            position: relative;
+        }
+
+        .modal h3 {
+            color: #f0d26e;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-group label {
+            display: block;
+            margin-bottom: 8px;
             color: #b8b8d0;
         }
 
-        .current-grid-info {
-            background-color: rgba(240, 210, 110, 0.1);
-            padding: 10px;
+        .modal-input-group input {
+            width: 100%;
+            padding: 12px;
             border-radius: 6px;
-            margin-top: 10px;
-            border-left: 3px solid #f0d26e;
+            border: 1px solid #4a4a6e;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1rem;
+        }
+
+        .modal-input-group input:focus {
+            outline: none;
+            border-color: #4a6ee0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .modal-buttons .button {
+            flex: 1;
+            padding: 12px 8px;
+            font-size: 0.95rem;
+            white-space: normal;
+            line-height: 1.3;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-buttons .button span {
+            display: block;
+            max-width: 100%;
+        }
+
+        .modal-buttons .button .button-text-main {
+            font-size: 1rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .modal-buttons .button .button-text-sub {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: block;
+            margin-top: 2px;
         }
 
         footer {
@@ -338,13 +522,23 @@
             font-size: 0.9rem;
         }
 
+        .preview-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #4a4a6e;
+            margin-bottom: 15px;
+            max-height: 200px;
+            object-fit: contain;
+        }
+
         @media (max-width: 768px) {
-            .main-content {
+            .tools-section {
                 flex-direction: column;
-            }
-            
-            .board-container, .controls-panel {
-                min-width: 100%;
             }
             
             .board {
@@ -353,7 +547,9 @@
             }
             
             .grid-wrapper {
-                gap: 15px;
+                gap: 20px;
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 420px; /* 3个格子 * 100px + 2个间隔 * 20px = 420px */
             }
             
             .grid-item {
@@ -368,15 +564,69 @@
             body {
                 padding: 10px;
             }
+            
+            .modal {
+                padding: 10px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .board-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .board-actions .button {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-buttons .button {
+                width: 100%;
+                padding: 14px 10px;
+            }
+            
+            .color-sequence {
+                justify-content: flex-start;
+            }
+            
+            .current-grid-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .current-grid-info > div {
+                min-width: 100%;
+            }
+            
+            .fixed-colors-bar {
+                top: 10px;
+                padding: 12px;
+            }
+            
+            .fixed-colors-bar h2 {
+                font-size: 1.3rem;
+            }
         }
         
         @media (max-width: 480px) {
             .board {
                 padding: 12px;
+                max-height: 450px;
             }
             
             .grid-wrapper {
-                gap: 12px;
+                gap: 15px;
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 330px; /* 3个格子 * 90px + 2个间隔 * 15px = 330px */
             }
             
             .grid-item {
@@ -385,8 +635,102 @@
             }
             
             .button {
-                padding: 10px 16px;
+                padding: 8px 12px;
                 font-size: 0.9rem;
+            }
+            
+            .modal-content {
+                padding: 15px;
+                max-width: 320px;
+            }
+            
+            .modal h3 {
+                font-size: 1.3rem;
+            }
+            
+            .modal-buttons .button {
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .modal-buttons .button .button-text-main {
+                font-size: 0.95rem;
+            }
+            
+            .modal-buttons .button .button-text-sub {
+                font-size: 0.8rem;
+            }
+            
+            .color-sequence {
+                gap: 8px;
+            }
+            
+            .color-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .color-label {
+                font-size: 0.8rem;
+            }
+            
+            .fixed-colors-bar {
+                padding: 10px;
+            }
+            
+            .color-indicator {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .color-gradient-preview {
+                margin-left: 0;
+            }
+            
+            .preview-image {
+                max-height: 150px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .grid-wrapper {
+                gap: 10px;
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 300px; /* 3个格子 * 85px + 2个间隔 * 10px = 285px */
+            }
+            
+            .grid-item {
+                width: 85px;
+                height: 85px;
+            }
+            
+            .modal-content {
+                padding: 12px;
+                max-width: 280px;
+            }
+            
+            .modal h3 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            .modal-input-group label {
+                font-size: 0.9rem;
+            }
+            
+            .modal-buttons .button {
+                padding: 10px 6px;
+                min-height: 40px;
+            }
+            
+            .modal-buttons .button .button-text-main {
+                font-size: 0.9rem;
+            }
+            
+            .modal-buttons .button .button-text-sub {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -394,102 +738,151 @@
 <body>
     <div class="container">
         <header>
-            <h1>汉字书写练习板</h1>
-            <p class="subtitle">米字格黑板 - 整笔渐变效果（支持触屏）</p>
+            <h1>汉字书写练习板<br><span style="font-size: 1.2rem; color: #b8b8d0;">Дъска за писане на китайски йероглифи</span></h1>
         </header>
         
-        <div class="main-content">
-            <div class="controls-panel">
-                <div class="control-group">
-                    <h2>颜色顺序</h2>
-                    <div class="color-sequence">
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #cc0000;"></div>
-                            <span class="color-label">红色</span>
-                        </div>
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #cc6600;"></div>
-                            <span class="color-label">橙色</span>
-                        </div>
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #006600;"></div>
-                            <span class="color-label">绿色</span>
-                        </div>
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #0033cc;"></div>
-                            <span class="color-label">蓝色</span>
-                        </div>
-                        <div class="color-item">
-                            <div class="color-box" style="background-color: #6600cc;"></div>
-                            <span class="color-label">紫色</span>
-                        </div>
-                    </div>
-                    
-                    <div class="color-indicator">
-                        <div class="current-color-box" id="currentColorBox"></div>
-                        <div>
-                            <div>当前笔画颜色：<strong id="currentColorName">红色</strong></div>
-                            <div class="color-gradient-preview" id="gradientPreview"></div>
-                        </div>
-                    </div>
-                    <div class="stroke-info">
-                        当前格子：<span id="currentGridNumber">1</span> 号
-                    </div>
-                    <div class="current-grid-info">
-                        当前格子笔画数：<span id="currentGridStrokeCount">0</span> 笔
-                        <br>
-                        下一笔颜色：<span id="nextColorName">红色</span>
-                    </div>
+        <!-- 使用说明 -->
+        <div class="instructions-section">
+            <h3>使用说明 | Инструкции за употреба</h3>
+            <div class="instructions-content">
+                <ul>
+                    <li>每笔按红→橙→绿→蓝→紫的顺序循环变色
+                        <div class="bulgarian-translation">Всеки щрих променя цвета в ред: червено → оранжево → зелено → синьо → лилаво</div>
+                    </li>
+                    <li><strong>每笔都是完整的从深到浅渐变</strong>
+                        <div class="bulgarian-translation">Всеки щрих има пълен градиент от тъмно към светло</div>
+                    </li>
+                    <li>在新格子写字时颜色从红色重新开始
+                        <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 固定颜色顺序栏 -->
+        <div class="fixed-colors-bar">
+            <h2>颜色顺序 | Цветова последователност</h2>
+            <div class="color-sequence">
+                <div class="color-item">
+                    <div class="color-box" style="background-color: #cc0000;"></div>
+                    <span class="color-label">红色 | Червено</span>
                 </div>
-                
-                <div class="control-group">
-                    <h2>米字格管理</h2>
-                    <div class="grid-controls">
-                        <input type="number" id="gridCount" min="1" max="30" value="6" class="button" style="width: 80px; text-align: center; padding: 12px;">
-                        <button id="generateGrids" class="button button-primary">生成米字格</button>
-                    </div>
-                    
-                    <button id="clearCurrent" class="button button-secondary button-full-width">
-                        <span>清空选中格子的字</span>
-                    </button>
-                    <button id="clearAll" class="button button-secondary button-full-width">
-                        <span>清空所有字</span>
-                    </button>
+                <div class="color-item">
+                    <div class="color-box" style="background-color: #cc6600;"></div>
+                    <span class="color-label">橙色 | Оранжево</span>
                 </div>
-                
-                <div class="control-group">
-                    <h2>笔画控制</h2>
-                    <button id="undoStroke" class="button button-utility button-full-width">
-                        <span>撤销当前格子上一笔</span>
-                    </button>
-                    
-                    <div class="instructions">
-                        <h3>使用说明</h3>
-                        <ul>
-                            <li>点击"生成米字格"按钮创建指定数量的格子</li>
-                            <li>在米字格中用手指或鼠标书写汉字</li>
-                            <li>每笔按红→橙→绿→蓝→紫的顺序循环变色</li>
-                            <li><strong>每笔都是完整的从深到浅渐变</strong></li>
-                            <li>在新格子写字时颜色从红色重新开始</li>
-                            <li><strong>撤销功能只针对当前选中的格子</strong></li>
-                            <li>点击格子可选中（高亮显示）</li>
-                            <li><strong>支持触摸屏设备</strong></li>
-                            <li><strong>格子会自动换行排列</strong></li>
-                        </ul>
-                    </div>
+                <div class="color-item">
+                    <div class="color-box" style="background-color: #006600;"></div>
+                    <span class="color-label">绿色 | Зелено</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-box" style="background-color: #0033cc;"></div>
+                    <span class="color-label">蓝色 | Синьо</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-box" style="background-color: #6600cc;"></div>
+                    <span class="color-label">紫色 | Лилаво</span>
                 </div>
             </div>
             
-            <div class="board-container">
-                <h2>书写板</h2>
-                <div class="board" id="board">
-                    <!-- 米字格将通过JavaScript动态生成 -->
+            <div class="color-indicator">
+                <div class="current-color-box" id="currentColorBox"></div>
+                <div>
+                    <div>当前笔画颜色：<strong id="currentColorName">红色</strong>
+                        <div class="bulgarian-translation">Текущ цвят на щрих: <strong>Червено</strong></div>
+                    </div>
+                    <div class="color-gradient-preview" id="gradientPreview"></div>
+                </div>
+            </div>
+            
+            <div class="current-grid-info">
+                <div>
+                    <div>当前格子：<span id="currentGridNumber">1</span> 号
+                        <div class="bulgarian-translation">Текуща клетка: № <span id="currentGridNumber">1</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div>当前格子笔画数：<span id="currentGridStrokeCount">0</span> 笔
+                        <div class="bulgarian-translation">Брой щрихове в текущата клетка: <span id="currentGridStrokeCount">0</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div>下一笔颜色：<span id="nextColorName">红色</span>
+                        <div class="bulgarian-translation">Следващ цвят на щрих: <span id="nextColorName">Червено</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加格子功能区域 -->
+        <div class="tools-section">
+            <div class="grid-controls">
+                <h2>添加格子 | Добави клетки</h2>
+                <div class="add-grid-control">
+                    <input type="number" id="gridCount" min="1" max="50" value="9">
+                    <button id="generateGrids" class="button button-primary">添加 | Добави</button>
+                </div>
+                <div class="grid-count-info">
+                    已有 <span id="currentGridTotal">9</span> 个格子
+                    <div class="bulgarian-translation">Има <span id="currentGridTotal">9</span> клетки</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 书写板区域 -->
+        <div class="board-container">
+            <!-- 书写板标题居中 -->
+            <div class="board-header">
+                <div class="board-title">书写板 | Писмена дъска</div>
+                
+                <!-- 功能按钮 -->
+                <div class="board-actions">
+                    <button id="clearCurrent" class="button button-secondary">
+                        <span>清空选择格子 | Изчисти избрана клетка</span>
+                    </button>
+                    <button id="clearAll" class="button button-secondary">
+                        <span>清空所有 | Изчисти всички</span>
+                    </button>
+                    <button id="undoStroke" class="button button-utility">
+                        <span>撤销上一笔 | Отмени последен щрих</span>
+                    </button>
+                    <button id="exportImage" class="button button-success">
+                        <span>导出图片 | Експортирай снимка</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 书写格子 -->
+            <div class="board" id="board">
+                <!-- 格子将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 导出模态框 -->
+        <div class="modal" id="exportModal">
+            <div class="modal-content">
+                <h3>导出图片 | Експортиране на снимка</h3>
+                <div class="modal-input-group">
+                    <label for="userName">请输入您的姓名：<br>Моля, въведете вашето име:</label>
+                    <input type="text" id="userName" placeholder="请输入姓名 | Въведете име" maxlength="20">
+                </div>
+                <div class="preview-container" id="previewContainer" style="display: none;">
+                    <img id="previewImage" class="preview-image" alt="预览图片 | Преглед на снимка">
+                    <!-- 已删除提示文字 -->
+                </div>
+                <div class="modal-buttons">
+                    <button id="cancelExport" class="button button-secondary">
+                        <span class="button-text-main">取消 | Отказ</span>
+                    </button>
+                    <button id="confirmExport" class="button button-success">
+                        <span class="button-text-main">复制图片 | Копирай снимка</span>
+                    </button>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>汉字书写练习板 &copy; 2023 | 设计：黑板样式米字格 | 功能：整笔渐变效果 | 支持触屏</p>
+            <p>汉字书写练习板 &copy; 2023<br>Дъска за писане на китайски йероглифи &copy; 2023</p>
         </footer>
     </div>
 
@@ -498,27 +891,37 @@
             // 定义颜色序列 - 每色包含深色和浅色（红、橙、绿、蓝、紫）
             const colorSequence = [
                 { 
-                    name: '红色', 
+                    name: '红色 | Червено', 
+                    nameZh: '红色',
+                    nameBg: 'Червено',
                     start: '#cc0000',    // 深红色
                     end: '#ff6666'       // 浅红色
                 },
                 { 
-                    name: '橙色', 
+                    name: '橙色 | Оранжево', 
+                    nameZh: '橙色',
+                    nameBg: 'Оранжево',
                     start: '#cc6600',    // 深橙色
                     end: '#ffcc66'       // 浅橙色
                 },
                 { 
-                    name: '绿色', 
+                    name: '绿色 | Зелено', 
+                    nameZh: '绿色',
+                    nameBg: 'Зелено',
                     start: '#006600',    // 深绿色
                     end: '#66cc66'       // 浅绿色
                 },
                 { 
-                    name: '蓝色', 
+                    name: '蓝色 | Синьо', 
+                    nameZh: '蓝色',
+                    nameBg: 'Синьо',
                     start: '#0033cc',    // 深蓝色
                     end: '#6699ff'       // 浅蓝色
                 },
                 { 
-                    name: '紫色', 
+                    name: '紫色 | Лилаво', 
+                    nameZh: '紫色',
+                    nameBg: 'Лилаво',
                     start: '#6600cc',    // 深紫色
                     end: '#cc66ff'       // 浅紫色
                 }
@@ -529,6 +932,7 @@
             let strokesHistory = {}; // 按格子索引存储笔画历史
             let currentColorIndex = {}; // 按格子索引存储当前颜色索引
             let strokeCount = {}; // 按格子索引存储笔画计数
+            let totalGrids = 0; // 总格子数
             
             // DOM元素
             const board = document.getElementById('board');
@@ -537,24 +941,34 @@
             const undoStrokeBtn = document.getElementById('undoStroke');
             const clearCurrentBtn = document.getElementById('clearCurrent');
             const clearAllBtn = document.getElementById('clearAll');
+            const exportImageBtn = document.getElementById('exportImage');
             const currentColorBox = document.getElementById('currentColorBox');
             const currentColorName = document.getElementById('currentColorName');
             const gradientPreview = document.getElementById('gradientPreview');
             const currentGridNumber = document.getElementById('currentGridNumber');
             const currentGridStrokeCount = document.getElementById('currentGridStrokeCount');
             const nextColorName = document.getElementById('nextColorName');
+            const currentGridTotal = document.getElementById('currentGridTotal');
+            
+            // 模态框元素
+            const exportModal = document.getElementById('exportModal');
+            const userNameInput = document.getElementById('userName');
+            const cancelExportBtn = document.getElementById('cancelExport');
+            const confirmExportBtn = document.getElementById('confirmExport');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
             
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
             
-            // 生成米字格
+            // 生成格子（现在改为添加格子，不清空已有内容）
             generateGridsBtn.addEventListener('click', function() {
-                const gridCount = parseInt(gridCountInput.value) || 6;
-                generateGrids(gridCount);
+                const addCount = parseInt(gridCountInput.value) || 1;
+                addGrids(addCount);
             });
             
-            // 初始化生成6个米字格
-            generateGrids(6);
+            // 初始化生成9个格子
+            addGrids(9);
             
             // 撤销当前格子上一笔
             undoStrokeBtn.addEventListener('click', function() {
@@ -626,36 +1040,112 @@
                 });
                 
                 // 清空所有历史记录
-                strokesHistory = {};
-                currentColorIndex = {};
-                strokeCount = {};
+                for (let i = 0; i < totalGrids; i++) {
+                    strokesHistory[i] = [];
+                    strokeCount[i] = 0;
+                    currentColorIndex[i] = 0;
+                }
                 
                 updateCurrentGridDisplay();
             });
             
-            // 生成指定数量的米字格
-            function generateGrids(count) {
+            // 导出图片按钮点击事件
+            exportImageBtn.addEventListener('click', function() {
+                // 检查是否有内容
+                let hasContent = false;
+                for (let i = 0; i < totalGrids; i++) {
+                    if (strokesHistory[i] && strokesHistory[i].length > 0) {
+                        hasContent = true;
+                        break;
+                    }
+                }
+                
+                if (!hasContent) {
+                    alert('请先在格子里书写汉字再导出！\nМоля, първо напишете йероглифи в клетките преди експортиране!');
+                    return;
+                }
+                
+                // 清空输入框并显示模态框
+                userNameInput.value = '';
+                previewContainer.style.display = 'none';
+                exportModal.classList.add('active');
+                userNameInput.focus();
+                
+                // 确保模态框滚动到视图中央
+                setTimeout(() => {
+                    exportModal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            });
+            
+            // 取消导出
+            cancelExportBtn.addEventListener('click', function() {
+                exportModal.classList.remove('active');
+            });
+            
+            // 确认导出
+            confirmExportBtn.addEventListener('click', function() {
+                const userName = userNameInput.value.trim();
+                if (!userName) {
+                    alert('请输入您的姓名！\nМоля, въведете вашето име!');
+                    userNameInput.focus();
+                    return;
+                }
+                
+                // 生成并复制图片
+                generateAndCopyImage(userName);
+            });
+            
+            // 输入姓名时实时预览
+            userNameInput.addEventListener('input', function() {
+                const userName = userNameInput.value.trim();
+                if (userName) {
+                    // 生成预览图片
+                    generatePreviewImage(userName);
+                    previewContainer.style.display = 'block';
+                } else {
+                    previewContainer.style.display = 'none';
+                }
+            });
+            
+            // 添加指定数量的格子（不清空已有内容）
+            function addGrids(count) {
+                // 获取当前已有的网格包装器或创建新的
+                let gridWrapper = document.querySelector('.grid-wrapper');
+                if (!gridWrapper) {
+                    gridWrapper = document.createElement('div');
+                    gridWrapper.className = 'grid-wrapper';
+                    board.appendChild(gridWrapper);
+                }
+                
+                const startIndex = totalGrids;
+                const endIndex = startIndex + count;
+                
+                // 先计算总格子数，然后一次性添加到网格中
+                const previousTotal = totalGrids;
+                totalGrids = endIndex;
+                currentGridTotal.textContent = totalGrids;
+                
+                // 清除现有的格子，重新按顺序添加
                 board.innerHTML = '';
-                
-                // 创建网格包装器
-                const gridWrapper = document.createElement('div');
+                gridWrapper = document.createElement('div');
                 gridWrapper.className = 'grid-wrapper';
+                board.appendChild(gridWrapper);
                 
-                strokesHistory = {};
-                currentColorIndex = {};
-                strokeCount = {};
-                
-                for (let i = 0; i < count; i++) {
-                    // 初始化每个格子的数据
-                    strokesHistory[i] = [];
-                    currentColorIndex[i] = 0;
-                    strokeCount[i] = 0;
+                for (let i = 0; i < totalGrids; i++) {
+                    // 恢复现有格子的数据
+                    strokesHistory[i] = strokesHistory[i] || [];
+                    currentColorIndex[i] = currentColorIndex[i] || 0;
+                    strokeCount[i] = strokeCount[i] || 0;
+                    
+                    // 创建格子容器
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = 'grid-container';
                     
                     const gridItem = document.createElement('div');
                     gridItem.className = 'grid-item';
                     gridItem.dataset.index = i;
                     
-                    // 添加米字格背景
+                    // 添加格子背景
                     const gridBackground = document.createElement('div');
                     gridBackground.className = 'grid-background';
                     
@@ -679,14 +1169,16 @@
                     canvas.style.width = '100%';
                     canvas.style.height = '100%';
                     
-                    // 添加格子编号
-                    const gridNumber = document.createElement('div');
-                    gridNumber.className = 'grid-number';
-                    gridNumber.textContent = `格子 ${i + 1}`;
+                    // 添加格子标签（在格子下方）- 现在只显示数字
+                    const gridLabel = document.createElement('div');
+                    gridLabel.className = 'grid-label';
+                    gridLabel.textContent = `${i + 1}`; // 只显示数字
+                    gridLabel.id = `grid-label-${i}`;
                     
                     gridItem.appendChild(gridBackground);
                     gridItem.appendChild(canvas);
-                    gridItem.appendChild(gridNumber);
+                    gridContainer.appendChild(gridItem);
+                    gridContainer.appendChild(gridLabel);
                     
                     // 添加点击/触摸选中事件
                     gridItem.addEventListener('click', function() {
@@ -695,8 +1187,19 @@
                             item.classList.remove('grid-active');
                         });
                         
+                        // 移除其他格子标签的高亮
+                        document.querySelectorAll('.grid-label').forEach(label => {
+                            label.style.color = 'rgba(255, 255, 255, 0.7)';
+                            label.style.fontWeight = 'normal';
+                        });
+                        
                         // 选中当前格子
                         this.classList.add('grid-active');
+                        
+                        // 高亮当前格子标签
+                        const label = document.getElementById(`grid-label-${i}`);
+                        label.style.color = '#f0d26e';
+                        label.style.fontWeight = 'bold';
                         
                         // 更新当前格子索引
                         currentGridIndex = i;
@@ -708,15 +1211,25 @@
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
                     
-                    gridWrapper.appendChild(gridItem);
+                    gridWrapper.appendChild(gridContainer);
+                    
+                    // 重新绘制已有的笔画
+                    if (strokesHistory[i] && strokesHistory[i].length > 0) {
+                        const ctx = canvas.getContext('2d');
+                        strokesHistory[i].forEach(stroke => {
+                            drawCompleteStroke(ctx, stroke.points, stroke.colorIndex);
+                        });
+                    }
                 }
                 
-                board.appendChild(gridWrapper);
-                
-                // 默认选中第一个格子
-                const firstGrid = document.querySelector('.grid-item');
-                if (firstGrid) {
-                    firstGrid.classList.add('grid-active');
+                // 如果没有选中的格子，选中第一个
+                if (!document.querySelector('.grid-active') && totalGrids > 0) {
+                    document.querySelector('.grid-item').classList.add('grid-active');
+                    const firstLabel = document.querySelector('.grid-label');
+                    if (firstLabel) {
+                        firstLabel.style.color = '#f0d26e';
+                        firstLabel.style.fontWeight = 'bold';
+                    }
                     currentGridIndex = 0;
                     updateCurrentGridDisplay();
                 }
@@ -759,7 +1272,21 @@
                             item.classList.remove('grid-active');
                         });
                         
+                        // 移除其他格子标签的高亮
+                        document.querySelectorAll('.grid-label').forEach(label => {
+                            label.style.color = 'rgba(255, 255, 255, 0.7)';
+                            label.style.fontWeight = 'normal';
+                        });
+                        
                         canvas.parentElement.classList.add('grid-active');
+                        
+                        // 高亮当前格子标签
+                        const label = document.getElementById(`grid-label-${gridIndex}`);
+                        if (label) {
+                            label.style.color = '#f0d26e';
+                            label.style.fontWeight = 'bold';
+                        }
+                        
                         currentGridIndex = gridIndex;
                         
                         updateCurrentGridDisplay();
@@ -921,6 +1448,217 @@
                 ctx.stroke();
             }
             
+            // 生成预览图片
+            function generatePreviewImage(userName) {
+                const tempCanvas = generateImageCanvas(userName);
+                previewImage.src = tempCanvas.toDataURL('image/png');
+            }
+            
+            // 生成并复制图片
+            function generateAndCopyImage(userName) {
+                const tempCanvas = generateImageCanvas(userName);
+                
+                // 将Canvas转换为Blob
+                tempCanvas.toBlob(function(blob) {
+                    // 创建ClipboardItem
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    
+                    // 复制到剪贴板
+                    navigator.clipboard.write([item]).then(function() {
+                        alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
+                        exportModal.classList.remove('active');
+                    }).catch(function(err) {
+                        console.error('复制失败:', err);
+                        // 如果复制失败，提供下载选项
+                        downloadImage(tempCanvas, userName);
+                    });
+                }, 'image/png');
+            }
+            
+            // 生成图片Canvas
+            function generateImageCanvas(userName) {
+                // 计算需要导出的格子数量
+                // 找出有内容的格子中最大的索引
+                let maxUsedGridIndex = -1;
+                for (let i = 0; i < totalGrids; i++) {
+                    if (strokesHistory[i] && strokesHistory[i].length > 0) {
+                        maxUsedGridIndex = i;
+                    }
+                }
+                
+                // 至少导出9个格子（3x3）
+                let gridsToExport = Math.max(9, maxUsedGridIndex + 1);
+                
+                // 确保是3的倍数行，每行3个格子
+                const maxCols = 3;
+                let rows = Math.ceil(gridsToExport / maxCols);
+                
+                // 如果最后一个格子所在的行不是完整的，也导出完整的空行
+                // 例如：使用了第10个格子（第4行第1个），需要导出4行完整的格子（共12个）
+                const lastRowIndex = Math.floor(maxUsedGridIndex / maxCols);
+                if (lastRowIndex >= 3) { // 如果是第4行或更多
+                    rows = Math.max(3, lastRowIndex + 1);
+                    gridsToExport = rows * maxCols;
+                }
+                
+                // 计算画布大小
+                const gridSize = 150; // 每个格子的大小（包含边距）
+                const padding = 40; // 内边距
+                const infoHeight = 100; // 底部信息区域高度
+                
+                const canvasWidth = maxCols * gridSize + padding * 2;
+                const canvasHeight = rows * gridSize + padding * 2 + infoHeight;
+                
+                // 创建临时画布
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvasWidth;
+                tempCanvas.height = canvasHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // 绘制背景
+                tempCtx.fillStyle = '#0a2912';
+                tempCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+                
+                // 绘制网格背景
+                drawGridBackground(tempCtx, canvasWidth, canvasHeight - infoHeight);
+                
+                // 绘制边框
+                tempCtx.strokeStyle = '#2c1b0e';
+                tempCtx.lineWidth = 12;
+                tempCtx.strokeRect(6, 6, canvasWidth - 12, canvasHeight - infoHeight - 12);
+                
+                // 绘制所有格子内容
+                for (let i = 0; i < gridsToExport; i++) {
+                    const row = Math.floor(i / maxCols);
+                    const col = i % maxCols;
+                    
+                    const x = padding + col * gridSize;
+                    const y = padding + row * gridSize;
+                    
+                    // 绘制格子背景
+                    drawGridTemplate(tempCtx, x, y, gridSize - 20, gridSize - 20);
+                    
+                    // 绘制格子边框
+                    tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                    tempCtx.lineWidth = 1;
+                    tempCtx.strokeRect(x - 1, y - 1, gridSize - 18, gridSize - 18);
+                    
+                    // 绘制格子编号（在图片中放在格子下方）- 现在只显示数字
+                    tempCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    tempCtx.font = 'bold 16px Microsoft YaHei';
+                    tempCtx.textAlign = 'center';
+                    tempCtx.fillText(`${i + 1}`, x + (gridSize - 20) / 2, y + gridSize - 5);
+                    
+                    // 绘制格子内的笔画（只绘制有内容的格子）
+                    if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
+                        const gridStrokes = strokesHistory[i];
+                        gridStrokes.forEach(stroke => {
+                            // 转换坐标到临时画布
+                            const convertedPoints = stroke.points.map(point => ({
+                                x: x + (point.x / 120) * (gridSize - 40),
+                                y: y + (point.y / 120) * (gridSize - 40)
+                            }));
+                            
+                            // 绘制笔画
+                            drawCompleteStroke(tempCtx, convertedPoints, stroke.colorIndex);
+                        });
+                    }
+                }
+                
+                // 绘制底部信息区域
+                const infoY = canvasHeight - infoHeight + 20;
+                
+                // 获取当前时间
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth() + 1;
+                const day = now.getDate();
+                const timeStr = `${year}年${month}月${day}日`;
+                
+                // 绘制姓名和时间
+                tempCtx.fillStyle = '#f0d26e';
+                tempCtx.font = 'bold 20px Microsoft YaHei';
+                tempCtx.textAlign = 'right';
+                
+                // 绘制姓名
+                tempCtx.fillText(userName, canvasWidth - padding, infoY + 20);
+                
+                // 绘制时间
+                tempCtx.fillText(timeStr, canvasWidth - padding, infoY + 50);
+                
+                // 绘制水印
+                tempCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                tempCtx.font = '16px Microsoft YaHei';
+                tempCtx.textAlign = 'left';
+                tempCtx.fillText('汉字书写练习板', padding, infoY + 35);
+                tempCtx.fillText('Дъска за писане на йероглифи', padding, infoY + 65);
+                
+                return tempCanvas;
+            }
+            
+            // 绘制网格背景
+            function drawGridBackground(ctx, width, height) {
+                const gridSize = 60;
+                
+                // 径向渐变背景
+                for (let y = 0; y < height; y += gridSize) {
+                    for (let x = 0; x < width; x += gridSize) {
+                        // 左上角点
+                        ctx.fillStyle = 'rgba(20, 80, 30, 0.2)';
+                        ctx.beginPath();
+                        ctx.arc(x + gridSize * 0.25, y + gridSize * 0.25, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 右下角点
+                        ctx.beginPath();
+                        ctx.arc(x + gridSize * 0.75, y + gridSize * 0.75, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // 绘制格子模板
+            function drawGridTemplate(ctx, x, y, width, height) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                
+                // 横线
+                ctx.beginPath();
+                ctx.moveTo(x, y + height / 2);
+                ctx.lineTo(x + width, y + height / 2);
+                ctx.stroke();
+                
+                // 竖线
+                ctx.beginPath();
+                ctx.moveTo(x + width / 2, y);
+                ctx.lineTo(x + width / 2, y + height);
+                ctx.stroke();
+                
+                // 对角线1
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + width, y + height);
+                ctx.stroke();
+                
+                // 对角线2
+                ctx.beginPath();
+                ctx.moveTo(x, y + height);
+                ctx.lineTo(x + width, y);
+                ctx.stroke();
+            }
+            
+            // 下载图片（备用方案）
+            function downloadImage(canvas, userName) {
+                const link = document.createElement('a');
+                const timeStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                link.download = `汉字练习_${userName}_${timeStr}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                alert('图片已保存，请检查下载文件夹！\nСнимката е запазена, моля проверете папката за изтегляния!');
+                exportModal.classList.remove('active');
+            }
+            
             // 更新当前格子显示
             function updateCurrentGridDisplay() {
                 const gridStrokes = strokesHistory[currentGridIndex] || [];
@@ -940,8 +1678,8 @@
                 currentGridNumber.textContent = currentGridIndex + 1;
                 currentGridStrokeCount.textContent = currentStrokesCount;
                 currentColorBox.style.backgroundColor = displayColor.start;
-                currentColorName.textContent = displayColor.name;
-                nextColorName.textContent = nextColor.name;
+                currentColorName.textContent = displayColor.nameZh;
+                nextColorName.textContent = nextColor.nameZh;
                 
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
