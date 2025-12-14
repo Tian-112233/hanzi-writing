@@ -745,19 +745,20 @@
             padding: 15px;
         }
 
+        /* 修改：整体预览始终使用3列布局 */
         .overview-grid-wrapper {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 12px;
             justify-items: center;
-            max-width: 500px;
+            width: 100%;
             margin: 0 auto;
         }
 
         .overview-grid-item {
             position: relative;
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
@@ -823,14 +824,18 @@
                 max-width: 300px;
             }
             
-            .overview-grid-wrapper {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-            
+            /* 修改：手机端整体预览也使用3列，但格子稍小 */
             .overview-grid-item {
                 width: 80px;
                 height: 80px;
+            }
+            
+            /* 非常窄的手机屏幕调整 */
+            @media (max-width: 360px) {
+                .overview-grid-item {
+                    width: 70px;
+                    height: 70px;
+                }
             }
         }
 
@@ -842,6 +847,12 @@
             
             .mobile-board-container {
                 display: none; /* 隐藏手机版 */
+            }
+            
+            /* 修改：桌面端整体预览格子稍大 */
+            .overview-grid-item {
+                width: 100px;
+                height: 100px;
             }
         }
 
@@ -870,16 +881,6 @@
             .modal-buttons .button {
                 width: 100%;
             }
-            
-            .overview-grid-wrapper {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .overview-grid-item {
-                width: 70px;
-                height: 70px;
-            }
         }
 
         @media (min-width: 1024px) {
@@ -901,14 +902,9 @@
                 max-height: 250px;
             }
             
-            .overview-grid-wrapper {
-                max-width: 600px;
-                gap: 20px;
-            }
-            
             .overview-grid-item {
-                width: 120px;
-                height: 120px;
+                width: 110px;
+                height: 110px;
             }
         }
     </style>
@@ -936,8 +932,8 @@
                     <li><strong>手机端：当前格子放大显示，使用导航按钮切换</strong>
                         <div class="bulgarian-translation">На телефона: Текущата клетка се показва увеличена, използвайте бутоните за навигация</div>
                     </li>
-                    <li><strong>整体预览：至少显示3行3列（9个格子），按需扩展行数</strong>
-                        <div class="bulgarian-translation">Цялостен преглед: Показва минимум 3 реда и 3 колони (9 клетки), разширява се според нуждите</div>
+                    <li><strong>整体预览：电脑端和手机端都显示3列，按需显示行数</strong>
+                        <div class="bulgarian-translation">Цялостен преглед: Показва 3 колони на компютър и телефон, редовете се показват според нуждите</div>
                     </li>
                 </ul>
             </div>
@@ -1138,8 +1134,8 @@
                     <!-- 整体预览内容将通过JavaScript动态生成 -->
                 </div>
                 <div class="overview-info">
-                    显示 <span id="overviewDisplayGrids">9</span> 个格子，共 <span id="overviewTotalGrids">0</span> 个格子，<span id="overviewTotalStrokes">0</span> 笔
-                    <div class="bulgarian-translation">Показва <span id="overviewDisplayGridsBg">9</span> клетки, общо <span id="overviewTotalGridsBg">0</span> клетки, <span id="overviewTotalStrokesBg">0</span> щриха</div>
+                    显示 <span id="overviewDisplayRows">3</span> 行 <span id="overviewDisplayGrids">9</span> 个格子，共 <span id="overviewTotalGrids">0</span> 个格子，<span id="overviewTotalStrokes">0</span> 笔
+                    <div class="bulgarian-translation">Показва <span id="overviewDisplayRowsBg">3</span> реда <span id="overviewDisplayGridsBg">9</span> клетки, общо <span id="overviewTotalGridsBg">0</span> клетки, <span id="overviewTotalStrokesBg">0</span> щриха</div>
                 </div>
             </div>
         </div>
@@ -1237,6 +1233,8 @@
             const overviewTotalGridsBg = document.getElementById('overviewTotalGridsBg');
             const overviewTotalStrokes = document.getElementById('overviewTotalStrokes');
             const overviewTotalStrokesBg = document.getElementById('overviewTotalStrokesBg');
+            const overviewDisplayRows = document.getElementById('overviewDisplayRows');
+            const overviewDisplayRowsBg = document.getElementById('overviewDisplayRowsBg');
             const overviewDisplayGrids = document.getElementById('overviewDisplayGrids');
             const overviewDisplayGridsBg = document.getElementById('overviewDisplayGridsBg');
             
@@ -2117,27 +2115,21 @@
                 // 清空预览容器
                 overviewContainer.innerHTML = '';
                 
-                // 计算需要显示的格子数量
-                // 找出有内容的格子中最大的索引
-                let maxUsedGridIndex = -1;
+                // 计算需要显示的行数和格子数量
+                // 1. 找出有内容的格子中最大的行号
+                let maxRowUsed = -1;
                 for (let i = 0; i < totalGrids; i++) {
                     if (strokesHistory[i] && strokesHistory[i].length > 0) {
-                        maxUsedGridIndex = i;
+                        const row = Math.floor(i / 3); // 0-based行号（每行3个格子）
+                        maxRowUsed = Math.max(maxRowUsed, row);
                     }
                 }
                 
-                // 至少显示9个格子（3行）
-                let gridsToShow = 9;
+                // 2. 计算需要显示的行数：最少3行
+                const rowsToShow = Math.max(3, maxRowUsed + 1);
                 
-                // 如果用户使用了更多格子，计算需要显示的行数
-                if (maxUsedGridIndex >= 0) {
-                    // 计算最大行数（从0开始的行索引）
-                    const maxRowIndex = Math.floor(maxUsedGridIndex / 3);
-                    
-                    // 至少显示3行，如果用户使用了更多，则显示更多行
-                    const rowsToShow = Math.max(3, maxRowIndex + 1);
-                    gridsToShow = rowsToShow * 3;
-                }
+                // 3. 计算需要显示的格子总数
+                const gridsToShow = rowsToShow * 3;
                 
                 // 创建网格包装器
                 const gridWrapper = document.createElement('div');
@@ -2215,14 +2207,14 @@
                 overviewContainer.appendChild(gridWrapper);
                 
                 // 更新预览信息
-                updateOverviewInfo(gridsToShow);
+                updateOverviewInfo(rowsToShow, gridsToShow);
                 
                 // 显示模态框
                 overviewModal.classList.add('active');
             }
             
             // 更新整体预览信息
-            function updateOverviewInfo(gridsToShow = 9) {
+            function updateOverviewInfo(rowsToShow = 3, gridsToShow = 9) {
                 let totalStrokes = 0;
                 for (let i = 0; i < totalGrids; i++) {
                     totalStrokes += strokeCount[i] || 0;
@@ -2232,6 +2224,8 @@
                 overviewTotalGridsBg.textContent = totalGrids;
                 overviewTotalStrokes.textContent = totalStrokes;
                 overviewTotalStrokesBg.textContent = totalStrokes;
+                overviewDisplayRows.textContent = rowsToShow;
+                overviewDisplayRowsBg.textContent = rowsToShow;
                 overviewDisplayGrids.textContent = gridsToShow;
                 overviewDisplayGridsBg.textContent = gridsToShow;
             }
