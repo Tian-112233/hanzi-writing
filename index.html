@@ -888,7 +888,7 @@
             }
             
             .sidebar {
-                display: none; /* 手机端隐藏侧边栏 */
+                display: none !important; /* 手机端隐藏侧边栏 */
             }
             
             .desktop-board-container {
@@ -945,6 +945,10 @@
 
         /* 媒体查询：桌面端 */
         @media (min-width: 769px) {
+            .sidebar {
+                display: block !important; /* 关键修复：确保桌面端显示侧边栏 */
+            }
+            
             .desktop-board-container {
                 display: block; /* 显示桌面版 */
             }
