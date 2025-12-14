@@ -166,6 +166,37 @@
             font-size: 0.75rem;
         }
 
+        /* 电脑端固定工具栏 */
+        .fixed-tools-bar {
+            position: sticky;
+            top: 10px;
+            z-index: 99;
+            background-color: rgba(45, 45, 68, 0.95);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: -10px;
+        }
+
+        .fixed-tools-bar h2 {
+            color: #6ca6e1;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #4a4a6e;
+            text-align: center;
+        }
+
+        .desktop-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
         /* 工具区域 */
         .tools-section {
             display: flex;
@@ -493,6 +524,83 @@
             font-weight: bold;
         }
 
+        .mobile-grid-stroke-info {
+            font-size: 0.9rem;
+            color: #b8b8d0;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        /* 手机版颜色指示 */
+        .mobile-color-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: rgba(45, 45, 68, 0.8);
+            border-radius: 8px;
+        }
+
+        .mobile-color-indicator-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mobile-color-label {
+            font-size: 0.8rem;
+            color: #e0e0e0;
+        }
+
+        .mobile-color-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* 手机版颜色顺序提示 */
+        .mobile-color-sequence-bar {
+            background-color: rgba(45, 45, 68, 0.8);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .mobile-color-sequence-title {
+            color: #6ca6e1;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .mobile-color-sequence {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .mobile-color-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .mobile-color-dot.current {
+            transform: scale(1.2);
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        .mobile-color-dot.next {
+            border: 2px dashed white;
+        }
+
         /* 手机版导航按钮 */
         .mobile-navigation {
             display: flex;
@@ -805,13 +913,13 @@
                 display: block; /* 显示手机版 */
             }
             
-            h1 {
-                font-size: 1.6rem;
+            .fixed-colors-bar,
+            .fixed-tools-bar {
+                display: none; /* 手机端隐藏固定栏 */
             }
             
-            .fixed-colors-bar {
-                position: static; /* 手机端不固定，避免占用空间 */
-                margin-bottom: 10px;
+            h1 {
+                font-size: 1.6rem;
             }
             
             .board-actions {
@@ -1002,6 +1110,28 @@
             </div>
         </div>
         
+        <!-- 电脑端固定工具栏 -->
+        <div class="fixed-tools-bar">
+            <h2>书写工具 | Инструменти за писане</h2>
+            <div class="desktop-tools">
+                <button id="clearCurrent" class="button button-secondary">
+                    <span>清空选择格子 | Изчисти избрана клетка</span>
+                </button>
+                <button id="clearAll" class="button button-secondary">
+                    <span>清空所有 | Изчисти всички</span>
+                </button>
+                <button id="undoStroke" class="button button-utility">
+                    <span>撤销上一笔 | Отмени последен щрих</span>
+                </button>
+                <button id="exportImage" class="button button-success">
+                    <span>导出图片 | Експортирай снимка</span>
+                </button>
+                <button id="overviewBtn" class="button button-warning">
+                    <span>整体预览 | Цялостен преглед</span>
+                </button>
+            </div>
+        </div>
+        
         <!-- 添加格子功能区域 -->
         <div class="tools-section">
             <div class="grid-controls">
@@ -1021,25 +1151,6 @@
         <div class="desktop-board-container board-container">
             <div class="board-header">
                 <div class="board-title">书写板 | Писмена дъска</div>
-                
-                <!-- 功能按钮 -->
-                <div class="board-actions">
-                    <button id="clearCurrent" class="button button-secondary">
-                        <span>清空选择格子 | Изчисти избрана клетка</span>
-                    </button>
-                    <button id="clearAll" class="button button-secondary">
-                        <span>清空所有 | Изчисти всички</span>
-                    </button>
-                    <button id="undoStroke" class="button button-utility">
-                        <span>撤销上一笔 | Отмени последен щрих</span>
-                    </button>
-                    <button id="exportImage" class="button button-success">
-                        <span>导出图片 | Експортирай снимка</span>
-                    </button>
-                    <button id="overviewBtn" class="button button-warning">
-                        <span>整体预览 | Цялостен преглед</span>
-                    </button>
-                </div>
             </div>
             
             <!-- 桌面版书写格子 -->
@@ -1058,6 +1169,9 @@
                     <button id="clearCurrentMobile" class="button button-secondary">
                         <span>清空当前格子 | Изчисти текуща клетка</span>
                     </button>
+                    <button id="clearAllMobile" class="button button-secondary">
+                        <span>清空所有 | Изчисти всички</span>
+                    </button>
                     <button id="undoStrokeMobile" class="button button-utility">
                         <span>撤销上一笔 | Отмени последен щрих</span>
                     </button>
@@ -1072,6 +1186,26 @@
             
             <!-- 手机版当前格子（放大显示） -->
             <div class="mobile-board">
+                <!-- 手机版颜色顺序提示 -->
+                <div class="mobile-color-sequence-bar">
+                    <div class="mobile-color-sequence-title">颜色顺序 | Цветова последователност</div>
+                    <div class="mobile-color-sequence" id="mobileColorSequence">
+                        <!-- 颜色圆点将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 手机版当前/下一笔颜色指示 -->
+                <div class="mobile-color-indicator">
+                    <div class="mobile-color-indicator-item">
+                        <div class="mobile-color-label">当前笔画颜色 | Текущ цвят</div>
+                        <div class="mobile-color-box" id="mobileCurrentColorBox"></div>
+                    </div>
+                    <div class="mobile-color-indicator-item">
+                        <div class="mobile-color-label">下一笔颜色 | Следващ цвят</div>
+                        <div class="mobile-color-box" id="mobileNextColorBox"></div>
+                    </div>
+                </div>
+                
                 <div class="mobile-current-grid-container">
                     <div class="mobile-current-grid" id="mobileCurrentGrid">
                         <!-- 格子背景 -->
@@ -1083,6 +1217,7 @@
                         <canvas class="grid-canvas" id="mobileCurrentCanvas"></canvas>
                     </div>
                     <div class="mobile-grid-label" id="mobileGridLabel">格子 1</div>
+                    <div class="mobile-grid-stroke-info" id="mobileGridStrokeInfo">0 笔 | 0 щриха</div>
                 </div>
                 
                 <!-- 手机版导航按钮 -->
@@ -1206,7 +1341,11 @@
             const mobileCurrentGrid = document.getElementById('mobileCurrentGrid');
             const mobileCurrentCanvas = document.getElementById('mobileCurrentCanvas');
             const mobileGridLabel = document.getElementById('mobileGridLabel');
+            const mobileGridStrokeInfo = document.getElementById('mobileGridStrokeInfo');
             const mobilePreviewGrids = document.getElementById('mobilePreviewGrids');
+            const mobileColorSequence = document.getElementById('mobileColorSequence');
+            const mobileCurrentColorBox = document.getElementById('mobileCurrentColorBox');
+            const mobileNextColorBox = document.getElementById('mobileNextColorBox');
             const prevGridBtn = document.getElementById('prevGridBtn');
             const nextGridBtn = document.getElementById('nextGridBtn');
             
@@ -1217,6 +1356,7 @@
             const clearCurrentBtn = document.getElementById('clearCurrent');
             const clearCurrentMobileBtn = document.getElementById('clearCurrentMobile');
             const clearAllBtn = document.getElementById('clearAll');
+            const clearAllMobileBtn = document.getElementById('clearAllMobile');
             const exportImageBtn = document.getElementById('exportImage');
             const exportImageMobileBtn = document.getElementById('exportImageMobile');
             const overviewBtn = document.getElementById('overviewBtn');
@@ -1255,6 +1395,8 @@
             
             // 初始化当前颜色显示
             updateCurrentGridDisplay();
+            updateMobileColorDisplay();
+            createMobileColorSequence();
             
             // 设置手机版画布尺寸（固定为280x280像素）
             mobileCurrentCanvas.width = 280;
@@ -1290,22 +1432,9 @@
             clearCurrentBtn.addEventListener('click', clearCurrentGrid);
             clearCurrentMobileBtn.addEventListener('click', clearCurrentGrid);
             
-            // 清空所有字
-            clearAllBtn.addEventListener('click', function() {
-                if (confirm('确定要清空所有格子吗？\nСигурни ли сте, че искате да изчистите всички клетки?')) {
-                    // 清空所有历史记录
-                    for (let i = 0; i < totalGrids; i++) {
-                        strokesHistory[i] = [];
-                        strokeCount[i] = 0;
-                        currentColorIndex[i] = 0;
-                    }
-                    
-                    // 重新绘制所有格子
-                    redrawAllGrids();
-                    
-                    updateCurrentGridDisplay();
-                }
-            });
+            // 清空所有字（桌面版和手机版）
+            clearAllBtn.addEventListener('click', clearAllGrids);
+            clearAllMobileBtn.addEventListener('click', clearAllGrids);
             
             // 导出图片按钮点击事件（桌面版和手机版）
             exportImageBtn.addEventListener('click', exportImage);
@@ -1377,6 +1506,51 @@
                         });
                     }, 'image/png');
                 };
+            }
+            
+            // 创建手机版颜色顺序条
+            function createMobileColorSequence() {
+                mobileColorSequence.innerHTML = '';
+                colorSequence.forEach((color, index) => {
+                    const colorDot = document.createElement('div');
+                    colorDot.className = 'mobile-color-dot';
+                    colorDot.style.backgroundColor = color.start;
+                    colorDot.dataset.index = index;
+                    mobileColorSequence.appendChild(colorDot);
+                });
+            }
+            
+            // 更新手机版颜色显示
+            function updateMobileColorDisplay() {
+                const gridStrokes = strokesHistory[currentGridIndex] || [];
+                const currentStrokesCount = gridStrokes.length;
+                const nextColorIdx = currentColorIndex[currentGridIndex] || 0;
+                const nextColor = colorSequence[nextColorIdx];
+                
+                // 如果当前格子有笔画，显示最后一笔的颜色
+                let displayColorIdx = nextColorIdx;
+                if (currentStrokesCount > 0) {
+                    const lastStroke = gridStrokes[currentStrokesCount - 1];
+                    displayColorIdx = lastStroke.colorIndex;
+                }
+                const displayColor = colorSequence[displayColorIdx];
+                
+                // 更新手机版颜色方块
+                mobileCurrentColorBox.style.backgroundColor = displayColor.start;
+                mobileNextColorBox.style.backgroundColor = nextColor.start;
+                
+                // 更新颜色顺序条中的当前和下一笔颜色
+                document.querySelectorAll('.mobile-color-dot').forEach((dot, index) => {
+                    dot.classList.remove('current', 'next');
+                    if (index === displayColorIdx) {
+                        dot.classList.add('current');
+                    } else if (index === nextColorIdx) {
+                        dot.classList.add('next');
+                    }
+                });
+                
+                // 更新手机版笔画数信息
+                mobileGridStrokeInfo.textContent = `${currentStrokesCount} 笔 | ${currentStrokesCount} щриха`;
             }
             
             // 添加指定数量的格子（不清空已有内容）
@@ -1494,6 +1668,7 @@
                         
                         // 更新显示
                         updateCurrentGridDisplay();
+                        updateMobileColorDisplay();
                     });
                     
                     // 添加绘图事件（桌面版）
@@ -1576,6 +1751,7 @@
                     currentGridIndex = 0;
                     updateMobileDisplay();
                     updateCurrentGridDisplay();
+                    updateMobileColorDisplay();
                 }
                 
                 // 更新导航按钮状态
@@ -1628,6 +1804,7 @@
                 
                 // 更新全局显示
                 updateCurrentGridDisplay();
+                updateMobileColorDisplay();
             }
             
             // 更新手机端显示
@@ -1640,6 +1817,10 @@
                 
                 // 重新绘制手机预览格子
                 redrawPreviewGrid(currentGridIndex);
+                
+                // 更新笔画数信息
+                const currentStrokesCount = strokesHistory[currentGridIndex] ? strokesHistory[currentGridIndex].length : 0;
+                mobileGridStrokeInfo.textContent = `${currentStrokesCount} 笔 | ${currentStrokesCount} щриха`;
             }
             
             // 更新导航按钮状态
@@ -1744,6 +1925,7 @@
                         
                         // 更新显示
                         updateCurrentGridDisplay();
+                        updateMobileColorDisplay();
                         updateOverviewInfo();
                     }
                     
@@ -1891,6 +2073,7 @@
                         
                         // 更新显示
                         updateCurrentGridDisplay();
+                        updateMobileColorDisplay();
                         updateOverviewInfo();
                     }
                     
@@ -2068,6 +2251,7 @@
                     
                     // 更新显示
                     updateCurrentGridDisplay();
+                    updateMobileColorDisplay();
                     updateOverviewInfo();
                 }
             }
@@ -2086,6 +2270,26 @@
                     redrawPreviewGrid(currentGridIndex);
                     
                     updateCurrentGridDisplay();
+                    updateMobileColorDisplay();
+                    updateOverviewInfo();
+                }
+            }
+            
+            // 清空所有格子
+            function clearAllGrids() {
+                if (confirm('确定要清空所有格子吗？\nСигурни ли сте, че искате да изчистите всички клетки?')) {
+                    // 清空所有历史记录
+                    for (let i = 0; i < totalGrids; i++) {
+                        strokesHistory[i] = [];
+                        strokeCount[i] = 0;
+                        currentColorIndex[i] = 0;
+                    }
+                    
+                    // 重新绘制所有格子
+                    redrawAllGrids();
+                    
+                    updateCurrentGridDisplay();
+                    updateMobileColorDisplay();
                     updateOverviewInfo();
                 }
             }
@@ -2449,7 +2653,7 @@
                 ctx.stroke();
             }
             
-            // 更新当前格子显示
+            // 更新当前格子显示（电脑端）
             function updateCurrentGridDisplay() {
                 const gridStrokes = strokesHistory[currentGridIndex] || [];
                 const currentStrokesCount = gridStrokes.length;
@@ -2464,16 +2668,16 @@
                 }
                 const displayColor = colorSequence[displayColorIdx];
                 
-                // 更新显示
+                // 更新显示 - 电脑端只显示颜色方块，不显示文字
                 currentGridNumber.textContent = currentGridIndex + 1;
                 currentGridNumberBg.textContent = currentGridIndex + 1; // 更新保加利亚语数字
                 currentGridStrokeCount.textContent = currentStrokesCount;
                 currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
                 currentColorBox.style.backgroundColor = displayColor.start;
-                currentColorName.textContent = displayColor.nameZh;
-                currentColorNameBg.textContent = displayColor.nameBg; // 更新保加利亚语颜色名
-                nextColorName.textContent = nextColor.nameZh;
-                nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
+                currentColorName.textContent = ""; // 清除文字
+                currentColorNameBg.textContent = ""; // 清除文字
+                nextColorName.textContent = ""; // 清除文字
+                nextColorNameBg.textContent = ""; // 清除文字
                 
                 // 更新渐变预览
                 gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
