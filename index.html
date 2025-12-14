@@ -260,11 +260,11 @@
             flex-direction: column;
         }
 
-        /* 格子功能区 */
+        /* 格子功能区 - 优化设计，不突出边框 */
         .grid-controls {
             background-color: var(--color-active-bg);
             border-radius: 10px;
-            padding: 10px;
+            padding: 12px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
@@ -274,13 +274,27 @@
             flex-shrink: 0;
             margin-bottom: 15px;
             border: 1px solid var(--color-border-main);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grid-controls::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #d4b483, #c19a6b, #d4b483);
+            opacity: 0.5;
         }
 
         .grid-controls h2 {
             border-bottom: none;
             padding-bottom: 0;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-size: 1rem;
+            color: var(--color-accent);
         }
         
         .desktop-tools {
@@ -304,11 +318,18 @@
             padding: 8px;
             border-radius: 6px;
             border: 1px solid var(--color-border-main);
-            background-color: var(--color-bg-container);
+            background-color: rgba(255, 255, 255, 0.8);
             color: var(--color-text-main);
             font-size: 0.9rem;
             text-align: center;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .add-grid-control input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
         }
 
         .button {
@@ -651,6 +672,19 @@
             margin-bottom: 15px;
             text-align: center;
             border: 1px solid var(--color-border-main);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mobile-add-grid-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #d4b483, #c19a6b, #d4b483);
+            opacity: 0.5;
         }
         
         /* 媒体查询：手机端 */
@@ -898,7 +932,7 @@
                 </div>
                 <div class="color-sequence-labels">
                     <span>红</span>
-                    <span>橙</span>
+                    <span>黄</span>
                     <span>绿</span>
                     <span>蓝</span>
                     <span>紫</span>
@@ -933,8 +967,8 @@
                 <h3>使用说明 | Инструкции за употреба</h3>
                 <div class="instructions-content">
                     <ul>
-                        <li>每笔按红→橙→绿→蓝→紫的顺序循环变色
-                            <div class="bulgarian-translation">Всеки щрих променя цвета в ред: червено → оранжево → зелено → синьо → лилаво</div>
+                        <li>每笔按红→黄→绿→蓝→紫的顺序循环变色
+                            <div class="bulgarian-translation">Всеки щрих променя цвета в ред: червено → жълто → зелено → синьо → лилаво</div>
                         </li>
                         <li>每笔都是完整的从深到浅渐变
                             <div class="bulgarian-translation">Всеки щрих има пълен градиент от тъмно към светло</div>
@@ -997,7 +1031,7 @@
                         </div>
                         <div class="mobile-color-sequence-labels">
                             <span>红</span>
-                            <span>橙</span>
+                            <span>黄</span>
                             <span>绿</span>
                             <span>蓝</span>
                             <span>紫</span>
@@ -1148,7 +1182,7 @@
                 <style>
                     .overview-grid-wrapper {
                         display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                         gap: 15px;
                         justify-content: center;
                         padding: 10px;
@@ -1164,7 +1198,7 @@
                         cursor: pointer;
                         background-color: var(--color-active-bg);
                         border-radius: 6px;
-                        padding: 5px;
+                        padding: 8px;
                         transition: transform 0.2s;
                         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                         position: relative;
@@ -1175,22 +1209,22 @@
                         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
                     }
                     .overview-grid-item canvas {
-                        width: 90%;
-                        height: 90%;
+                        width: 100%;
+                        height: 100%;
                         max-width: 90px;
                         max-height: 90px;
                         border: 1px solid var(--color-border-main);
                         flex-shrink: 0;
-                        margin-bottom: 3px;
+                        margin-bottom: 5px;
                         background-color: var(--color-bg-board);
                     }
                     .overview-grid-number {
-                        font-size: 0.8rem;
+                        font-size: 0.9rem;
                         color: var(--color-accent);
                         font-weight: bold;
                     }
                     .overview-stroke-count {
-                        font-size: 0.7rem;
+                        font-size: 0.75rem;
                         color: var(--color-text-secondary);
                     }
                 </style>
@@ -1204,7 +1238,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 定义颜色序列 - 增强对比度的传统书法风格颜色
+            // 定义颜色序列 - 橙色改为黄色，增强对比度的传统书法风格颜色
             const colorSequence = [
                 { 
                     name: '红色 | Червено', 
@@ -1214,11 +1248,11 @@
                     end: '#ff8a8a'       // 浅红色
                 },
                 { 
-                    name: '橙色 | Оранжево', 
-                    nameZh: '橙色',
-                    nameBg: 'Оранжево',
-                    start: '#b55100',    // 深橙色
-                    end: '#ffc266'       // 浅橙色
+                    name: '黄色 | Жълто',  // 改为黄色
+                    nameZh: '黄色',
+                    nameBg: 'Жълто',
+                    start: '#cc9900',    // 深黄色（金黄色）
+                    end: '#ffef66'       // 浅黄色（亮黄色）
                 },
                 { 
                     name: '绿色 | Зелено', 
@@ -2059,6 +2093,10 @@
                 
                 let totalStrokes = 0;
                 
+                // 先计算行数和列数，确保布局整齐
+                const cols = 5; // 每行固定显示5个格子
+                const rows = Math.ceil(totalGrids / cols);
+                
                 for (let i = 0; i < totalGrids; i++) {
                     const gridItem = document.createElement('div');
                     gridItem.className = 'overview-grid-item';
@@ -2074,6 +2112,9 @@
                     const ctx = canvas.getContext('2d');
                     const gridStrokes = strokesHistory[i] || [];
                     const scale = 90 / 120;
+                    
+                    // 清除画布
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     
                     gridStrokes.forEach(stroke => {
                         const scaledPoints = stroke.points.map(point => ({
@@ -2112,17 +2153,20 @@
                 }
                 
                 overviewContainer.appendChild(gridWrapper);
-                updateOverviewInfo(totalStrokes);
+                updateOverviewInfo(totalStrokes, rows, cols);
                 overviewModal.style.display = 'flex';
             }
 
-            function updateOverviewInfo(totalStrokes = null) {
+            function updateOverviewInfo(totalStrokes = null, rows = null, cols = 5) {
                 if (totalStrokes === null) {
                     totalStrokes = Object.values(strokeCount).reduce((acc, count) => acc + count, 0);
                 }
                 
-                const rows = Math.ceil(totalGrids / 3);
-                const gridsInView = Math.min(totalGrids, rows * 3);
+                if (rows === null) {
+                    rows = Math.ceil(totalGrids / cols);
+                }
+                
+                const gridsInView = Math.min(totalGrids, rows * cols);
 
                 const totalGridsElements = document.querySelectorAll('#overviewTotalGrids, #overviewTotalGridsBg');
                 totalGridsElements.forEach(el => el.textContent = totalGrids);
