@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习板 - 护眼模式</title>
+    <title>汉字书写练习板 - 传统书法风</title>
     <style>
-        /* 护眼模式颜色变量 */
+        /* 传统书法风颜色变量 */
         :root {
-            --color-bg-body: #fcfcf5;             /* 柔和奶油白 */
-            --color-bg-container: #ffffff;        /* 纯白色 */
-            --color-bg-board: #f2fff2;            /* 浅淡绿色 (护眼) */
-            --color-text-main: #333333;           /* 深灰色文字 */
-            --color-text-secondary: #666666;      /* 次级灰色文字 */
-            --color-accent: #3a69a0;              /* 沉稳蓝色 (强调色) */
-            --color-border-main: #e0e0e0;         /* 浅灰色边框 */
-            --color-border-board: #cceeff;        /* 浅蓝色边框 */
-            --color-grid-line: rgba(0, 0, 0, 0.1); /* 细微网格线 */
-            --color-active-bg: #f0f0f0;           /* 活跃背景 */
+            --color-bg-body: #fff8f0;             /* 宣纸米白色 */
+            --color-bg-container: #fffaf5;        /* 浅米色 */
+            --color-bg-board: #fff5e6;            /* 宣纸黄 */
+            --color-text-main: #3a2610;           /* 深棕色文字 */
+            --color-text-secondary: #7a5c3c;      /* 次级棕色文字 */
+            --color-accent: #8b4513;              /* 传统棕色 (强调色) */
+            --color-border-main: #d4b483;         /* 浅木色边框 */
+            --color-border-board: #c19a6b;        /* 深木色边框 */
+            --color-grid-line: rgba(139, 69, 19, 0.15); /* 棕色网格线 */
+            --color-active-bg: #f5e6d3;           /* 活跃背景 */
+            --color-grid-dot: rgba(139, 69, 19, 0.3); /* 米字格点颜色 */
         }
 
         * {
@@ -27,7 +28,7 @@
         }
 
         body {
-            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            font-family: 'SimSun', 'STSong', 'Microsoft YaHei', serif;
             background-color: var(--color-bg-body);
             color: var(--color-text-main);
             padding: 0;
@@ -35,6 +36,7 @@
             -webkit-text-size-adjust: 100%;
             touch-action: manipulation;
             overflow: hidden; 
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4b483' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
 
         .container {
@@ -59,18 +61,28 @@
         h1 {
             color: var(--color-accent);
             margin-bottom: 6px;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             line-height: 1.3;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .title-translation {
+            font-size: 1rem;
+            color: var(--color-accent) !important;
+            margin-top: 2px;
+            font-style: italic;
         }
 
         .instructions-section {
-            background-color: #e6f7ff; /* 浅蓝背景 */
+            background-color: rgba(245, 230, 211, 0.8); /* 浅棕色半透明背景 */
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 15px;
             border-left: 4px solid var(--color-accent);
             flex-shrink: 0;
+            backdrop-filter: blur(5px);
         }
 
         .instructions-section h3 {
@@ -91,9 +103,10 @@
         }
 
         .bulgarian-translation {
-            color: #999999;
+            color: #8b7355;
             font-size: 0.75rem;
             margin-top: 2px;
+            font-style: italic;
         }
 
         /* 侧边栏样式 */
@@ -102,7 +115,7 @@
             background-color: var(--color-bg-container);
             border-radius: 10px;
             padding: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             border: 1px solid var(--color-border-main);
             flex-shrink: 0;
             display: flex;
@@ -119,6 +132,7 @@
             border-bottom: 1px solid var(--color-border-main);
             text-align: center;
             flex-shrink: 0;
+            font-weight: bold;
         }
 
         /* 左侧边栏 - 颜色信息 */
@@ -126,7 +140,7 @@
             order: 1;
         }
 
-        /* 当前格子信息 - 改进点 1: 放在颜色显示下面 */
+        /* 当前格子信息 */
         .current-grid-info {
             background-color: var(--color-active-bg);
             padding: 8px;
@@ -137,31 +151,80 @@
             margin-top: 15px;
             font-size: 0.9rem;
             color: var(--color-text-main);
+            box-shadow: inset 0 0 5px rgba(139, 69, 19, 0.1);
         }
 
+        /* 改进的颜色序列显示 */
+        .color-sequence-container {
+            background-color: var(--color-active-bg);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .color-sequence-title {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
         .color-sequence {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            margin-bottom: 12px;
-            flex-shrink: 0;
+            gap: 8px;
+            margin-bottom: 5px;
         }
 
         .color-dot {
-            width: 16px;
-            height: 16px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            border: 1px solid var(--color-border-main);
+            border: 2px solid transparent;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
 
         .color-dot.current {
-            transform: scale(1.2);
-            border: 2px solid var(--color-accent);
-            box-shadow: 0 0 5px rgba(58, 105, 160, 0.5);
+            transform: scale(1.3);
+            border: 3px solid var(--color-accent);
+            box-shadow: 0 0 8px rgba(139, 69, 19, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.5);
+            z-index: 2;
         }
 
         .color-dot.next {
-            border: 2px dashed var(--color-text-secondary);
+            border: 2px dashed var(--color-accent);
+            border-style: solid dashed;
+            animation: pulse 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0% { border-color: var(--color-accent); }
+            50% { border-color: rgba(139, 69, 19, 0.5); }
+            100% { border-color: var(--color-accent); }
+        }
+
+        .color-dot:not(.current):not(.next) {
+            opacity: 0.6;
+            transform: scale(0.9);
+        }
+
+        .color-sequence-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            margin-top: 5px;
         }
 
         .color-display {
@@ -187,6 +250,7 @@
             height: 25px;
             border-radius: 6px;
             border: 2px solid var(--color-border-main);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* 右侧边栏 - 功能按钮 */
@@ -196,7 +260,7 @@
             flex-direction: column;
         }
 
-        /* 改进点 3: 添加格子功能区 - 移到右侧边栏顶部 */
+        /* 格子功能区 */
         .grid-controls {
             background-color: var(--color-active-bg);
             border-radius: 10px;
@@ -208,11 +272,11 @@
             justify-content: center;
             width: 100%;
             flex-shrink: 0;
-            margin-bottom: 15px; /* 与功能按钮区域分隔 */
+            margin-bottom: 15px;
+            border: 1px solid var(--color-border-main);
         }
 
         .grid-controls h2 {
-            /* 覆盖侧边栏 h2 的样式，使其更贴合区域 */
             border-bottom: none;
             padding-bottom: 0;
             margin-bottom: 5px;
@@ -244,6 +308,7 @@
             color: var(--color-text-main);
             font-size: 0.9rem;
             text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .button {
@@ -260,67 +325,74 @@
             gap: 6px;
             min-height: 40px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: 'SimSun', 'STSong', serif;
         }
 
-        /* 按钮配色 - 浅色模式优化 */
+        /* 按钮配色 - 传统书法风格 */
         .button-primary { /* 添加格子/导航 */
             background-color: var(--color-accent);
-            color: white;
+            color: #fff5e6;
         }
 
         .button-primary:hover {
-            background-color: #315886;
+            background-color: #6b3510;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
         }
         
         .button-utility { /* 撤销 */
-            background-color: #5a7496;
-            color: white;
+            background-color: #a0522d;
+            color: #fff5e6;
         }
 
         .button-utility:hover {
-            background-color: #4c6480;
+            background-color: #8b4513;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
         }
 
         .button-secondary { /* 清空当前 */
-            background-color: #d9534f;
-            color: white;
+            background-color: #b22222;
+            color: #fff5e6;
         }
 
         .button-secondary:hover {
-            background-color: #c9302c;
+            background-color: #8b0000;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(178, 34, 34, 0.3);
         }
 
         .button-clear-all { /* 清空所有 */
-            background-color: #e6b200;
-            color: white;
+            background-color: #cd853f;
+            color: #fff5e6;
         }
 
         .button-clear-all:hover {
-            background-color: #cc9900;
+            background-color: #b8860b;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(205, 133, 63, 0.3);
         }
 
         .button-success { /* 导出 */
-            background-color: #5cb85c;
-            color: white;
+            background-color: #2e8b57;
+            color: #fff5e6;
         }
 
         .button-success:hover {
-            background-color: #4cae4c;
+            background-color: #228b22;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
         }
 
         .button-warning { /* 预览 */
-            background-color: #f0ad4e;
-            color: white;
+            background-color: #d2691e;
+            color: #fff5e6;
         }
 
         .button-warning:hover {
-            background-color: #ec971f;
+            background-color: #b8860b;
             transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(210, 105, 30, 0.3);
         }
 
         .button:active {
@@ -355,8 +427,9 @@
             height: 100%;
             overflow-y: auto; 
             padding-right: 2px;
-            background-color: var(--color-bg-container); /* 确保 main-content 背景为白色 */
+            background-color: var(--color-bg-container);
             border-radius: 10px;
+            border: 1px solid var(--color-border-main);
         }
 
         /* 书写板区域 */
@@ -364,7 +437,6 @@
             background-color: var(--color-bg-container);
             border-radius: 10px;
             padding: 0 15px 15px 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -372,7 +444,7 @@
             position: relative; 
         }
 
-        /* 改进点 2: 固定书写板标题 */
+        /* 固定书写板标题 */
         .board-header {
             text-align: center;
             margin-bottom: 10px;
@@ -380,7 +452,7 @@
             position: sticky; 
             top: 0; 
             z-index: 100;
-            background-color: var(--color-bg-container); /* 与容器背景一致 */
+            background-color: var(--color-bg-container);
             padding: 15px 0 10px 0; 
             border-radius: 10px 10px 0 0;
         }
@@ -393,7 +465,7 @@
         }
 
         .board {
-            background-color: var(--color-bg-board); /* 浅绿色护眼底色 */
+            background-color: var(--color-bg-board);
             border: 10px solid var(--color-border-board);
             border-radius: 8px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
@@ -402,17 +474,88 @@
             flex: 1;
         }
         
-        /* 网格背景线颜色调整 */
+        /* 改进的米字格样式 */
+        .grid-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        
         .grid-background::before,
         .grid-background::after {
+            content: '';
+            position: absolute;
             background-color: var(--color-grid-line);
         }
         
-        .grid-background .diagonal-1,
-        .grid-background .diagonal-2 {
-            background-color: var(--color-grid-line);
+        /* 横线 */
+        .grid-background::before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            transform: translateY(-50%);
         }
-
+        
+        /* 竖线 */
+        .grid-background::after {
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+        
+        .diagonal-1,
+        .diagonal-2 {
+            position: absolute;
+            background-color: var(--color-grid-line);
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+            transform-origin: center;
+        }
+        
+        .diagonal-1 {
+            transform: translateY(-50%) rotate(45deg);
+        }
+        
+        .diagonal-2 {
+            transform: translateY(-50%) rotate(-45deg);
+        }
+        
+        /* 四个角的点 */
+        .grid-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: var(--color-grid-dot);
+            border-radius: 50%;
+        }
+        
+        .dot-tl {
+            top: 10%;
+            left: 10%;
+        }
+        
+        .dot-tr {
+            top: 10%;
+            right: 10%;
+        }
+        
+        .dot-bl {
+            bottom: 10%;
+            left: 10%;
+        }
+        
+        .dot-br {
+            bottom: 10%;
+            right: 10%;
+        }
 
         .desktop-grid-wrapper {
             display: grid;
@@ -427,6 +570,8 @@
         .desktop-grid-item {
             background-color: var(--color-bg-container);
             border: 1px solid var(--color-border-main);
+            position: relative;
+            overflow: hidden;
         }
 
         .grid-active {
@@ -441,6 +586,8 @@
         
         .grid-label {
             color: var(--color-text-secondary);
+            text-align: center;
+            margin-top: 5px;
         }
         
         footer {
@@ -455,7 +602,7 @@
         }
 
         /* ------------------------ */
-        /* 手机版样式（浅色模式适配） */
+        /* 手机版样式（传统书法风适配） */
         /* ------------------------ */
         
         .mobile-board-container {
@@ -466,25 +613,41 @@
         .mobile-board {
             background-color: var(--color-bg-board);
             border: 10px solid var(--color-border-board);
+            padding: 15px;
+            border-radius: 8px;
         }
         
         .mobile-current-grid {
             background-color: var(--color-bg-container);
-            border: 1px solid var(--color-border-main);
+            border: 2px solid var(--color-border-main);
             box-shadow: 0 0 0 3px var(--color-accent);
             border-color: var(--color-accent);
+            position: relative;
+            margin: 0 auto 15px auto;
+            width: 280px;
+            height: 280px;
         }
         
         .mobile-grid-label {
             color: var(--color-accent);
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         
         .mobile-grid-stroke-info {
             color: var(--color-text-secondary);
+            text-align: center;
+            margin-bottom: 15px;
         }
 
         .mobile-add-grid-section {
             background-color: var(--color-active-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            border: 1px solid var(--color-border-main);
         }
         
         /* 媒体查询：手机端 */
@@ -530,32 +693,79 @@
                 padding: 0 0 10px 0;
             }
             
+            .board-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+                align-items: center;
+            }
+            
             /* 手机端颜色信息样式 */
             .mobile-color-sequence-title {
                 text-align: center;
                 font-size: 0.9rem;
                 color: var(--color-text-secondary);
-                margin-bottom: 5px;
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+            
+            .mobile-color-sequence-container {
+                background-color: var(--color-active-bg);
+                border-radius: 10px;
+                padding: 12px;
+                margin-bottom: 15px;
+                text-align: center;
             }
             
             .mobile-color-sequence {
                 display: flex;
                 justify-content: center;
-                gap: 5px;
-                margin-bottom: 15px;
+                gap: 6px;
+                margin-bottom: 5px;
             }
             
             .mobile-color-dot {
-                width: 14px;
-                height: 14px;
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
-                border: 1px solid var(--color-border-main);
+                border: 2px solid transparent;
+                position: relative;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 9px;
+                color: white;
+                font-weight: bold;
+                text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
             }
             
             .mobile-color-dot.current {
-                transform: scale(1.3);
-                border: 2px solid var(--color-accent);
-                box-shadow: 0 0 5px rgba(58, 105, 160, 0.5);
+                transform: scale(1.4);
+                border: 3px solid var(--color-accent);
+                box-shadow: 0 0 8px rgba(139, 69, 19, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.5);
+                z-index: 2;
+            }
+            
+            .mobile-color-dot.next {
+                border: 2px dashed var(--color-accent);
+                border-style: solid dashed;
+                animation: pulse 2s infinite;
+                z-index: 1;
+            }
+            
+            .mobile-color-dot:not(.current):not(.next) {
+                opacity: 0.6;
+                transform: scale(0.9);
+            }
+            
+            .mobile-color-sequence-labels {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.7rem;
+                color: var(--color-text-secondary);
+                margin-top: 5px;
             }
             
             .mobile-color-indicator {
@@ -566,6 +776,7 @@
                 background-color: var(--color-active-bg);
                 padding: 10px;
                 border-radius: 8px;
+                border: 1px solid var(--color-border-main);
             }
             
             .mobile-color-indicator-item {
@@ -581,10 +792,11 @@
             }
             
             .mobile-color-box {
-                width: 20px;
-                height: 20px;
+                width: 25px;
+                height: 25px;
                 border-radius: 4px;
                 border: 2px solid var(--color-border-main);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             
             .mobile-navigation {
@@ -592,16 +804,20 @@
                 justify-content: space-between;
                 gap: 10px;
                 margin-bottom: 20px;
+                align-items: center;
             }
             
             .mobile-nav-button {
                 flex: 1;
+                text-align: center;
             }
 
             .mobile-preview-section {
                 padding: 10px;
                 background-color: var(--color-active-bg);
                 border-radius: 8px;
+                border: 1px solid var(--color-border-main);
+                text-align: center;
             }
             
             .mobile-preview-title {
@@ -609,6 +825,7 @@
                 color: var(--color-accent);
                 margin-bottom: 10px;
                 text-align: center;
+                font-weight: bold;
             }
 
             .mobile-preview-grids {
@@ -619,6 +836,7 @@
                 padding-bottom: 10px;
                 scrollbar-width: thin;
                 -ms-overflow-style: none;
+                justify-content: center;
             }
             
             .mobile-preview-grids::-webkit-scrollbar {
@@ -626,7 +844,7 @@
             }
 
             .mobile-preview-grids::-webkit-scrollbar-thumb {
-                background-color: #cccccc;
+                background-color: #c19a6b;
                 border-radius: 2px;
             }
 
@@ -643,10 +861,12 @@
                 overflow: hidden;
                 position: relative;
                 padding: 5px;
+                border: 1px solid var(--color-border-main);
             }
             
             .mobile-preview-grid.active {
                 box-shadow: 0 0 0 2px var(--color-accent);
+                border-color: var(--color-accent);
             }
 
             .mobile-preview-grid canvas {
@@ -669,6 +889,19 @@
         <div class="sidebar left-sidebar">
             <h2>信息面板 | Информационен панел</h2>
             
+            <div class="color-sequence-container">
+                <div class="color-sequence-title">颜色顺序 | Цветова последователност</div>
+                <div class="color-sequence" id="desktopColorSequence">
+                </div>
+                <div class="color-sequence-labels">
+                    <span>红</span>
+                    <span>橙</span>
+                    <span>绿</span>
+                    <span>蓝</span>
+                    <span>紫</span>
+                </div>
+            </div>
+
             <div class="color-display">
                 <div class="color-display-item">
                     <div class="color-label">当前颜色 | Текущ</div>
@@ -680,21 +913,17 @@
                 </div>
             </div>
 
-            <div class="color-sequence" id="desktopColorSequence">
-                </div>
-            
             <div class="current-grid-info">
                 <div>当前格子：<span id="currentGridNumber">1</span> 号</div>
                 <div class="bulgarian-translation">Текуща клетка: № <span id="currentGridNumberBg">1</span></div>
                 <div>笔画数：<span id="currentGridStrokeCount">0</span> 笔</div>
                 <div class="bulgarian-translation">Брой щрихове: <span id="currentGridStrokeCountBg">0</span></div>
             </div>
-            
-            </div>
+        </div>
         
         <div class="main-content">
             <header>
-                <h1>汉字书写练习板<br><span style="font-size: 1rem; color: var(--color-text-secondary);">Дъска за писане на китайски йероглифи</span></h1>
+                <h1>汉字书写练习板<br><span class="title-translation">Дъска за писане на китайски йероглифи</span></h1>
             </header>
             
             <div class="instructions-section">
@@ -704,7 +933,7 @@
                         <li>每笔按红→橙→绿→蓝→紫的顺序循环变色
                             <div class="bulgarian-translation">Всеки щрих променя цвета в ред: червено → оранжево → зелено → синьо → лилаво</div>
                         </li>
-                        <li><strong>每笔都是完整的从深到浅渐变</strong>
+                        <li>每笔都是完整的从深到浅渐变
                             <div class="bulgarian-translation">Всеки щрих има пълен градиент от тъмно към светло</div>
                         </li>
                         <li>在新格子写字时颜色从红色重新开始
@@ -720,7 +949,7 @@
                 </div>
                 
                 <div class="board" id="desktopBoard">
-                    </div>
+                </div>
             </div>
             
             <div class="mobile-board-container board-container">
@@ -759,10 +988,17 @@
                 </div>
                 
                 <div class="mobile-board">
-                    <div class="mobile-color-sequence-bar">
+                    <div class="mobile-color-sequence-container">
                         <div class="mobile-color-sequence-title">颜色顺序 | Цветова последователност</div>
                         <div class="mobile-color-sequence" id="mobileColorSequence">
-                            </div>
+                        </div>
+                        <div class="mobile-color-sequence-labels">
+                            <span>红</span>
+                            <span>橙</span>
+                            <span>绿</span>
+                            <span>蓝</span>
+                            <span>紫</span>
+                        </div>
                     </div>
                     
                     <div class="mobile-color-indicator">
@@ -777,15 +1013,19 @@
                     </div>
                     
                     <div class="mobile-current-grid-container">
+                        <div class="mobile-grid-label" id="mobileGridLabel">格子 1 | Клетка 1</div>
+                        <div class="mobile-grid-stroke-info" id="mobileGridStrokeInfo">0 笔 | 0 щриха</div>
                         <div class="mobile-current-grid" id="mobileCurrentGrid">
                             <div class="grid-background">
                                 <div class="diagonal-1"></div>
                                 <div class="diagonal-2"></div>
+                                <div class="grid-dot dot-tl"></div>
+                                <div class="grid-dot dot-tr"></div>
+                                <div class="grid-dot dot-bl"></div>
+                                <div class="grid-dot dot-br"></div>
                             </div>
                             <canvas class="grid-canvas" id="mobileCurrentCanvas"></canvas>
                         </div>
-                        <div class="mobile-grid-label" id="mobileGridLabel">格子 1</div>
-                        <div class="mobile-grid-stroke-info" id="mobileGridStrokeInfo">0 笔 | 0 щриха</div>
                     </div>
                     
                     <div class="mobile-navigation">
@@ -800,7 +1040,7 @@
                     <div class="mobile-preview-section">
                         <div class="mobile-preview-title">格子预览 | Преглед на клетки</div>
                         <div class="mobile-preview-grids" id="mobilePreviewGrids">
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -849,23 +1089,26 @@
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background-color: rgba(0, 0, 0, 0.5); display: none; 
         justify-content: center; align-items: center; z-index: 200;
+        font-family: 'SimSun', 'STSong', serif;
     ">
         <div class="modal-content" style="
             background-color: var(--color-bg-container); padding: 30px; border-radius: 10px; 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 400px; width: 90%; text-align: center;
+            border: 1px solid var(--color-border-main);
         ">
-            <h3 style="color: var(--color-accent); margin-bottom: 20px;">导出图片 | Експортиране на снимка</h3>
+            <h3 style="color: var(--color-accent); margin-bottom: 20px; font-weight: bold;">导出图片 | Експортиране на снимка</h3>
             <div class="modal-input-group" style="margin-bottom: 15px;">
                 <label for="userName" style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-text-secondary);">请输入您的姓名：<br>Моля, въведете вашето име:</label>
                 <input type="text" id="userName" placeholder="请输入姓名 | Въведете име" maxlength="20" style="
                     width: 100%; padding: 10px; border: 1px solid var(--color-border-main); 
                     border-radius: 6px; box-sizing: border-box; font-size: 1rem;
+                    background-color: var(--color-bg-container); color: var(--color-text-main);
                 ">
             </div>
             <div class="preview-container" id="previewContainer" style="display: none; margin-top: 20px;">
                 <img id="previewImage" class="preview-image" alt="预览图片 | Преглед на снимка" style="max-width: 100%; height: auto; border: 1px solid var(--color-border-main); border-radius: 5px; margin-bottom: 15px;">
-                <div class="save-instructions" style="text-align: left; font-size: 0.85rem; color: var(--color-text-secondary); padding: 10px; background-color: var(--color-active-bg); border-radius: 6px;">
-                    <p style="color: var(--color-accent);"><strong>保存说明 | Инструкции за запазване:</strong></p>
+                <div class="save-instructions" style="text-align: left; font-size: 0.85rem; color: var(--color-text-secondary); padding: 10px; background-color: var(--color-active-bg); border-radius: 6px; border: 1px solid var(--color-border-main);">
+                    <p style="color: var(--color-accent); font-weight: bold;"><strong>保存说明 | Инструкции за запазване:</strong></p>
                     <p>• 电脑：点击图片即可复制到剪贴板</p>
                     <div class="bulgarian-translation">Компютър: Кликнете върху снимката, за да я копирате в клипборда</div>
                     <p>• 手机：长按图片，选择"保存图片"</p>
@@ -885,13 +1128,15 @@
         background-color: rgba(0, 0, 0, 0.5); display: none; 
         justify-content: center; align-items: center; z-index: 200;
         overflow-y: auto; padding: 20px 0;
+        font-family: 'SimSun', 'STSong', serif;
     ">
         <div class="modal-content" style="
             background-color: var(--color-bg-container); padding: 20px; border-radius: 10px; 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 900px; width: 95%; text-align: center;
+            border: 1px solid var(--color-border-main);
         ">
             <div class="overview-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 class="overview-title" style="color: var(--color-accent);">整体预览 | Цялостен преглед</h3>
+                <h3 class="overview-title" style="color: var(--color-accent); font-weight: bold;">整体预览 | Цялостен преглед</h3>
                 <button class="overview-close" id="overviewCloseBtn" style="
                     background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-main);
                 ">&times;</button>
@@ -920,9 +1165,11 @@
                         transition: transform 0.2s;
                         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                         position: relative;
+                        border: 1px solid var(--color-border-main);
                     }
                     .overview-grid-item:hover {
                         transform: scale(1.05);
+                        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
                     }
                     .overview-grid-item canvas {
                         width: 90%;
@@ -932,6 +1179,7 @@
                         border: 1px solid var(--color-border-main);
                         flex-shrink: 0;
                         margin-bottom: 3px;
+                        background-color: var(--color-bg-board);
                     }
                     .overview-grid-number {
                         font-size: 0.8rem;
@@ -953,42 +1201,42 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 定义颜色序列 - 每色包含深色和浅色（红、橙、绿、蓝、紫）
+            // 定义颜色序列 - 增强对比度的传统书法风格颜色
             const colorSequence = [
                 { 
                     name: '红色 | Червено', 
                     nameZh: '红色',
                     nameBg: 'Червено',
-                    start: '#cc0000',    // 深红色
-                    end: '#ff6666'       // 浅红色
+                    start: '#a00000',    // 深红色
+                    end: '#ff8a8a'       // 浅红色
                 },
                 { 
                     name: '橙色 | Оранжево', 
                     nameZh: '橙色',
                     nameBg: 'Оранжево',
-                    start: '#cc6600',    // 深橙色
-                    end: '#ffcc66'       // 浅橙色
+                    start: '#b55100',    // 深橙色
+                    end: '#ffc266'       // 浅橙色
                 },
                 { 
                     name: '绿色 | Зелено', 
                     nameZh: '绿色',
                     nameBg: 'Зелено',
-                    start: '#006600',    // 深绿色
-                    end: '#66cc66'       // 浅绿色
+                    start: '#005500',    // 深绿色
+                    end: '#88ff88'       // 浅绿色
                 },
                 { 
                     name: '蓝色 | Синьо', 
                     nameZh: '蓝色',
                     nameBg: 'Синьо',
-                    start: '#0033cc',    // 深蓝色
-                    end: '#6699ff'       // 浅蓝色
+                    start: '#0022aa',    // 深蓝色
+                    end: '#88bbff'       // 浅蓝色
                 },
                 { 
                     name: '紫色 | Лилаво', 
                     nameZh: '紫色',
                     nameBg: 'Лилаво',
-                    start: '#6600cc',    // 深紫色
-                    end: '#cc66ff'       // 浅紫色
+                    start: '#6600aa',    // 深紫色
+                    end: '#dd99ff'       // 浅紫色
                 }
             ];
             
@@ -1039,6 +1287,7 @@
                     colorDot.className = 'color-dot';
                     colorDot.style.backgroundColor = color.start;
                     colorDot.dataset.index = index;
+                    colorDot.textContent = index + 1; // 添加数字标签
                     desktopColorSequence.appendChild(colorDot);
                 });
             }
@@ -1052,6 +1301,7 @@
                     colorDot.className = 'mobile-color-dot';
                     colorDot.style.backgroundColor = color.start;
                     colorDot.dataset.index = index;
+                    colorDot.textContent = index + 1; // 添加数字标签
                     mobileColorSequence.appendChild(colorDot);
                 });
             }
@@ -1075,7 +1325,17 @@
                 if (mobileCurrentColorBox) mobileCurrentColorBox.style.backgroundColor = displayColor.start;
                 if (mobileNextColorBox) mobileNextColorBox.style.backgroundColor = nextColor.start;
                 
-                document.querySelectorAll('.color-dot, .mobile-color-dot').forEach((dot, index) => {
+                // 更新颜色圆圈状态
+                document.querySelectorAll('.color-dot').forEach((dot, index) => {
+                    dot.classList.remove('current', 'next');
+                    if (index === nextColorIdx) {
+                        dot.classList.add('current');
+                    } else if (index === (nextColorIdx + 1) % colorSequence.length) {
+                        dot.classList.add('next');
+                    }
+                });
+                
+                document.querySelectorAll('.mobile-color-dot').forEach((dot, index) => {
                     dot.classList.remove('current', 'next');
                     if (index === nextColorIdx) {
                         dot.classList.add('current');
@@ -1093,6 +1353,7 @@
                 const currentGridStrokeCount = document.getElementById('currentGridStrokeCount');
                 const currentGridStrokeCountBg = document.getElementById('currentGridStrokeCountBg');
                 const mobileGridStrokeInfo = document.getElementById('mobileGridStrokeInfo');
+                const mobileGridLabel = document.getElementById('mobileGridLabel');
                 
                 const currentStrokesCount = strokesHistory[currentGridIndex] ? strokesHistory[currentGridIndex].length : 0;
                 
@@ -1103,6 +1364,10 @@
                 
                 if (mobileGridStrokeInfo) {
                     mobileGridStrokeInfo.textContent = `${currentStrokesCount} 笔 | ${currentStrokesCount} щриха`;
+                }
+                
+                if (mobileGridLabel) {
+                    mobileGridLabel.textContent = `格子 ${currentGridIndex + 1} | Клетка ${currentGridIndex + 1}`;
                 }
             }
 
@@ -1119,17 +1384,20 @@
                 if (points.length < 2) return;
                 const color = colorSequence[colorIndex];
                 
+                // 创建从起点到终点的渐变
                 const gradient = ctx.createLinearGradient(
                     points[0].x, points[0].y,
                     points[points.length-1].x, points[points.length-1].y
                 );
                 
                 gradient.addColorStop(0, color.start); 
+                gradient.addColorStop(0.5, color.start); 
                 gradient.addColorStop(1, color.end);   
                 
                 ctx.beginPath();
                 ctx.moveTo(points[0].x, points[0].y);
                 
+                // 绘制平滑曲线
                 for (let i = 1; i < points.length; i++) {
                     ctx.lineTo(points[i].x, points[i].y);
                 }
@@ -1407,7 +1675,7 @@
                         
                         const gridBackground = document.createElement('div');
                         gridBackground.className = 'grid-background';
-                        gridBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div>';
+                        gridBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>';
 
                         const canvas = document.createElement('canvas');
                         canvas.className = 'grid-canvas';
@@ -1447,7 +1715,7 @@
 
                         const previewBackground = document.createElement('div');
                         previewBackground.className = 'grid-background';
-                        previewBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div>';
+                        previewBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>';
 
                         const previewCanvas = document.createElement('canvas');
                         previewCanvas.width = 70;
@@ -1503,12 +1771,6 @@
                         }
                     }
                 });
-
-                // 手机版显示
-                const mobileGridLabel = document.getElementById('mobileGridLabel');
-                if (mobileGridLabel) {
-                    mobileGridLabel.textContent = `格子 ${currentGridIndex + 1} | Клетка ${currentGridIndex + 1}`;
-                }
 
                 // 手机预览激活状态
                 const activePreview = document.querySelector('.mobile-preview-grid.active');
@@ -1592,32 +1854,56 @@
             // --- 导出功能 ---
 
             function drawGridTemplate(ctx, x, y, width, height, scaledLineWidth) {
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.strokeStyle = 'rgba(139, 69, 19, 0.15)';
                 ctx.lineWidth = scaledLineWidth;
                 
+                // 横线
                 ctx.beginPath();
                 ctx.moveTo(x, y + height / 2);
                 ctx.lineTo(x + width, y + height / 2);
                 ctx.stroke();
                 
+                // 竖线
                 ctx.beginPath();
                 ctx.moveTo(x + width / 2, y);
                 ctx.lineTo(x + width / 2, y + height);
                 ctx.stroke();
                 
+                // 对角线1
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(x + width, y + height);
                 ctx.stroke();
                 
+                // 对角线2
                 ctx.beginPath();
                 ctx.moveTo(x, y + height);
                 ctx.lineTo(x + width, y);
                 ctx.stroke();
+                
+                // 四个角的点
+                const dotSize = 2 * scaledLineWidth;
+                ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
+                
+                ctx.beginPath();
+                ctx.arc(x + width * 0.1, y + height * 0.1, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x + width * 0.9, y + height * 0.1, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x + width * 0.1, y + height * 0.9, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x + width * 0.9, y + height * 0.9, dotSize, 0, Math.PI * 2);
+                ctx.fill();
             }
 
             function drawTextInfo(ctx, text, x, y, fontSize, color, align) {
-                ctx.font = `bold ${fontSize}px 'Microsoft YaHei', sans-serif`;
+                ctx.font = `bold ${fontSize}px 'SimSun', 'STSong', serif`;
                 ctx.fillStyle = color;
                 ctx.textAlign = align;
                 ctx.textBaseline = 'top';
@@ -1652,15 +1938,15 @@
                 canvas.height = scaledHeight;
                 const ctx = canvas.getContext('2d');
 
-                ctx.fillStyle = '#f2fff2'; 
+                ctx.fillStyle = '#fff5e6'; // 宣纸黄背景
                 ctx.fillRect(0, 0, scaledWidth, scaledHeight);
                 
                 const date = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 
-                drawTextInfo(ctx, `姓名: ${userName}`, scaledPadding, scaledPadding, 16 * scale, '#3a69a0', 'left');
-                drawTextInfo(ctx, `日期: ${date}`, scaledWidth - scaledPadding, scaledPadding, 12 * scale, '#666666', 'right');
+                drawTextInfo(ctx, `姓名: ${userName}`, scaledPadding, scaledPadding, 16 * scale, '#8b4513', 'left');
+                drawTextInfo(ctx, `日期: ${date}`, scaledWidth - scaledPadding, scaledPadding, 12 * scale, '#7a5c3c', 'right');
                 
-                ctx.strokeStyle = '#e0e0e0';
+                ctx.strokeStyle = '#d4b483';
                 ctx.lineWidth = 1 * scale;
                 ctx.beginPath();
                 ctx.moveTo(scaledPadding, scaledPadding + scaledHeaderHeight - 10 * scale);
@@ -1674,9 +1960,9 @@
                     const x = scaledPadding + col * (scaledGridSize + scaledGridGap);
                     const y = scaledPadding + scaledHeaderHeight + row * (scaledGridSize + scaledGridGap);
 
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#fffaf5';
                     ctx.fillRect(x, y, scaledGridSize, scaledGridSize);
-                    ctx.strokeStyle = '#e0e0e0';
+                    ctx.strokeStyle = '#d4b483';
                     ctx.lineWidth = 1 * scale;
                     ctx.strokeRect(x, y, scaledGridSize, scaledGridSize);
 
@@ -1694,14 +1980,14 @@
                     });
 
                     const gridNumber = i + 1;
-                    drawTextInfo(ctx, `${gridNumber}`, x + scaledGridSize - 5 * scale, y + scaledGridSize - 12 * scale, 8 * scale, '#666666', 'right');
+                    drawTextInfo(ctx, `${gridNumber}`, x + scaledGridSize - 5 * scale, y + scaledGridSize - 12 * scale, 8 * scale, '#7a5c3c', 'right');
                 }
                 
                 const totalStrokes = Object.values(strokeCount).reduce((acc, count) => acc + count, 0);
                 const totalInfoText = `共 ${totalGrids} 个格子，总笔画数 ${totalStrokes} 笔`;
                 const footerY = scaledHeight - scaledPadding - 10 * scale;
 
-                drawTextInfo(ctx, totalInfoText, scaledWidth / 2, footerY, 12 * scale, '#666666', 'center');
+                drawTextInfo(ctx, totalInfoText, scaledWidth / 2, footerY, 12 * scale, '#7a5c3c', 'center');
 
                 return canvas.toDataURL('image/png');
             }
@@ -1750,7 +2036,7 @@
                                 alert('复制失败，请尝试右键另存为图片。\nКопирането не бе успешно, опитайте да запазите снимката с десен бутон.');
                             });
                         } else {
-                            alert('您的浏览器不支持直接复制图片到剪贴板，请长按/右键图片选择“保存图片”。\nВашият браузър не поддържа директно копиране, моля натиснете дълго/десен бутон върху снимката и изберете "Запази снимка".');
+                            alert('您的浏览器不支持直接复制图片到剪贴板，请长按/右键图片选择"保存图片"。\nВашият браузър не поддържа директно копиране, моля натиснете дълго/десен бутон върху снимката и изберете "Запази снимка".');
                         }
                     }, 'image/png');
                 };
@@ -1776,7 +2062,7 @@
                     
                     const gridBackground = document.createElement('div');
                     gridBackground.className = 'grid-background';
-                    gridBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div>';
+                    gridBackground.innerHTML = '<div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>';
 
                     const canvas = document.createElement('canvas');
                     canvas.width = 90;
