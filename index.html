@@ -20,6 +20,7 @@
             min-height: 100vh;
             -webkit-text-size-adjust: 100%;
             touch-action: manipulation;
+            overflow-x: hidden;
         }
 
         .container {
@@ -27,7 +28,8 @@
             margin: 0 auto;
             display: flex;
             gap: 15px;
-            min-height: 100vh;
+            min-height: calc(100vh - 40px);
+            align-items: stretch;
         }
 
         header {
@@ -76,7 +78,7 @@
             margin-top: 2px;
         }
 
-        /* 侧边栏样式 - 修改：高度随内容变化，可滚动 */
+        /* 侧边栏样式 - 固定高度，随页面整体滚动 */
         .sidebar {
             width: 220px;
             background-color: rgba(45, 45, 68, 0.95);
@@ -86,11 +88,12 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
-            /* 关键修改：使侧边栏高度与中间内容保持一致，随内容滚动 */
-            display: flex;
-            flex-direction: column;
-            align-self: flex-start; /* 确保侧边栏从顶部开始 */
-            min-height: 100%;
+            /* 固定高度，不随中间内容变长 */
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
 
         .sidebar h2 {
@@ -100,7 +103,6 @@
             padding-bottom: 6px;
             border-bottom: 1px solid #4a4a6e;
             text-align: center;
-            flex-shrink: 0;
         }
 
         /* 左侧边栏 - 颜色信息 */
@@ -113,7 +115,6 @@
             justify-content: center;
             gap: 6px;
             margin-bottom: 15px;
-            flex-shrink: 0;
         }
 
         .color-dot {
@@ -135,7 +136,6 @@
 
         .color-display {
             margin-bottom: 15px;
-            flex-shrink: 0;
         }
 
         .color-display-item {
@@ -164,7 +164,6 @@
             border-radius: 6px;
             border-left: 3px solid #f0d26e;
             text-align: center;
-            flex-shrink: 0;
         }
 
         /* 右侧边栏 - 功能按钮 */
@@ -176,16 +175,16 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            flex: 1;
         }
 
         /* 中间内容区域 */
         .main-content {
             flex: 1;
             order: 2;
-            min-width: 0; /* 防止flex元素溢出 */
+            min-width: 0;
             display: flex;
             flex-direction: column;
+            height: calc(100vh - 40px);
         }
 
         /* 工具区域 */
@@ -197,13 +196,13 @@
         }
 
         .grid-controls {
-            flex: 1;
-            min-width: 200px;
             background-color: #2d2d44;
             border-radius: 10px;
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            text-align: center; /* 居中文本内容 */
+            text-align: center;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
         h2 {
@@ -212,20 +211,20 @@
             font-size: 1.2rem;
             padding-bottom: 6px;
             border-bottom: 1px solid #4a4a6e;
-            text-align: center; /* 确保标题居中 */
+            text-align: center;
         }
 
         .add-grid-control {
             display: flex;
             gap: 8px;
             align-items: center;
-            margin-bottom: 12px;
-            justify-content: center; /* 居中内容 */
+            margin-bottom: 8px;
+            justify-content: center;
         }
 
         .add-grid-control input {
-            width: 70px;
-            padding: 10px;
+            width: 60px;
+            padding: 8px;
             border-radius: 6px;
             border: 1px solid #4a4a6e;
             background-color: #1a1a2e;
@@ -235,10 +234,10 @@
         }
 
         .button {
-            padding: 10px 16px;
+            padding: 8px 14px;
             border: none;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -246,7 +245,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-height: 44px;
+            min-height: 40px;
         }
 
         /* 五个功能工具按钮的不同颜色 */
@@ -300,6 +299,16 @@
             transform: translateY(-2px);
         }
 
+        .button-primary {
+            background-color: #4a6ee0;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: #3a5ed0;
+            transform: translateY(-2px);
+        }
+
         .button:active {
             transform: translateY(0);
         }
@@ -318,29 +327,43 @@
             color: #8888aa;
             font-size: 0.85rem;
             margin-top: 8px;
-            text-align: center; /* 居中文本 */
+            text-align: center;
         }
 
         /* 书写板区域 - 桌面版 */
-        .board-container {
+        .desktop-board-container {
             background-color: #0c0c14;
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .board-header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
         .board-title {
             color: #6ca6e1;
             font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* 桌面版固定顶部区域 */
+        .desktop-fixed-top {
+            position: sticky;
+            top: 0;
+            background-color: #0c0c14;
+            padding-bottom: 10px;
+            z-index: 10;
+            border-bottom: 2px solid #2d2d44;
+            margin-bottom: 10px;
         }
 
         .board {
@@ -353,8 +376,9 @@
             border-radius: 8px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
             padding: 15px;
-            overflow: auto;
-            max-height: 500px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
         }
 
         /* 桌面版：每行3个格子 */
@@ -762,6 +786,7 @@
             color: #8888aa;
             font-size: 0.85rem;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .preview-container {
@@ -927,6 +952,10 @@
                 display: block; /* 显示手机版 */
             }
             
+            .main-content {
+                height: auto;
+            }
+            
             h1 {
                 font-size: 1.6rem;
             }
@@ -946,7 +975,7 @@
             .mobile-add-grid-section {
                 background-color: #2d2d44;
                 border-radius: 10px;
-                padding: 15px;
+                padding: 12px;
                 margin-bottom: 15px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
                 text-align: center; /* 居中文本内容 */
@@ -985,27 +1014,6 @@
             /* 电脑端隐藏手机版的添加格子区域 */
             .mobile-add-grid-section {
                 display: none;
-            }
-            
-            /* 关键修改：确保桌面端侧边栏能够随内容滚动 */
-            .container {
-                min-height: 100vh;
-                align-items: stretch;
-            }
-            
-            .main-content {
-                height: auto;
-                min-height: 100%;
-            }
-            
-            .desktop-board-container {
-                min-height: 500px;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .board {
-                flex: 1;
             }
             
             /* 桌面端右侧边栏功能按钮居中 */
@@ -1096,6 +1104,17 @@
                 max-width: 220px;
             }
         }
+        
+        @media (min-width: 1200px) {
+            .desktop-grid-wrapper {
+                max-width: 700px;
+            }
+            
+            .desktop-grid-item {
+                width: 150px;
+                height: 150px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1153,20 +1172,23 @@
             
             <!-- 桌面版书写板区域（电脑端显示） -->
             <div class="desktop-board-container board-container">
-                <div class="board-header">
-                    <div class="board-title">书写板 | Писмена дъска</div>
-                </div>
-                
-                <!-- 添加格子功能（电脑端放在书写板标题下方） -->
-                <div class="grid-controls">
-                    <h2>添加格子 | Добави клетки</h2>
-                    <div class="add-grid-control">
-                        <input type="number" id="gridCount" min="1" max="50" value="9">
-                        <button id="generateGrids" class="button button-primary">添加 | Добави</button>
+                <!-- 固定顶部区域 -->
+                <div class="desktop-fixed-top">
+                    <div class="board-header">
+                        <div class="board-title">书写板 | Писмена дъска</div>
                     </div>
-                    <div class="grid-count-info">
-                        已有 <span id="currentGridTotal">9</span> 个格子
-                        <div class="bulgarian-translation">Има <span id="currentGridTotalBg">9</span> клетки</div>
+                    
+                    <!-- 添加格子功能（电脑端放在书写板标题下方） -->
+                    <div class="grid-controls">
+                        <h2>添加格子 | Добави клетки</h2>
+                        <div class="add-grid-control">
+                            <input type="number" id="gridCount" min="1" max="50" value="9">
+                            <button id="generateGrids" class="button button-primary">添加 | Добави</button>
+                        </div>
+                        <div class="grid-count-info">
+                            已有 <span id="currentGridTotal">9</span> 个格子
+                            <div class="bulgarian-translation">Има <span id="currentGridTotalBg">9</span> клетки</div>
+                        </div>
                     </div>
                 </div>
                 
