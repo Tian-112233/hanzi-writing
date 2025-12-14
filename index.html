@@ -474,14 +474,15 @@
             flex: 1;
         }
         
-        /* 改进的米字格样式 */
+        /* 改进的米字格样式 - 修复：画布在背景之上 */
         .grid-background {
             position: absolute;
             width: 100%;
             height: 100%;
             top: 0;
             left: 0;
-            z-index: 0;
+            z-index: 0; /* 降低z-index，确保画布在背景之上 */
+            pointer-events: none; /* 重要：防止背景拦截点击事件 */
         }
         
         .grid-background::before,
@@ -590,6 +591,7 @@
             margin-top: 5px;
         }
         
+        /* 移除底部的版权信息 */
         footer {
             text-align: center;
             padding-top: 12px;
@@ -599,6 +601,7 @@
             width: 100%;
             flex-shrink: 0;
             margin-top: 15px; 
+            height: 40px; /* 保持一定高度 */
         }
 
         /* ------------------------ */
@@ -1079,8 +1082,8 @@
                 </button>
             </div>
             
+            <!-- 已删除版权信息 -->
             <footer>
-                <p>汉字书写练习板 &copy; 2023<br>Дъска за писане на китайски йероглифи &copy; 2023</p>
             </footer>
         </div>
     </div>
