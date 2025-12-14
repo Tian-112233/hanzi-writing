@@ -745,7 +745,7 @@
             padding: 15px;
         }
 
-        /* 修改：整体预览始终使用3列布局 */
+        /* 关键修改：整体预览始终使用3列布局 */
         .overview-grid-wrapper {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -824,18 +824,15 @@
                 max-width: 300px;
             }
             
-            /* 修改：手机端整体预览也使用3列，但格子稍小 */
-            .overview-grid-item {
-                width: 80px;
-                height: 80px;
+            /* 关键修改：手机端整体预览也使用3列 */
+            .overview-grid-wrapper {
+                grid-template-columns: repeat(3, 1fr); /* 确保是3列 */
+                gap: 10px;
             }
             
-            /* 非常窄的手机屏幕调整 */
-            @media (max-width: 360px) {
-                .overview-grid-item {
-                    width: 70px;
-                    height: 70px;
-                }
+            .overview-grid-item {
+                width: 80px; /* 手机端格子稍小 */
+                height: 80px;
             }
         }
 
@@ -849,7 +846,7 @@
                 display: none; /* 隐藏手机版 */
             }
             
-            /* 修改：桌面端整体预览格子稍大 */
+            /* 桌面端整体预览格子稍大 */
             .overview-grid-item {
                 width: 100px;
                 height: 100px;
@@ -880,6 +877,17 @@
             
             .modal-buttons .button {
                 width: 100%;
+            }
+            
+            /* 关键修改：超小屏幕也保持3列布局 */
+            .overview-grid-wrapper {
+                grid-template-columns: repeat(3, 1fr); /* 确保是3列 */
+                gap: 8px;
+            }
+            
+            .overview-grid-item {
+                width: 70px; /* 超小屏幕格子更小 */
+                height: 70px;
             }
         }
 
