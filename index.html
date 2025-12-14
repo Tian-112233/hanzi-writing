@@ -936,8 +936,8 @@
                     <li><strong>手机端：当前格子放大显示，使用导航按钮切换</strong>
                         <div class="bulgarian-translation">На телефона: Текущата клетка се показва увеличена, използвайте бутоните за навигация</div>
                     </li>
-                    <li><strong>新增：整体预览功能，查看所有格子</strong>
-                        <div class="bulgarian-translation">Ново: Функция за цялостен преглед, вижте всички клетки</div>
+                    <li><strong>整体预览：至少显示3行3列（9个格子），按需扩展行数</strong>
+                        <div class="bulgarian-translation">Цялостен преглед: Показва минимум 3 реда и 3 колони (9 клетки), разширява се според нуждите</div>
                     </li>
                 </ul>
             </div>
@@ -1138,8 +1138,8 @@
                     <!-- 整体预览内容将通过JavaScript动态生成 -->
                 </div>
                 <div class="overview-info">
-                    共 <span id="overviewTotalGrids">0</span> 个格子，<span id="overviewTotalStrokes">0</span> 笔
-                    <div class="bulgarian-translation">Общо <span id="overviewTotalGridsBg">0</span> клетки, <span id="overviewTotalStrokesBg">0</span> щриха</div>
+                    显示 <span id="overviewDisplayGrids">9</span> 个格子，共 <span id="overviewTotalGrids">0</span> 个格子，<span id="overviewTotalStrokes">0</span> 笔
+                    <div class="bulgarian-translation">Показва <span id="overviewDisplayGridsBg">9</span> клетки, общо <span id="overviewTotalGridsBg">0</span> клетки, <span id="overviewTotalStrokesBg">0</span> щриха</div>
                 </div>
             </div>
         </div>
@@ -1237,6 +1237,8 @@
             const overviewTotalGridsBg = document.getElementById('overviewTotalGridsBg');
             const overviewTotalStrokes = document.getElementById('overviewTotalStrokes');
             const overviewTotalStrokesBg = document.getElementById('overviewTotalStrokesBg');
+            const overviewDisplayGrids = document.getElementById('overviewDisplayGrids');
+            const overviewDisplayGridsBg = document.getElementById('overviewDisplayGridsBg');
             
             // 模态框元素
             const exportModal = document.getElementById('exportModal');
@@ -2115,12 +2117,34 @@
                 // 清空预览容器
                 overviewContainer.innerHTML = '';
                 
+                // 计算需要显示的格子数量
+                // 找出有内容的格子中最大的索引
+                let maxUsedGridIndex = -1;
+                for (let i = 0; i < totalGrids; i++) {
+                    if (strokesHistory[i] && strokesHistory[i].length > 0) {
+                        maxUsedGridIndex = i;
+                    }
+                }
+                
+                // 至少显示9个格子（3行）
+                let gridsToShow = 9;
+                
+                // 如果用户使用了更多格子，计算需要显示的行数
+                if (maxUsedGridIndex >= 0) {
+                    // 计算最大行数（从0开始的行索引）
+                    const maxRowIndex = Math.floor(maxUsedGridIndex / 3);
+                    
+                    // 至少显示3行，如果用户使用了更多，则显示更多行
+                    const rowsToShow = Math.max(3, maxRowIndex + 1);
+                    gridsToShow = rowsToShow * 3;
+                }
+                
                 // 创建网格包装器
                 const gridWrapper = document.createElement('div');
                 gridWrapper.className = 'overview-grid-wrapper';
                 
-                // 添加所有格子到预览
-                for (let i = 0; i < totalGrids; i++) {
+                // 添加所有需要显示的格子到预览
+                for (let i = 0; i < gridsToShow; i++) {
                     const gridItem = document.createElement('div');
                     gridItem.className = 'overview-grid-item';
                     
@@ -2152,31 +2176,37 @@
                     // 笔画计数
                     const strokeCountBadge = document.createElement('div');
                     strokeCountBadge.className = 'overview-stroke-count';
-                    strokeCountBadge.textContent = `${strokeCount[i] || 0}笔`;
+                    const strokes = strokeCount[i] || 0;
+                    strokeCountBadge.textContent = `${strokes}笔`;
+                    strokeCountBadge.style.display = strokes > 0 ? 'block' : 'none';
                     
                     gridItem.appendChild(gridBackground);
                     gridItem.appendChild(canvas);
                     gridItem.appendChild(gridNumber);
                     gridItem.appendChild(strokeCountBadge);
                     
-                    // 绘制预览内容
-                    const ctx = canvas.getContext('2d');
-                    const gridStrokes = strokesHistory[i] || [];
-                    
-                    // 将120x120坐标转换为预览画布坐标
-                    const scale = 100 / 120;
-                    gridStrokes.forEach(stroke => {
-                        const scaledPoints = stroke.points.map(point => ({
-                            x: point.x * scale,
-                            y: point.y * scale
-                        }));
-                        drawCompleteStroke(ctx, scaledPoints, stroke.colorIndex, 1.5);
-                    });
+                    // 如果这个格子存在且有内容，绘制预览内容
+                    if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
+                        const ctx = canvas.getContext('2d');
+                        const gridStrokes = strokesHistory[i] || [];
+                        
+                        // 将120x120坐标转换为预览画布坐标
+                        const scale = 100 / 120;
+                        gridStrokes.forEach(stroke => {
+                            const scaledPoints = stroke.points.map(point => ({
+                                x: point.x * scale,
+                                y: point.y * scale
+                            }));
+                            drawCompleteStroke(ctx, scaledPoints, stroke.colorIndex, 1.5);
+                        });
+                    }
                     
                     // 点击预览格子切换到该格子
                     gridItem.addEventListener('click', function() {
-                        switchToGrid(i);
-                        overviewModal.classList.remove('active');
+                        if (i < totalGrids) {
+                            switchToGrid(i);
+                            overviewModal.classList.remove('active');
+                        }
                     });
                     
                     gridWrapper.appendChild(gridItem);
@@ -2185,14 +2215,14 @@
                 overviewContainer.appendChild(gridWrapper);
                 
                 // 更新预览信息
-                updateOverviewInfo();
+                updateOverviewInfo(gridsToShow);
                 
                 // 显示模态框
                 overviewModal.classList.add('active');
             }
             
             // 更新整体预览信息
-            function updateOverviewInfo() {
+            function updateOverviewInfo(gridsToShow = 9) {
                 let totalStrokes = 0;
                 for (let i = 0; i < totalGrids; i++) {
                     totalStrokes += strokeCount[i] || 0;
@@ -2202,6 +2232,8 @@
                 overviewTotalGridsBg.textContent = totalGrids;
                 overviewTotalStrokes.textContent = totalStrokes;
                 overviewTotalStrokesBg.textContent = totalStrokes;
+                overviewDisplayGrids.textContent = gridsToShow;
+                overviewDisplayGridsBg.textContent = gridsToShow;
             }
             
             // 生成预览图片
