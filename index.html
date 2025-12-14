@@ -20,11 +20,15 @@
             min-height: 100vh;
             -webkit-text-size-adjust: 100%;
             touch-action: manipulation;
+            overflow: hidden;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -274,13 +278,17 @@
             margin-top: 8px;
         }
 
-        /* 书写板区域 */
+        /* 书写板区域 - 主要修改部分 */
         .board-container {
             background-color: #0c0c14;
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .board-header {
@@ -303,7 +311,7 @@
             flex-wrap: wrap;
         }
 
-        .board {
+        .board-wrapper {
             background-color: #0a2912;
             background-image: 
                 radial-gradient(circle at 25% 25%, rgba(20, 80, 30, 0.2) 2%, transparent 2.5%),
@@ -313,8 +321,21 @@
             border-radius: 8px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
             padding: 15px;
-            overflow: auto;
-            max-height: 500px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            touch-action: none;
+            min-height: 400px;
+        }
+
+        .board {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            transition: transform 0.1s;
         }
 
         /* 关键修改：手机上也保持每行3个格子 */
@@ -333,7 +354,6 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            transition: all 0.3s ease;
         }
 
         /* 手机上的格子大小调整 */
@@ -345,9 +365,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             flex-shrink: 0;
             overflow: hidden;
-            transform-origin: center center;
-            transition: transform 0.3s ease;
-            will-change: transform;
         }
 
         .grid-background {
@@ -607,8 +624,8 @@
                 height: 110px;
             }
             
-            .board {
-                max-height: 600px;
+            .board-wrapper {
+                min-height: 500px;
             }
         }
 
@@ -629,6 +646,10 @@
             
             .preview-image {
                 max-height: 250px;
+            }
+            
+            .board-wrapper {
+                min-height: 550px;
             }
         }
 
@@ -689,8 +710,8 @@
                     <li>在新格子写字时颜色从红色重新开始
                         <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
                     </li>
-                    <li><strong>手机双指缩放：双指可缩放当前选中格子</strong>
-                        <div class="bulgarian-translation">Мащабиране с два пръста на телефон: с два пръста можете да мащабирате текущата избрана клетка</div>
+                    <li><strong>整体缩放：双指可缩放所有格子（像照片一样）</strong>
+                        <div class="bulgarian-translation">Мащабиране на всички клетки: с два пръста можете да мащабирате всички клетки (като снимка)</div>
                     </li>
                 </ul>
             </div>
@@ -786,15 +807,17 @@
                     <button id="exportImage" class="button button-success">
                         <span>导出图片 | Експортирай снимка</span>
                     </button>
-                    <button id="resetZoom" class="button button-utility">
-                        <span>重置缩放 | Възстанови мащаба</span>
+                    <button id="resetView" class="button button-utility">
+                        <span>重置视图 | Възстанови изглед</span>
                     </button>
                 </div>
             </div>
             
             <!-- 书写格子 -->
-            <div class="board" id="board">
-                <!-- 格子将通过JavaScript动态生成 -->
+            <div class="board-wrapper" id="boardWrapper">
+                <div class="board" id="board">
+                    <!-- 格子将通过JavaScript动态生成 -->
+                </div>
             </div>
         </div>
         
@@ -877,18 +900,24 @@
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
             
-            // 新增：为每个格子存储缩放状态
-            let gridScales = {}; // 存储每个格子的缩放比例，默认1
+            // 视图变换状态
+            let scale = 1;
+            let translateX = 0;
+            let translateY = 0;
+            let isDragging = false;
+            let lastX = 0;
+            let lastY = 0;
             
             // DOM元素
             const board = document.getElementById('board');
+            const boardWrapper = document.getElementById('boardWrapper');
             const gridCountInput = document.getElementById('gridCount');
             const generateGridsBtn = document.getElementById('generateGrids');
             const undoStrokeBtn = document.getElementById('undoStroke');
             const clearCurrentBtn = document.getElementById('clearCurrent');
             const clearAllBtn = document.getElementById('clearAll');
             const exportImageBtn = document.getElementById('exportImage');
-            const resetZoomBtn = document.getElementById('resetZoom');
+            const resetViewBtn = document.getElementById('resetView');
             const currentColorBox = document.getElementById('currentColorBox');
             const currentColorName = document.getElementById('currentColorName');
             const currentColorNameBg = document.getElementById('currentColorNameBg');
@@ -989,20 +1018,17 @@
                     strokesHistory[i] = [];
                     strokeCount[i] = 0;
                     currentColorIndex[i] = 0;
-                    // 同时重置缩放
-                    resetGridScale(i);
                 }
                 
                 updateCurrentGridDisplay();
             });
             
-            // 重置缩放
-            resetZoomBtn.addEventListener('click', function() {
-                const activeGrid = document.querySelector('.grid-active');
-                if (activeGrid) {
-                    const gridIndex = parseInt(activeGrid.dataset.index);
-                    resetGridScale(gridIndex);
-                }
+            // 重置视图
+            resetViewBtn.addEventListener('click', function() {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
             });
             
             // 导出图片按钮点击事件
@@ -1119,7 +1145,6 @@
                     strokesHistory[i] = strokesHistory[i] || [];
                     currentColorIndex[i] = currentColorIndex[i] || 0;
                     strokeCount[i] = strokeCount[i] || 0;
-                    gridScales[i] = gridScales[i] || 1;
                     
                     // 创建格子容器
                     const gridContainer = document.createElement('div');
@@ -1200,11 +1225,6 @@
                     // 添加绘图事件
                     addDrawingEvents(canvas, i);
                     
-                    // 添加双指缩放事件（仅限移动设备）
-                    if (isMobileDevice) {
-                        addPinchZoomEvents(gridItem, i);
-                    }
-                    
                     gridWrapper.appendChild(gridContainer);
                     
                     // 重新绘制已有的笔画
@@ -1224,6 +1244,9 @@
                     currentGridIndex = 0;
                     updateCurrentGridDisplay();
                 }
+                
+                // 添加触摸事件用于缩放和平移
+                addTouchEvents();
             }
             
             // 为画布添加绘图事件（支持鼠标和触摸）
@@ -1232,31 +1255,38 @@
                 let points = [];
                 let isDrawing = false;
                 
-                // 获取坐标（考虑缩放）
+                // 获取坐标（考虑视图变换）
                 function getPos(event) {
-                    const gridItem = canvas.parentElement;
-                    const rect = gridItem.getBoundingClientRect();
-                    let x, y;
+                    const boardRect = boardWrapper.getBoundingClientRect();
+                    let clientX, clientY;
                     
                     if (event.type.includes('touch')) {
-                        x = event.touches[0].clientX - rect.left;
-                        y = event.touches[0].clientY - rect.top;
+                        clientX = event.touches[0].clientX;
+                        clientY = event.touches[0].clientY;
                     } else {
-                        x = event.clientX - rect.left;
-                        y = event.clientY - rect.top;
+                        clientX = event.clientX;
+                        clientY = event.clientY;
                     }
                     
-                    // 获取当前缩放状态
-                    const scale = gridScales[gridIndex] || 1;
+                    // 转换为相对于boardWrapper的坐标
+                    const x = (clientX - boardRect.left - translateX) / scale;
+                    const y = (clientY - boardRect.top - translateY) / scale;
                     
-                    // 转换为画布坐标（考虑缩放）
-                    const scaleX = canvas.width / rect.width;
-                    const scaleY = canvas.height / rect.height;
+                    // 现在我们需要找到这个坐标位于哪个格子内
+                    const gridItem = canvas.parentElement;
+                    const gridRect = gridItem.getBoundingClientRect();
                     
-                    // 调整坐标：画布始终是90x90，但格子可能被缩放
+                    // 转换为相对于格子的坐标
+                    const scaleX = canvas.width / gridRect.width;
+                    const scaleY = canvas.height / gridRect.height;
+                    
+                    // 计算在格子内的坐标
+                    const gridX = (x - gridRect.left + boardWrapper.scrollLeft) * scaleX;
+                    const gridY = (y - gridRect.top + boardWrapper.scrollTop) * scaleY;
+                    
                     return {
-                        x: (x / scale) * scaleX,
-                        y: (y / scale) * scaleY
+                        x: gridX,
+                        y: gridY
                     };
                 }
                 
@@ -1354,23 +1384,27 @@
                 // 鼠标事件
                 canvas.addEventListener('mousedown', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     startDrawing(getPos(e));
                 });
                 
                 canvas.addEventListener('mousemove', function(e) {
                     if (!isDrawing) return;
                     e.preventDefault();
+                    e.stopPropagation();
                     continueDrawing(getPos(e));
                 });
                 
                 canvas.addEventListener('mouseup', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     endDrawing();
                 });
                 
                 canvas.addEventListener('mouseleave', function(e) {
                     if (isDrawing) {
                         e.preventDefault();
+                        e.stopPropagation();
                         endDrawing();
                     }
                 });
@@ -1405,114 +1439,171 @@
                 });
             }
             
-            // 添加双指缩放事件（缩放整个格子）
-            function addPinchZoomEvents(gridItem, gridIndex) {
+            // 添加触摸事件用于整体缩放和平移
+            function addTouchEvents() {
                 let initialDistance = 0;
                 let initialScale = 1;
+                let initialTranslateX = 0;
+                let initialTranslateY = 0;
+                let lastCenterX = 0;
+                let lastCenterY = 0;
                 let isPinching = false;
-                let lastTouchEnd = 0;
                 
-                gridItem.addEventListener('touchstart', function(e) {
-                    if (e.touches.length === 2) {
-                        e.preventDefault();
-                        e.stopPropagation();
+                boardWrapper.addEventListener('mousedown', function(e) {
+                    // 只有在没有开始绘图时才允许拖拽
+                    if (e.target.classList.contains('grid-canvas')) return;
+                    
+                    e.preventDefault();
+                    isDragging = true;
+                    lastX = e.clientX - translateX;
+                    lastY = e.clientY - translateY;
+                });
+                
+                document.addEventListener('mousemove', function(e) {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    
+                    translateX = e.clientX - lastX;
+                    translateY = e.clientY - lastY;
+                    
+                    // 限制平移范围
+                    const maxTranslate = 200;
+                    translateX = Math.max(-maxTranslate, Math.min(maxTranslate, translateX));
+                    translateY = Math.max(-maxTranslate, Math.min(maxTranslate, translateY));
+                    
+                    applyTransform();
+                });
+                
+                document.addEventListener('mouseup', function() {
+                    isDragging = false;
+                });
+                
+                boardWrapper.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    
+                    const rect = boardWrapper.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    // 计算鼠标相对于变换中心的坐标
+                    const worldX = (mouseX - translateX) / scale;
+                    const worldY = (mouseY - translateY) / scale;
+                    
+                    // 调整缩放
+                    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                    scale *= delta;
+                    
+                    // 限制缩放范围
+                    scale = Math.max(0.5, Math.min(3, scale));
+                    
+                    // 调整平移以使鼠标点保持在同一位置
+                    translateX = mouseX - worldX * scale;
+                    translateY = mouseY - worldY * scale;
+                    
+                    applyTransform();
+                }, { passive: false });
+                
+                // 触摸事件
+                boardWrapper.addEventListener('touchstart', function(e) {
+                    if (e.touches.length === 1) {
+                        // 单指触摸 - 准备拖拽
+                        if (e.target.classList.contains('grid-canvas')) return;
                         
-                        // 记录初始距离
+                        e.preventDefault();
+                        isDragging = true;
+                        lastX = e.touches[0].clientX - translateX;
+                        lastY = e.touches[0].clientY - translateY;
+                    } else if (e.touches.length === 2) {
+                        // 双指触摸 - 准备缩放
+                        e.preventDefault();
+                        isPinching = true;
+                        
                         const touch1 = e.touches[0];
                         const touch2 = e.touches[1];
+                        
+                        // 计算初始距离
                         initialDistance = Math.hypot(
                             touch2.clientX - touch1.clientX,
                             touch2.clientY - touch1.clientY
                         );
                         
-                        // 记录初始缩放比例
-                        initialScale = gridScales[gridIndex] || 1;
-                        isPinching = true;
+                        // 记录初始变换状态
+                        initialScale = scale;
+                        initialTranslateX = translateX;
+                        initialTranslateY = translateY;
                         
-                        // 确保这个格子被选中
-                        if (!gridItem.classList.contains('grid-active')) {
-                            document.querySelectorAll('.grid-item').forEach(item => {
-                                item.classList.remove('grid-active');
-                            });
-                            
-                            document.querySelectorAll('.grid-label').forEach(label => {
-                                label.style.color = 'rgba(255, 255, 255, 0.7)';
-                                label.style.fontWeight = 'normal';
-                            });
-                            
-                            gridItem.classList.add('grid-active');
-                            
-                            const label = document.getElementById(`grid-label-${gridIndex}`);
-                            if (label) {
-                                label.style.color = '#f0d26e';
-                                label.style.fontWeight = 'bold';
-                            }
-                            
-                            currentGridIndex = gridIndex;
-                            updateCurrentGridDisplay();
-                        }
+                        // 计算中心点
+                        const rect = boardWrapper.getBoundingClientRect();
+                        lastCenterX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
+                        lastCenterY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
                     }
                 }, { passive: false });
                 
-                gridItem.addEventListener('touchmove', function(e) {
+                boardWrapper.addEventListener('touchmove', function(e) {
                     if (isPinching && e.touches.length === 2) {
+                        // 双指缩放
                         e.preventDefault();
-                        e.stopPropagation();
                         
                         const touch1 = e.touches[0];
                         const touch2 = e.touches[1];
+                        
+                        // 计算当前距离
                         const currentDistance = Math.hypot(
                             touch2.clientX - touch1.clientX,
                             touch2.clientY - touch1.clientY
                         );
                         
                         // 计算缩放比例
-                        let scale = initialScale * (currentDistance / initialDistance);
+                        const newScale = initialScale * (currentDistance / initialDistance);
                         
                         // 限制缩放范围
-                        scale = Math.max(0.5, Math.min(3, scale));
+                        scale = Math.max(0.5, Math.min(3, newScale));
                         
-                        // 更新缩放比例
-                        gridScales[gridIndex] = scale;
+                        // 计算当前中心点
+                        const rect = boardWrapper.getBoundingClientRect();
+                        const currentCenterX = ((touch1.clientX + touch2.clientX) / 2) - rect.left;
+                        const currentCenterY = ((touch1.clientY + touch2.clientY) / 2) - rect.top;
                         
-                        // 应用缩放变换到grid-item
-                        applyGridScale(gridItem, gridIndex);
+                        // 计算中心点移动
+                        const centerDeltaX = currentCenterX - lastCenterX;
+                        const centerDeltaY = currentCenterY - lastCenterY;
+                        
+                        // 计算新的平移位置
+                        translateX = initialTranslateX + centerDeltaX;
+                        translateY = initialTranslateY + centerDeltaY;
+                        
+                        applyTransform();
+                    } else if (isDragging && e.touches.length === 1) {
+                        // 单指拖拽
+                        if (e.target.classList.contains('grid-canvas')) return;
+                        
+                        e.preventDefault();
+                        
+                        translateX = e.touches[0].clientX - lastX;
+                        translateY = e.touches[0].clientY - lastY;
+                        
+                        // 限制平移范围
+                        const maxTranslate = 200;
+                        translateX = Math.max(-maxTranslate, Math.min(maxTranslate, translateX));
+                        translateY = Math.max(-maxTranslate, Math.min(maxTranslate, translateY));
+                        
+                        applyTransform();
                     }
                 }, { passive: false });
                 
-                gridItem.addEventListener('touchend', function(e) {
+                boardWrapper.addEventListener('touchend', function(e) {
                     if (isPinching) {
                         isPinching = false;
-                        initialDistance = 0;
-                        initialScale = 1;
-                        
-                        // 防止双击事件
-                        const now = Date.now();
-                        if (now - lastTouchEnd < 300) {
-                            // 双击事件：重置缩放
-                            resetGridScale(gridIndex);
-                        }
-                        lastTouchEnd = now;
                     }
-                });
-                
-                gridItem.addEventListener('touchcancel', function(e) {
-                    if (isPinching) {
-                        isPinching = false;
-                        initialDistance = 0;
-                        initialScale = 1;
+                    if (isDragging) {
+                        isDragging = false;
                     }
                 });
             }
             
-            // 应用格子缩放
-            function applyGridScale(gridItem, gridIndex) {
-                const scale = gridScales[gridIndex] || 1;
-                
-                // 应用CSS变换
-                gridItem.style.transform = `scale(${scale})`;
-                // 确保放大的格子不影响其他格子布局
-                gridItem.style.transformOrigin = 'center center';
+            // 应用视图变换
+            function applyTransform() {
+                board.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
             }
             
             // 重新绘制指定格子的所有笔画
@@ -1561,17 +1652,6 @@
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
                 ctx.stroke();
-            }
-            
-            // 重置格子缩放
-            function resetGridScale(gridIndex) {
-                gridScales[gridIndex] = 1;
-                
-                // 更新格子样式
-                const gridItem = document.getElementById(`grid-item-${gridIndex}`);
-                if (gridItem) {
-                    gridItem.style.transform = 'none';
-                }
             }
             
             // 生成预览图片
