@@ -27,10 +27,6 @@
             margin: 0 auto;
             display: flex;
             gap: 15px;
-            
-            /* 为两侧固定侧边栏留出空间 */
-            padding-left: 260px;  /* 左侧栏宽度(220px) + 边距(20px×2) */
-            padding-right: 260px; /* 右侧栏宽度(220px) + 边距(20px×2) */
             min-height: 100vh;
         }
 
@@ -80,7 +76,7 @@
             margin-top: 2px;
         }
 
-        /* ==================== 侧边栏固定定位样式 ==================== */
+        /* 侧边栏样式 - 修改：高度随内容变化，可滚动 */
         .sidebar {
             width: 220px;
             background-color: rgba(45, 45, 68, 0.95);
@@ -89,49 +85,40 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            
-            /* 固定定位在屏幕两侧 */
-            position: fixed;
-            top: 20px;
-            
-            /* 关键修改：侧边栏高度限制在视口内 */
-            max-height: calc(100vh - 40px);
-            height: auto;
-            
-            /* 确保内容完全可见，不出现滚动条 */
-            overflow-y: hidden;
-            overflow-x: hidden;
-            
-            z-index: 1000;
-            
-            /* 使用flex布局，让内容自动调整 */
+            flex-shrink: 0;
+            /* 关键修改：使侧边栏高度与中间内容保持一致，随内容滚动 */
             display: flex;
             flex-direction: column;
+            align-self: flex-start; /* 确保侧边栏从顶部开始 */
+            min-height: 100%;
         }
 
-        /* 左侧边栏定位 */
-        .left-sidebar {
-            left: 20px;
-            order: 1;
-        }
-
-        /* 右侧边栏定位 */
-        .right-sidebar {
-            right: 20px;
-            order: 3;
+        .sidebar h2 {
+            color: #6ca6e1;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #4a4a6e;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         /* 左侧边栏 - 颜色信息 */
+        .left-sidebar {
+            order: 1;
+        }
+
         .color-sequence {
             display: flex;
             justify-content: center;
-            gap: 4px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
         .color-dot {
-            width: 14px;
-            height: 14px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
@@ -147,64 +134,58 @@
         }
 
         .color-display {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            flex-shrink: 0;
         }
 
         .color-display-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .color-label {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #b8b8d0;
-            min-width: 70px;
+            min-width: 80px;
         }
 
         .color-box {
-            width: 24px;
-            height: 24px;
+            width: 30px;
+            height: 30px;
             border-radius: 6px;
             border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
         .current-grid-info {
             background-color: rgba(240, 210, 110, 0.1);
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
             border-left: 3px solid #f0d26e;
             text-align: center;
-            font-size: 0.85rem;
-        }
-
-        .current-grid-info div {
-            margin-bottom: 3px;
+            flex-shrink: 0;
         }
 
         /* 右侧边栏 - 功能按钮 */
-        .right-sidebar h2 {
-            color: #6ca6e1;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #4a4a6e;
-            text-align: center;
+        .right-sidebar {
+            order: 3;
         }
 
         .desktop-tools {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            flex: 1;
         }
 
         /* 中间内容区域 */
         .main-content {
             flex: 1;
             order: 2;
-            min-width: 0;
-            min-width: 500px;
+            min-width: 0; /* 防止flex元素溢出 */
+            display: flex;
+            flex-direction: column;
         }
 
         /* 工具区域 */
@@ -251,10 +232,10 @@
         }
 
         .button {
-            padding: 8px 12px;
+            padding: 10px 16px;
             border: none;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -262,11 +243,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-height: 36px;
-            line-height: 1.2;
-            text-align: center;
-            white-space: normal;
-            word-break: break-word;
+            min-height: 44px;
         }
 
         .button-primary {
@@ -346,6 +323,7 @@
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            flex: 1;
         }
 
         .board-header {
@@ -482,7 +460,7 @@
 
         /* 手机版布局容器 */
         .mobile-board-container {
-            display: none;
+            display: none; /* 默认隐藏，手机端显示 */
             background-color: #0c0c14;
             border-radius: 10px;
             padding: 15px;
@@ -860,7 +838,7 @@
             padding: 15px;
         }
 
-        /* 整体预览始终使用3列布局 */
+        /* 关键修改：整体预览始终使用3列布局 */
         .overview-grid-wrapper {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -914,24 +892,18 @@
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
-                padding-left: 10px;
-                padding-right: 10px;
             }
             
             .sidebar {
-                display: none;
-                position: static;
-                width: 100%;
-                height: auto;
-                margin-bottom: 15px;
+                display: none; /* 手机端隐藏侧边栏 */
             }
             
             .desktop-board-container {
-                display: none;
+                display: none; /* 隐藏桌面版 */
             }
             
             .mobile-board-container {
-                display: block;
+                display: block; /* 显示手机版 */
             }
             
             h1 {
@@ -948,14 +920,14 @@
                 max-width: 300px;
             }
             
-            /* 整体预览也使用3列 */
+            /* 关键修改：手机端整体预览也使用3列 */
             .overview-grid-wrapper {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(3, 1fr); /* 确保是3列 */
                 gap: 10px;
             }
             
             .overview-grid-item {
-                width: 80px;
+                width: 80px; /* 手机端格子稍小 */
                 height: 80px;
             }
             
@@ -976,40 +948,16 @@
                 border-bottom: 1px solid #4a4a6e;
                 text-align: center;
             }
-            
-            .main-content {
-                min-width: 0;
-            }
         }
 
         /* 媒体查询：桌面端 */
         @media (min-width: 769px) {
             .desktop-board-container {
-                display: block;
+                display: block; /* 显示桌面版 */
             }
             
             .mobile-board-container {
-                display: none;
-            }
-            
-            /* 桌面端侧边栏固定定位 */
-            .sidebar {
-                position: fixed;
-                top: 20px;
-                height: calc(100vh - 40px);
-            }
-            
-            .left-sidebar {
-                left: 20px;
-            }
-            
-            .right-sidebar {
-                right: 20px;
-            }
-            
-            .container {
-                padding-left: 260px;
-                padding-right: 260px;
+                display: none; /* 隐藏手机版 */
             }
             
             /* 桌面端整体预览格子稍大 */
@@ -1022,97 +970,26 @@
             .mobile-add-grid-section {
                 display: none;
             }
-        }
-
-        /* 小桌面屏幕 - 进一步压缩侧边栏 */
-        @media (min-width: 769px) and (max-width: 900px) {
-            .sidebar {
-                width: 200px;
-                padding: 12px;
-            }
             
+            /* 关键修改：确保桌面端侧边栏能够随内容滚动 */
             .container {
-                padding-left: 240px;
-                padding-right: 240px;
-            }
-            
-            .color-label {
-                font-size: 0.75rem;
-                min-width: 60px;
-            }
-            
-            .button {
-                font-size: 0.8rem;
-                padding: 6px 10px;
-                min-height: 32px;
-            }
-            
-            .current-grid-info {
-                font-size: 0.8rem;
-                padding: 6px;
+                min-height: 100vh;
+                align-items: stretch;
             }
             
             .main-content {
-                min-width: 450px;
-            }
-        }
-
-        /* 桌面端大屏幕 - 有更多空间 */
-        @media (min-width: 1200px) {
-            .sidebar {
-                width: 240px;
+                height: auto;
+                min-height: 100%;
             }
             
-            .container {
-                padding-left: 280px;
-                padding-right: 280px;
+            .desktop-board-container {
+                min-height: 500px;
+                display: flex;
+                flex-direction: column;
             }
             
-            .color-dot {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .button {
-                padding: 10px 14px;
-                font-size: 0.9rem;
-            }
-            
-            .desktop-grid-wrapper {
-                max-width: 600px;
-                gap: 25px;
-            }
-            
-            .desktop-grid-item {
-                width: 140px;
-                height: 140px;
-            }
-        }
-
-        /* 非常高的屏幕 */
-        @media (min-height: 900px) {
-            .sidebar {
-                max-height: calc(100vh - 60px);
-                top: 30px;
-            }
-            
-            .color-sequence {
-                gap: 6px;
-                margin-bottom: 15px;
-            }
-            
-            .color-dot {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .desktop-tools {
-                gap: 10px;
-            }
-            
-            .button {
-                padding: 10px 12px;
-                min-height: 40px;
+            .board {
+                flex: 1;
             }
         }
 
@@ -1142,14 +1019,14 @@
                 width: 100%;
             }
             
-            /* 整体预览也保持3列布局 */
+            /* 关键修改：超小屏幕也保持3列布局 */
             .overview-grid-wrapper {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(3, 1fr); /* 确保是3列 */
                 gap: 8px;
             }
             
             .overview-grid-item {
-                width: 70px;
+                width: 70px; /* 超小屏幕格子更小 */
                 height: 70px;
             }
         }
@@ -1176,6 +1053,11 @@
             .overview-grid-item {
                 width: 110px;
                 height: 110px;
+            }
+            
+            /* 更大屏幕时调整侧边栏宽度 */
+            .sidebar {
+                width: 250px;
             }
         }
     </style>
