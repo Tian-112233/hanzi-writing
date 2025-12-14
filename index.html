@@ -1576,9 +1576,21 @@
                 mobileGridStrokeInfo.textContent = `${currentStrokesCount} 笔 | ${currentStrokesCount} щриха`;
             }
             
-            // 添加指定数量的格子（不清空已有内容）
+            // 添加指定数量的格子（修复版：只添加新格子，不清空已有内容）
             function addGrids(count) {
-                // 获取当前已有的网格包装器或创建新的
+                if (count <= 0) return;
+                
+                const startIndex = totalGrids;
+                const endIndex = startIndex + count;
+                
+                // 更新总格子数
+                totalGrids = endIndex;
+                currentGridTotal.textContent = totalGrids;
+                currentGridTotalBg.textContent = totalGrids;
+                currentGridTotalMobile.textContent = totalGrids;
+                currentGridTotalBgMobile.textContent = totalGrids;
+                
+                // 获取或创建桌面版网格包装器
                 let desktopGridWrapper = desktopBoard.querySelector('.desktop-grid-wrapper');
                 if (!desktopGridWrapper) {
                     desktopGridWrapper = document.createElement('div');
@@ -1586,28 +1598,9 @@
                     desktopBoard.appendChild(desktopGridWrapper);
                 }
                 
-                const startIndex = totalGrids;
-                const endIndex = startIndex + count;
-                
-                // 先计算总格子数，然后一次性添加到网格中
-                const previousTotal = totalGrids;
-                totalGrids = endIndex;
-                currentGridTotal.textContent = totalGrids;
-                currentGridTotalBg.textContent = totalGrids; // 更新保加利亚语数字
-                currentGridTotalMobile.textContent = totalGrids;
-                currentGridTotalBgMobile.textContent = totalGrids;
-                
-                // 清除现有的格子，重新按顺序添加（桌面版）
-                desktopBoard.innerHTML = '';
-                desktopGridWrapper = document.createElement('div');
-                desktopGridWrapper.className = 'desktop-grid-wrapper';
-                desktopBoard.appendChild(desktopGridWrapper);
-                
-                // 清除手机预览区
-                mobilePreviewGrids.innerHTML = '';
-                
-                for (let i = 0; i < totalGrids; i++) {
-                    // 恢复现有格子的数据
+                // 添加新格子
+                for (let i = startIndex; i < endIndex; i++) {
+                    // 初始化数据
                     strokesHistory[i] = strokesHistory[i] || [];
                     currentColorIndex[i] = currentColorIndex[i] || 0;
                     strokeCount[i] = strokeCount[i] || 0;
@@ -1747,15 +1740,15 @@
                     
                     mobilePreviewGrids.appendChild(previewGrid);
                     
-                    // 重新绘制已有的笔画
+                    // 重新绘制已有的笔画（如果有的话）
                     if (strokesHistory[i] && strokesHistory[i].length > 0) {
                         redrawDesktopGrid(i);
                         redrawPreviewGrid(i);
                     }
                 }
                 
-                // 如果没有选中的格子，选中第一个
-                if (totalGrids > 0) {
+                // 如果还没有选中的格子，选中第一个
+                if (totalGrids > 0 && currentGridIndex === 0 && startIndex === 0) {
                     // 桌面版
                     const firstDesktopGrid = document.querySelector('.desktop-grid-item');
                     if (firstDesktopGrid) {
