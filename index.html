@@ -20,6 +20,7 @@
             min-height: 100vh;
             -webkit-text-size-adjust: 100%;
             touch-action: manipulation;
+            overflow-x: hidden;
         }
 
         .container {
@@ -27,6 +28,7 @@
             margin: 0 auto;
             display: flex;
             gap: 15px;
+            position: relative;
         }
 
         header {
@@ -75,7 +77,7 @@
             margin-top: 2px;
         }
 
-        /* 侧边栏样式 */
+        /* 侧边栏样式 - 修改为随内容滚动 */
         .sidebar {
             width: 220px;
             background-color: rgba(45, 45, 68, 0.95);
@@ -85,6 +87,9 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
+            /* 移除固定定位，让侧边栏随内容滚动 */
+            position: static;
+            height: auto;
         }
 
         .sidebar h2 {
@@ -335,7 +340,9 @@
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
             padding: 15px;
             overflow: auto;
-            max-height: 500px;
+            /* 移除固定高度，让内容决定高度 */
+            max-height: none;
+            min-height: 300px;
         }
 
         /* 桌面版：每行3个格子 */
@@ -956,6 +963,15 @@
             .mobile-add-grid-section {
                 display: none;
             }
+            
+            /* 桌面端布局调整，确保三列等高等宽 */
+            .container {
+                align-items: flex-start;
+            }
+            
+            .sidebar {
+                height: auto;
+            }
         }
 
         /* 超小屏幕设备（非常小的手机） */
@@ -1019,6 +1035,32 @@
                 width: 110px;
                 height: 110px;
             }
+            
+            /* 大屏幕调整侧边栏宽度 */
+            .sidebar {
+                width: 250px;
+            }
+        }
+        
+        /* 超大屏幕设备 */
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1800px;
+            }
+            
+            .desktop-grid-wrapper {
+                max-width: 700px;
+                gap: 30px;
+            }
+            
+            .desktop-grid-item {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
         }
     </style>
 </head>
@@ -1076,6 +1118,9 @@
                         </li>
                         <li><strong>整体预览：电脑端和手机端都显示3列，按需显示行数</strong>
                             <div class="bulgarian-translation">Цялостен преглед: Показва 3 колони на компютър и телефон, редовете се показват според нуждите</div>
+                        </li>
+                        <li><strong>电脑端：侧边栏随内容一起滚动，随时查看颜色信息</strong>
+                            <div class="bulgarian-translation">На компютър: Страничните ленти се превъртат заедно със съдържанието, за да виждате цветовата информация по всяко време</div>
                         </li>
                     </ul>
                 </div>
