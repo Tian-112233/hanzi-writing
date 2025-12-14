@@ -26,6 +26,7 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
         }
 
         header {
@@ -284,6 +285,7 @@
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
+            touch-action: none;
         }
 
         .board-header {
@@ -306,74 +308,29 @@
             flex-wrap: wrap;
         }
 
-        .board-zoom-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #f0d26e;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            z-index: 10;
-            display: none;
-            border: 1px solid #f0d26e;
-        }
-
-        .board-zoom-controls {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-        }
-
-        .zoom-control-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(45, 45, 68, 0.9);
-            border: 1px solid #4a4a6e;
-            color: #e0e0e0;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .zoom-control-button:hover {
-            background-color: #4a6ee0;
-            transform: scale(1.1);
-        }
-
-        .board {
+        .board-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+            border: 10px solid #2c1b0e;
+            border-radius: 8px;
             background-color: #0a2912;
             background-image: 
                 radial-gradient(circle at 25% 25%, rgba(20, 80, 30, 0.2) 2%, transparent 2.5%),
                 radial-gradient(circle at 75% 75%, rgba(20, 80, 30, 0.2) 2%, transparent 2.5%);
             background-size: 60px 60px;
-            border: 10px solid #2c1b0e;
-            border-radius: 8px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            overflow: hidden;
-            position: relative;
-            cursor: move;
-            touch-action: none;
-            transform-origin: 0 0;
-            transition: transform 0.1s ease-out;
         }
 
-        .board-content {
-            position: relative;
+        .board {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             transform-origin: 0 0;
+            will-change: transform;
         }
 
         /* 关键修改：手机上也保持每行3个格子 */
@@ -385,7 +342,9 @@
             width: 100%;
             max-width: 360px; /* 手机上的最大宽度 */
             margin: 0 auto;
-            transform-origin: 0 0;
+            padding: 15px;
+            transform-origin: center center;
+            will-change: transform;
         }
 
         .grid-container {
@@ -393,6 +352,20 @@
             flex-direction: column;
             align-items: center;
             position: relative;
+        }
+
+        /* 添加缩放指示器 */
+        .zoom-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            font-size: 0.9rem;
+            color: #f0d26e;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 4px;
+            padding: 5px 10px;
+            pointer-events: none;
         }
 
         /* 手机上的格子大小调整 */
@@ -461,7 +434,6 @@
             width: 100%;
             height: 100%;
             cursor: crosshair;
-            touch-action: none;
         }
 
         .grid-label {
@@ -663,8 +635,8 @@
                 height: 110px;
             }
             
-            .board {
-                max-height: 600px;
+            .board-wrapper {
+                height: 600px;
             }
         }
 
@@ -745,8 +717,8 @@
                     <li>在新格子写字时颜色从红色重新开始
                         <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
                     </li>
-                    <li><strong>整体缩放：双指可缩放整个书写板，单指可拖动</strong>
-                        <div class="bulgarian-translation">Цялостно мащабиране: с два пръста можете да мащабирате цялата дъска, с един пръст можете да я плъзгате</div>
+                    <li><strong>整体缩放：双指可缩放整个书写板，写的字也会按比例缩放</strong>
+                        <div class="bulgarian-translation">Мащабиране на цялата дъска: с два пръста можете да мащабирате цялата дъска и написаните йероглифи</div>
                     </li>
                 </ul>
             </div>
@@ -828,11 +800,6 @@
             <div class="board-header">
                 <div class="board-title">书写板 | Писмена дъска</div>
                 
-                <!-- 整体缩放指示器 -->
-                <div class="board-zoom-indicator" id="boardZoomIndicator">
-                    缩放: <span id="zoomPercentage">100%</span>
-                </div>
-                
                 <!-- 功能按钮 -->
                 <div class="board-actions">
                     <button id="clearCurrent" class="button button-secondary">
@@ -853,17 +820,15 @@
                 </div>
             </div>
             
-            <!-- 书写格子 -->
-            <div class="board" id="board">
-                <div class="board-content" id="boardContent">
+            <!-- 书写板包装器 -->
+            <div class="board-wrapper">
+                <!-- 缩放指示器 -->
+                <div class="zoom-indicator" id="zoomIndicator">缩放: 100%</div>
+                
+                <!-- 书写格子 -->
+                <div class="board" id="board">
                     <!-- 格子将通过JavaScript动态生成 -->
                 </div>
-            </div>
-            
-            <!-- 缩放控制按钮（仅移动设备显示） -->
-            <div class="board-zoom-controls" id="zoomControls" style="display: none;">
-                <button class="zoom-control-button" id="zoomInBtn">+</button>
-                <button class="zoom-control-button" id="zoomOutBtn">-</button>
             </div>
         </div>
         
@@ -946,23 +911,20 @@
             let strokeCount = {}; // 按格子索引存储笔画计数
             let totalGrids = 0; // 总格子数
             
-            // 新增：整体缩放状态
-            let boardTransform = {
-                scale: 1,
-                offsetX: 0,
-                offsetY: 0,
-                minScale: 0.5,
-                maxScale: 3
-            };
+            // 新增：整体缩放相关变量
+            let boardScale = 1;
+            let boardOffsetX = 0;
+            let boardOffsetY = 0;
+            let isPanning = false;
+            let startPanX = 0;
+            let startPanY = 0;
+            let initialDistance = 0;
+            let initialScale = 1;
+            let isPinching = false;
             
             // DOM元素
             const board = document.getElementById('board');
-            const boardContent = document.getElementById('boardContent');
-            const boardZoomIndicator = document.getElementById('boardZoomIndicator');
-            const zoomPercentage = document.getElementById('zoomPercentage');
-            const zoomControls = document.getElementById('zoomControls');
-            const zoomInBtn = document.getElementById('zoomInBtn');
-            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const boardWrapper = document.querySelector('.board-wrapper');
             const gridCountInput = document.getElementById('gridCount');
             const generateGridsBtn = document.getElementById('generateGrids');
             const undoStrokeBtn = document.getElementById('undoStroke');
@@ -970,6 +932,7 @@
             const clearAllBtn = document.getElementById('clearAll');
             const exportImageBtn = document.getElementById('exportImage');
             const resetZoomBtn = document.getElementById('resetZoom');
+            const zoomIndicator = document.getElementById('zoomIndicator');
             const currentColorBox = document.getElementById('currentColorBox');
             const currentColorName = document.getElementById('currentColorName');
             const currentColorNameBg = document.getElementById('currentColorNameBg');
@@ -993,13 +956,8 @@
             // 检测设备类型
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            // 初始化
+            // 初始化当前颜色显示
             updateCurrentGridDisplay();
-            
-            // 如果是移动设备，显示缩放按钮
-            if (isMobileDevice) {
-                zoomControls.style.display = 'flex';
-            }
             
             // 生成格子（现在改为添加格子，不清空已有内容）
             generateGridsBtn.addEventListener('click', function() {
@@ -1092,15 +1050,6 @@
                 resetBoardTransform();
             });
             
-            // 缩放按钮事件
-            zoomInBtn.addEventListener('click', function() {
-                zoomBoard(0.2);
-            });
-            
-            zoomOutBtn.addEventListener('click', function() {
-                zoomBoard(-0.2);
-            });
-            
             // 导出图片按钮点击事件
             exportImageBtn.addEventListener('click', function() {
                 // 检查是否有内容
@@ -1153,6 +1102,38 @@
                 }
             });
             
+            // 复制图片到剪贴板（电脑端）
+            function copyImageToClipboard(imageSrc, userName) {
+                // 创建临时图像元素
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = imageSrc;
+                
+                img.onload = function() {
+                    // 创建canvas并绘制图像
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 将Canvas转换为Blob
+                    canvas.toBlob(function(blob) {
+                        // 创建ClipboardItem
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        
+                        // 复制到剪贴板
+                        navigator.clipboard.write([item]).then(function() {
+                            alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
+                            exportModal.classList.remove('active');
+                        }).catch(function(err) {
+                            console.error('复制失败:', err);
+                            alert('复制失败，请尝试右键另存为图片。\nКопирането не бе успешно, опитайте да запазите снимката с десен бутон.');
+                        });
+                    }, 'image/png');
+                };
+            }
+            
             // 添加指定数量的格子（不清空已有内容）
             function addGrids(count) {
                 // 获取当前已有的网格包装器或创建新的
@@ -1160,7 +1141,7 @@
                 if (!gridWrapper) {
                     gridWrapper = document.createElement('div');
                     gridWrapper.className = 'grid-wrapper';
-                    boardContent.appendChild(gridWrapper);
+                    board.appendChild(gridWrapper);
                 }
                 
                 const startIndex = totalGrids;
@@ -1173,10 +1154,7 @@
                 currentGridTotalBg.textContent = totalGrids; // 更新保加利亚语数字
                 
                 // 清除现有的格子，重新按顺序添加
-                boardContent.innerHTML = '';
-                gridWrapper = document.createElement('div');
-                gridWrapper.className = 'grid-wrapper';
-                boardContent.appendChild(gridWrapper);
+                gridWrapper.innerHTML = '';
                 
                 for (let i = 0; i < totalGrids; i++) {
                     // 恢复现有格子的数据
@@ -1230,8 +1208,9 @@
                     
                     // 添加点击/触摸选中事件
                     gridItem.addEventListener('click', function(e) {
-                        // 如果正在进行双指缩放操作，则不处理点击事件
+                        // 如果正在进行双指缩放或拖拽操作，则不处理点击事件
                         if (e.touches && e.touches.length >= 2) return;
+                        if (isPanning) return;
                         
                         // 移除其他格子的选中状态
                         document.querySelectorAll('.grid-item').forEach(item => {
@@ -1281,6 +1260,9 @@
                     currentGridIndex = 0;
                     updateCurrentGridDisplay();
                 }
+                
+                // 更新缩放指示器
+                updateZoomIndicator();
             }
             
             // 为画布添加绘图事件（支持鼠标和触摸）
@@ -1289,9 +1271,9 @@
                 let points = [];
                 let isDrawing = false;
                 
-                // 获取坐标（考虑整体缩放和偏移）
+                // 获取坐标（考虑整体缩放）
                 function getPos(event) {
-                    const rect = board.getBoundingClientRect();
+                    const rect = boardWrapper.getBoundingClientRect();
                     let x, y;
                     
                     if (event.type.includes('touch')) {
@@ -1302,33 +1284,29 @@
                         y = event.clientY - rect.top;
                     }
                     
-                    // 考虑整体缩放和偏移
-                    const scale = boardTransform.scale;
-                    const offsetX = boardTransform.offsetX;
-                    const offsetY = boardTransform.offsetY;
+                    // 转换为画布坐标（考虑整体缩放）
+                    const scale = boardScale;
+                    const scaleX = canvas.width / (boardWrapper.offsetWidth / scale);
+                    const scaleY = canvas.height / (boardWrapper.offsetHeight / scale);
                     
-                    // 转换到未缩放的坐标
-                    const unscaledX = (x - offsetX) / scale;
-                    const unscaledY = (y - offsetY) / scale;
+                    // 考虑偏移量
+                    const offsetX = -boardOffsetX * scale;
+                    const offsetY = -boardOffsetY * scale;
                     
-                    // 获取格子在boardContent中的位置
+                    // 获取格子相对于board的位置
                     const gridItem = canvas.parentElement;
                     const gridRect = gridItem.getBoundingClientRect();
-                    const boardRect = board.getBoundingClientRect();
+                    const gridRelativeX = gridRect.left - rect.left;
+                    const gridRelativeY = gridRect.top - rect.top;
                     
-                    // 计算格子相对于boardContent的位置
-                    const gridX = gridRect.left - boardRect.left;
-                    const gridY = gridRect.top - boardRect.top;
+                    // 计算相对于格子的坐标
+                    const relativeX = (x - gridRelativeX) * scaleX / scale;
+                    const relativeY = (y - gridRelativeY) * scaleY / scale;
                     
-                    // 计算在格子内部的坐标
-                    const localX = unscaledX - (gridX - offsetX) / scale;
-                    const localY = unscaledY - (gridY - offsetY) / scale;
-                    
-                    // 映射到画布坐标
-                    const canvasX = (localX / gridItem.offsetWidth) * canvas.width;
-                    const canvasY = (localY / gridItem.offsetHeight) * canvas.height;
-                    
-                    return { x: canvasX, y: canvasY };
+                    return {
+                        x: Math.max(0, Math.min(canvas.width, relativeX)),
+                        y: Math.max(0, Math.min(canvas.height, relativeY))
+                    };
                 }
                 
                 // 开始绘制
@@ -1476,222 +1454,6 @@
                 });
             }
             
-            // 添加整体缩放和拖拽功能
-            function initBoardZoomAndPan() {
-                let isPanning = false;
-                let startX, startY;
-                let initialPinchDistance = null;
-                let initialScale = null;
-                let initialOffsetX, initialOffsetY;
-                let lastTouchTime = 0;
-                let lastTouchX = 0;
-                let lastTouchY = 0;
-                
-                // 鼠标事件
-                board.addEventListener('mousedown', function(e) {
-                    if (e.button !== 0) return; // 只处理左键
-                    isPanning = true;
-                    startX = e.clientX - boardTransform.offsetX;
-                    startY = e.clientY - boardTransform.offsetY;
-                    board.style.cursor = 'grabbing';
-                });
-                
-                document.addEventListener('mousemove', function(e) {
-                    if (!isPanning) return;
-                    
-                    e.preventDefault();
-                    boardTransform.offsetX = e.clientX - startX;
-                    boardTransform.offsetY = e.clientY - startY;
-                    
-                    applyBoardTransform();
-                    updateZoomIndicator();
-                });
-                
-                document.addEventListener('mouseup', function(e) {
-                    if (e.button !== 0) return;
-                    isPanning = false;
-                    board.style.cursor = 'move';
-                });
-                
-                // 鼠标滚轮缩放
-                board.addEventListener('wheel', function(e) {
-                    e.preventDefault();
-                    
-                    const rect = board.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    const zoomIntensity = 0.1;
-                    const zoomFactor = e.deltaY < 0 ? 1 + zoomIntensity : 1 - zoomIntensity;
-                    
-                    zoomAtPoint(zoomFactor, mouseX, mouseY);
-                }, { passive: false });
-                
-                // 触摸事件
-                board.addEventListener('touchstart', function(e) {
-                    if (e.touches.length === 1) {
-                        // 单指触摸 - 可能是拖拽或点击
-                        const touch = e.touches[0];
-                        startX = touch.clientX - boardTransform.offsetX;
-                        startY = touch.clientY - boardTransform.offsetY;
-                        
-                        // 检查是否是双击
-                        const currentTime = new Date().getTime();
-                        const touchX = touch.clientX;
-                        const touchY = touch.clientY;
-                        
-                        if (currentTime - lastTouchTime < 300 && 
-                            Math.abs(touchX - lastTouchX) < 10 && 
-                            Math.abs(touchY - lastTouchY) < 10) {
-                            // 双击 - 重置缩放
-                            resetBoardTransform();
-                            e.preventDefault();
-                        }
-                        
-                        lastTouchTime = currentTime;
-                        lastTouchX = touchX;
-                        lastTouchY = touchY;
-                    } else if (e.touches.length === 2) {
-                        // 双指触摸 - 开始缩放
-                        e.preventDefault();
-                        
-                        const touch1 = e.touches[0];
-                        const touch2 = e.touches[1];
-                        
-                        initialPinchDistance = Math.hypot(
-                            touch2.clientX - touch1.clientX,
-                            touch2.clientY - touch1.clientY
-                        );
-                        
-                        initialScale = boardTransform.scale;
-                        initialOffsetX = boardTransform.offsetX;
-                        initialOffsetY = boardTransform.offsetY;
-                        
-                        // 计算双指中心点
-                        const centerX = (touch1.clientX + touch2.clientX) / 2;
-                        const centerY = (touch1.clientY + touch2.clientY) / 2;
-                        
-                        // 保存中心点相对于当前偏移的位置
-                        startX = centerX - boardTransform.offsetX;
-                        startY = centerY - boardTransform.offsetY;
-                    }
-                }, { passive: false });
-                
-                board.addEventListener('touchmove', function(e) {
-                    if (e.touches.length === 1) {
-                        // 单指移动 - 拖拽
-                        e.preventDefault();
-                        const touch = e.touches[0];
-                        boardTransform.offsetX = touch.clientX - startX;
-                        boardTransform.offsetY = touch.clientY - startY;
-                        
-                        applyBoardTransform();
-                        updateZoomIndicator();
-                    } else if (e.touches.length === 2 && initialPinchDistance !== null) {
-                        // 双指移动 - 缩放
-                        e.preventDefault();
-                        
-                        const touch1 = e.touches[0];
-                        const touch2 = e.touches[1];
-                        
-                        const currentDistance = Math.hypot(
-                            touch2.clientX - touch1.clientX,
-                            touch2.clientY - touch1.clientY
-                        );
-                        
-                        if (initialPinchDistance > 0) {
-                            const scaleChange = currentDistance / initialPinchDistance;
-                            const newScale = Math.max(
-                                boardTransform.minScale, 
-                                Math.min(boardTransform.maxScale, initialScale * scaleChange)
-                            );
-                            
-                            // 计算双指中心点
-                            const centerX = (touch1.clientX + touch2.clientX) / 2;
-                            const centerY = (touch1.clientY + touch2.clientY) / 2;
-                            
-                            // 基于中心点缩放
-                            boardTransform.scale = newScale;
-                            
-                            // 调整偏移量以保持中心点位置
-                            boardTransform.offsetX = centerX - (centerX - initialOffsetX) * (newScale / initialScale);
-                            boardTransform.offsetY = centerY - (centerY - initialOffsetY) * (newScale / initialScale);
-                            
-                            applyBoardTransform();
-                            updateZoomIndicator();
-                        }
-                    }
-                }, { passive: false });
-                
-                board.addEventListener('touchend', function(e) {
-                    initialPinchDistance = null;
-                    initialScale = null;
-                });
-            }
-            
-            // 初始化整体缩放和拖拽
-            initBoardZoomAndPan();
-            
-            // 应用整体变换到书写板
-            function applyBoardTransform() {
-                boardContent.style.transform = `translate(${boardTransform.offsetX}px, ${boardTransform.offsetY}px) scale(${boardTransform.scale})`;
-            }
-            
-            // 在指定点缩放
-            function zoomAtPoint(zoomFactor, x, y) {
-                const newScale = Math.max(
-                    boardTransform.minScale, 
-                    Math.min(boardTransform.maxScale, boardTransform.scale * zoomFactor)
-                );
-                
-                // 计算缩放前后的坐标转换
-                const scaleRatio = newScale / boardTransform.scale;
-                
-                // 调整偏移量以保持鼠标位置不变
-                boardTransform.offsetX = x - (x - boardTransform.offsetX) * scaleRatio;
-                boardTransform.offsetY = y - (y - boardTransform.offsetY) * scaleRatio;
-                boardTransform.scale = newScale;
-                
-                applyBoardTransform();
-                updateZoomIndicator();
-            }
-            
-            // 缩放书写板
-            function zoomBoard(zoomDelta) {
-                const rect = board.getBoundingClientRect();
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const newScale = Math.max(
-                    boardTransform.minScale, 
-                    Math.min(boardTransform.maxScale, boardTransform.scale + zoomDelta)
-                );
-                
-                zoomAtPoint(newScale / boardTransform.scale, centerX, centerY);
-            }
-            
-            // 重置整体变换
-            function resetBoardTransform() {
-                boardTransform.scale = 1;
-                boardTransform.offsetX = 0;
-                boardTransform.offsetY = 0;
-                
-                applyBoardTransform();
-                updateZoomIndicator();
-            }
-            
-            // 更新缩放指示器
-            function updateZoomIndicator() {
-                const percentage = Math.round(boardTransform.scale * 100);
-                zoomPercentage.textContent = `${percentage}%`;
-                
-                if (Math.abs(boardTransform.scale - 1) > 0.01) {
-                    boardZoomIndicator.style.display = 'block';
-                } else {
-                    boardZoomIndicator.style.display = 'none';
-                }
-            }
-            
             // 重新绘制指定格子的所有笔画
             function redrawGrid(gridIndex) {
                 const canvas = document.getElementById(`grid-canvas-${gridIndex}`);
@@ -1740,67 +1502,162 @@
                 ctx.stroke();
             }
             
-            // 更新当前格子显示
-            function updateCurrentGridDisplay() {
-                const gridStrokes = strokesHistory[currentGridIndex] || [];
-                const currentStrokesCount = gridStrokes.length;
-                const nextColorIdx = currentColorIndex[currentGridIndex] || 0;
-                const nextColor = colorSequence[nextColorIdx];
-                
-                // 如果当前格子有笔画，显示最后一笔的颜色
-                let displayColorIdx = nextColorIdx;
-                if (currentStrokesCount > 0) {
-                    const lastStroke = gridStrokes[currentStrokesCount - 1];
-                    displayColorIdx = lastStroke.colorIndex;
-                }
-                const displayColor = colorSequence[displayColorIdx];
-                
-                // 更新显示
-                currentGridNumber.textContent = currentGridIndex + 1;
-                currentGridNumberBg.textContent = currentGridIndex + 1; // 更新保加利亚语数字
-                currentGridStrokeCount.textContent = currentStrokesCount;
-                currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
-                currentColorBox.style.backgroundColor = displayColor.start;
-                currentColorName.textContent = displayColor.nameZh;
-                currentColorNameBg.textContent = displayColor.nameBg; // 更新保加利亚语颜色名
-                nextColorName.textContent = nextColor.nameZh;
-                nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
-                
-                // 更新渐变预览
-                gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
+            // 更新缩放指示器
+            function updateZoomIndicator() {
+                const percentage = Math.round(boardScale * 100);
+                zoomIndicator.textContent = `缩放: ${percentage}%`;
             }
             
-            // 复制图片到剪贴板（电脑端）
-            function copyImageToClipboard(imageSrc, userName) {
-                // 创建临时图像元素
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.src = imageSrc;
-                
-                img.onload = function() {
-                    // 创建canvas并绘制图像
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // 将Canvas转换为Blob
-                    canvas.toBlob(function(blob) {
-                        // 创建ClipboardItem
-                        const item = new ClipboardItem({ 'image/png': blob });
-                        
-                        // 复制到剪贴板
-                        navigator.clipboard.write([item]).then(function() {
-                            alert('图片已复制到剪贴板！\n您可以在微信、QQ或其他应用中粘贴使用。\n\nСнимката е копирана в клипборда!\nМожете да я поставите в WeChat, QQ или други приложения.');
-                            exportModal.classList.remove('active');
-                        }).catch(function(err) {
-                            console.error('复制失败:', err);
-                            alert('复制失败，请尝试右键另存为图片。\nКопирането не бе успешно, опитайте да запазите снимката с десен бутон.');
-                        });
-                    }, 'image/png');
-                };
+            // 重置整体缩放
+            function resetBoardTransform() {
+                boardScale = 1;
+                boardOffsetX = 0;
+                boardOffsetY = 0;
+                applyBoardTransform();
+                updateZoomIndicator();
             }
+            
+            // 应用整体缩放和偏移
+            function applyBoardTransform() {
+                board.style.transform = `translate(${boardOffsetX}px, ${boardOffsetY}px) scale(${boardScale})`;
+            }
+            
+            // 初始化整体缩放事件
+            function initBoardZoom() {
+                // 鼠标滚轮缩放（桌面端）
+                boardWrapper.addEventListener('wheel', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const rect = boardWrapper.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const delta = e.deltaY < 0 ? 1.1 : 0.9;
+                    const newScale = Math.max(0.5, Math.min(3, boardScale * delta));
+                    
+                    // 计算缩放中心点偏移
+                    const scaleChange = newScale / boardScale;
+                    boardOffsetX = mouseX - (mouseX - boardOffsetX) * scaleChange;
+                    boardOffsetY = mouseY - (mouseY - boardOffsetY) * scaleChange;
+                    
+                    boardScale = newScale;
+                    applyBoardTransform();
+                    updateZoomIndicator();
+                }, { passive: false });
+                
+                // 触摸事件（移动端）
+                let initialTouch1 = null;
+                let initialTouch2 = null;
+                
+                boardWrapper.addEventListener('touchstart', function(e) {
+                    e.stopPropagation();
+                    
+                    if (e.touches.length === 1) {
+                        // 单指触摸 - 可能是拖拽或绘图
+                        const touch = e.touches[0];
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        
+                        // 如果触摸目标是画布，则开始绘图（在画布事件中处理）
+                        // 否则开始拖拽
+                        if (!target || !target.classList.contains('grid-canvas')) {
+                            isPanning = true;
+                            startPanX = touch.clientX - boardOffsetX;
+                            startPanY = touch.clientY - boardOffsetY;
+                        }
+                    } else if (e.touches.length === 2) {
+                        // 双指触摸 - 缩放
+                        e.preventDefault();
+                        isPinching = true;
+                        initialTouch1 = {
+                            x: e.touches[0].clientX,
+                            y: e.touches[0].clientY
+                        };
+                        initialTouch2 = {
+                            x: e.touches[1].clientX,
+                            y: e.touches[1].clientY
+                        };
+                        
+                        // 计算初始距离和中心点
+                        initialDistance = Math.hypot(
+                            initialTouch2.x - initialTouch1.x,
+                            initialTouch2.y - initialTouch1.y
+                        );
+                        
+                        const rect = boardWrapper.getBoundingClientRect();
+                        const centerX = (initialTouch1.x + initialTouch2.x) / 2 - rect.left;
+                        const centerY = (initialTouch1.y + initialTouch2.y) / 2 - rect.top;
+                        
+                        initialScale = boardScale;
+                    }
+                }, { passive: false });
+                
+                boardWrapper.addEventListener('touchmove', function(e) {
+                    e.stopPropagation();
+                    
+                    if (isPanning && e.touches.length === 1) {
+                        // 单指移动 - 拖拽
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        boardOffsetX = touch.clientX - startPanX;
+                        boardOffsetY = touch.clientY - startPanY;
+                        applyBoardTransform();
+                    } else if (isPinching && e.touches.length === 2) {
+                        // 双指移动 - 缩放
+                        e.preventDefault();
+                        
+                        const touch1 = {
+                            x: e.touches[0].clientX,
+                            y: e.touches[0].clientY
+                        };
+                        const touch2 = {
+                            x: e.touches[1].clientX,
+                            y: e.touches[1].clientY
+                        };
+                        
+                        // 计算当前距离
+                        const currentDistance = Math.hypot(
+                            touch2.x - touch1.x,
+                            touch2.y - touch1.y
+                        );
+                        
+                        // 计算缩放比例
+                        const scaleChange = currentDistance / initialDistance;
+                        const newScale = Math.max(0.5, Math.min(3, initialScale * scaleChange));
+                        
+                        // 计算中心点
+                        const rect = boardWrapper.getBoundingClientRect();
+                        const currentCenterX = (touch1.x + touch2.x) / 2 - rect.left;
+                        const currentCenterY = (touch1.y + touch2.y) / 2 - rect.top;
+                        
+                        // 计算偏移量
+                        const scaleRatio = newScale / boardScale;
+                        boardOffsetX = currentCenterX - (currentCenterX - boardOffsetX) * scaleRatio;
+                        boardOffsetY = currentCenterY - (currentCenterY - boardOffsetY) * scaleRatio;
+                        
+                        boardScale = newScale;
+                        applyBoardTransform();
+                        updateZoomIndicator();
+                    }
+                }, { passive: false });
+                
+                boardWrapper.addEventListener('touchend', function(e) {
+                    isPanning = false;
+                    isPinching = false;
+                    initialTouch1 = null;
+                    initialTouch2 = null;
+                });
+                
+                boardWrapper.addEventListener('touchcancel', function(e) {
+                    isPanning = false;
+                    isPinching = false;
+                    initialTouch1 = null;
+                    initialTouch2 = null;
+                });
+            }
+            
+            // 初始化整体缩放
+            initBoardZoom();
             
             // 生成预览图片
             function generatePreviewImage(userName) {
@@ -2012,6 +1869,36 @@
                 ctx.moveTo(x, y + height);
                 ctx.lineTo(x + width, y);
                 ctx.stroke();
+            }
+            
+            // 更新当前格子显示
+            function updateCurrentGridDisplay() {
+                const gridStrokes = strokesHistory[currentGridIndex] || [];
+                const currentStrokesCount = gridStrokes.length;
+                const nextColorIdx = currentColorIndex[currentGridIndex] || 0;
+                const nextColor = colorSequence[nextColorIdx];
+                
+                // 如果当前格子有笔画，显示最后一笔的颜色
+                let displayColorIdx = nextColorIdx;
+                if (currentStrokesCount > 0) {
+                    const lastStroke = gridStrokes[currentStrokesCount - 1];
+                    displayColorIdx = lastStroke.colorIndex;
+                }
+                const displayColor = colorSequence[displayColorIdx];
+                
+                // 更新显示
+                currentGridNumber.textContent = currentGridIndex + 1;
+                currentGridNumberBg.textContent = currentGridIndex + 1; // 更新保加利亚语数字
+                currentGridStrokeCount.textContent = currentStrokesCount;
+                currentGridStrokeCountBg.textContent = currentStrokesCount; // 更新保加利亚语数字
+                currentColorBox.style.backgroundColor = displayColor.start;
+                currentColorName.textContent = displayColor.nameZh;
+                currentColorNameBg.textContent = displayColor.nameBg; // 更新保加利亚语颜色名
+                nextColorName.textContent = nextColor.nameZh;
+                nextColorNameBg.textContent = nextColor.nameBg; // 更新保加利亚语颜色名
+                
+                // 更新渐变预览
+                gradientPreview.style.background = `linear-gradient(to right, ${displayColor.start}, ${displayColor.end})`;
             }
         });
     </script>
