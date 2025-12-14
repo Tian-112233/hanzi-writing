@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -203,6 +204,7 @@
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center; /* 居中文本内容 */
         }
 
         h2 {
@@ -211,6 +213,7 @@
             font-size: 1.2rem;
             padding-bottom: 6px;
             border-bottom: 1px solid #4a4a6e;
+            text-align: center; /* 确保标题居中 */
         }
 
         .add-grid-control {
@@ -218,6 +221,7 @@
             gap: 8px;
             align-items: center;
             margin-bottom: 12px;
+            justify-content: center; /* 居中内容 */
         }
 
         .add-grid-control input {
@@ -246,52 +250,53 @@
             min-height: 44px;
         }
 
-        .button-primary {
-            background-color: #4a6ee0;
+        /* 五个功能工具按钮的不同颜色 */
+        .button-clear-selected {
+            background-color: #e05a4a; /* 红色 - 清空选择格子 */
             color: white;
         }
 
-        .button-primary:hover {
-            background-color: #3a5ed0;
-            transform: translateY(-2px);
-        }
-
-        .button-secondary {
-            background-color: #e05a4a;
-            color: white;
-        }
-
-        .button-secondary:hover {
+        .button-clear-selected:hover {
             background-color: #d04a3a;
             transform: translateY(-2px);
         }
 
-        .button-utility {
-            background-color: #6a5ae0;
+        .button-clear-all {
+            background-color: #9c27b0; /* 紫色 - 清空所有 */
             color: white;
         }
 
-        .button-utility:hover {
-            background-color: #5a4ad0;
+        .button-clear-all:hover {
+            background-color: #8c1fa0;
             transform: translateY(-2px);
         }
 
-        .button-success {
-            background-color: #2ea44f;
+        .button-undo {
+            background-color: #2196f3; /* 蓝色 - 撤销上一笔 */
             color: white;
         }
 
-        .button-success:hover {
+        .button-undo:hover {
+            background-color: #0d8bf2;
+            transform: translateY(-2px);
+        }
+
+        .button-export {
+            background-color: #2ea44f; /* 绿色 - 导出图片 */
+            color: white;
+        }
+
+        .button-export:hover {
             background-color: #2c974b;
             transform: translateY(-2px);
         }
 
-        .button-warning {
-            background-color: #e0a84a;
+        .button-overview {
+            background-color: #e0a84a; /* 橙色 - 整体预览 */
             color: white;
         }
 
-        .button-warning:hover {
+        .button-overview:hover {
             background-color: #d0983a;
             transform: translateY(-2px);
         }
@@ -307,13 +312,14 @@
 
         .button:disabled:hover {
             transform: none;
-            background-color: #4a6ee0;
+            background-color: inherit;
         }
 
         .grid-count-info {
             color: #8888aa;
             font-size: 0.85rem;
             margin-top: 8px;
+            text-align: center; /* 居中文本 */
         }
 
         /* 书写板区域 - 桌面版 */
@@ -888,6 +894,22 @@
             font-size: 0.9rem;
         }
 
+        /* 手机端五个功能工具按钮居中 */
+        .board-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .board-actions .button {
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+
         /* 媒体查询：手机端 */
         @media (max-width: 768px) {
             .container {
@@ -910,16 +932,6 @@
                 font-size: 1.6rem;
             }
             
-            .board-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .board-actions .button {
-                width: 100%;
-                max-width: 300px;
-            }
-            
             /* 关键修改：手机端整体预览也使用3列 */
             .overview-grid-wrapper {
                 grid-template-columns: repeat(3, 1fr); /* 确保是3列 */
@@ -938,6 +950,7 @@
                 padding: 15px;
                 margin-bottom: 15px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                text-align: center; /* 居中文本内容 */
             }
             
             .mobile-add-grid-section h2 {
@@ -947,6 +960,10 @@
                 padding-bottom: 6px;
                 border-bottom: 1px solid #4a4a6e;
                 text-align: center;
+            }
+            
+            .mobile-add-grid-section .add-grid-control {
+                justify-content: center; /* 居中内容 */
             }
         }
 
@@ -991,6 +1008,17 @@
             .board {
                 flex: 1;
             }
+            
+            /* 桌面端右侧边栏功能按钮居中 */
+            .desktop-tools {
+                align-items: center;
+            }
+            
+            .desktop-tools .button {
+                width: 100%;
+                max-width: 200px;
+                text-align: center;
+            }
         }
 
         /* 超小屏幕设备（非常小的手机） */
@@ -1029,6 +1057,10 @@
                 width: 70px; /* 超小屏幕格子更小 */
                 height: 70px;
             }
+            
+            .board-actions .button {
+                max-width: 280px;
+            }
         }
 
         @media (min-width: 1024px) {
@@ -1058,6 +1090,11 @@
             /* 更大屏幕时调整侧边栏宽度 */
             .sidebar {
                 width: 250px;
+            }
+            
+            /* 桌面端右侧边栏功能按钮调整 */
+            .desktop-tools .button {
+                max-width: 220px;
             }
         }
     </style>
@@ -1111,12 +1148,6 @@
                         <li>在新格子写字时颜色从红色重新开始
                             <div class="bulgarian-translation">При писане в нова клетка цветът започва отново от червено</div>
                         </li>
-                        <li><strong>手机端：当前格子放大显示，使用导航按钮切换</strong>
-                            <div class="bulgarian-translation">На телефона: Текущата клетка се показва увеличена, използвайте бутоните за навигация</div>
-                        </li>
-                        <li><strong>整体预览：电脑端和手机端都显示3列，按需显示行数</strong>
-                            <div class="bulgarian-translation">Цялостен преглед: Показва 3 колони на компютър и телефон, редовете се показват според нуждите</div>
-                        </li>
                     </ul>
                 </div>
             </div>
@@ -1150,28 +1181,9 @@
             <div class="mobile-board-container board-container">
                 <div class="board-header">
                     <div class="board-title">书写板 | Писмена дъска</div>
-                    
-                    <!-- 功能按钮 -->
-                    <div class="board-actions">
-                        <button id="clearCurrentMobile" class="button button-secondary">
-                            <span>清空当前格子 | Изчисти текуща клетка</span>
-                        </button>
-                        <button id="clearAllMobile" class="button button-secondary">
-                            <span>清空所有 | Изчисти всички</span>
-                        </button>
-                        <button id="undoStrokeMobile" class="button button-utility">
-                            <span>撤销上一笔 | Отмени последен щрих</span>
-                        </button>
-                        <button id="exportImageMobile" class="button button-success">
-                            <span>导出图片 | Експортирай снимка</span>
-                        </button>
-                        <button id="overviewBtnMobile" class="button button-warning">
-                            <span>整体预览 | Цялостен преглед</span>
-                        </button>
-                    </div>
                 </div>
                 
-                <!-- 手机版添加格子功能（放在功能按钮下方，颜色顺序上方） -->
+                <!-- 手机版添加格子功能（放在功能按钮上方） -->
                 <div class="mobile-add-grid-section">
                     <h2>添加格子 | Добави клетки</h2>
                     <div class="add-grid-control">
@@ -1182,6 +1194,25 @@
                         已有 <span id="currentGridTotalMobile">9</span> 个格子
                         <div class="bulgarian-translation">Има <span id="currentGridTotalBgMobile">9</span> клетки</div>
                     </div>
+                </div>
+                
+                <!-- 功能按钮 -->
+                <div class="board-actions">
+                    <button id="clearCurrentMobile" class="button button-clear-selected">
+                        <span>清空当前格子 | Изчисти текуща клетка</span>
+                    </button>
+                    <button id="clearAllMobile" class="button button-clear-all">
+                        <span>清空所有 | Изчисти всички</span>
+                    </button>
+                    <button id="undoStrokeMobile" class="button button-undo">
+                        <span>撤销上一笔 | Отмени последен щрих</span>
+                    </button>
+                    <button id="exportImageMobile" class="button button-export">
+                        <span>导出图片 | Експортирай снимка</span>
+                    </button>
+                    <button id="overviewBtnMobile" class="button button-overview">
+                        <span>整体预览 | Цялостен преглед</span>
+                    </button>
                 </div>
                 
                 <!-- 手机版书写板 -->
@@ -1245,19 +1276,19 @@
         <div class="sidebar right-sidebar">
             <h2>功能工具 | Функционални инструменти</h2>
             <div class="desktop-tools">
-                <button id="clearCurrent" class="button button-secondary">
+                <button id="clearCurrent" class="button button-clear-selected">
                     <span>清空选择格子 | Изчисти избрана клетка</span>
                 </button>
-                <button id="clearAll" class="button button-secondary">
+                <button id="clearAll" class="button button-clear-all">
                     <span>清空所有 | Изчисти всички</span>
                 </button>
-                <button id="undoStroke" class="button button-utility">
+                <button id="undoStroke" class="button button-undo">
                     <span>撤销上一笔 | Отмени последен щрих</span>
                 </button>
-                <button id="exportImage" class="button button-success">
+                <button id="exportImage" class="button button-export">
                     <span>导出图片 | Експортирай снимка</span>
                 </button>
-                <button id="overviewBtn" class="button button-warning">
+                <button id="overviewBtn" class="button button-overview">
                     <span>整体预览 | Цялостен преглед</span>
                 </button>
             </div>
