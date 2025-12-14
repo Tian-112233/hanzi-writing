@@ -487,14 +487,15 @@
             font-weight: bold;
         }
 
-        /* 手机版布局容器 */
+        /* 手机版布局容器 - 默认隐藏 */
         .mobile-board-container {
-            display: none; /* 默认隐藏，手机端显示 */
+            display: none;
             background-color: #0c0c14;
             border-radius: 10px;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
+            flex: 1;
         }
 
         .mobile-board {
@@ -507,6 +508,10 @@
             border-radius: 8px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
             padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: auto;
         }
 
         /* 手机版当前格子（放大显示） */
@@ -632,6 +637,7 @@
         /* 手机版预览区域 */
         .mobile-preview-section {
             margin-top: 15px;
+            text-align: center;
         }
 
         .mobile-preview-title {
@@ -647,6 +653,7 @@
             gap: 10px;
             padding: 10px 5px;
             -webkit-overflow-scrolling: touch;
+            justify-content: center;
         }
 
         .mobile-preview-grid {
@@ -966,19 +973,26 @@
                 flex-direction: column;
                 height: auto;
                 min-height: 100vh;
+                padding: 10px;
             }
             
             .sidebar {
                 display: none;
             }
             
-            /* 修复：确保手机端显示手机版容器 */
+            /* 在手机端隐藏桌面版，显示手机版 */
             .desktop-board-container {
                 display: none !important;
             }
             
             .mobile-board-container {
-                display: block !important;
+                display: flex !important;
+                flex-direction: column;
+            }
+            
+            .main-content {
+                height: auto;
+                overflow: visible;
             }
             
             h1 {
@@ -995,13 +1009,19 @@
                 width: 80px;
                 height: 80px;
             }
+            
+            .mobile-board {
+                overflow: auto;
+                flex: 1;
+            }
         }
 
         /* 媒体查询：桌面端 */
         @media (min-width: 769px) {
-            /* 修复：确保桌面端显示桌面版容器 */
+            /* 在桌面端显示桌面版，隐藏手机版 */
             .desktop-board-container {
-                display: block !important;
+                display: flex !important;
+                flex-direction: column;
             }
             
             .mobile-board-container {
