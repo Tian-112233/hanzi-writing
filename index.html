@@ -194,7 +194,7 @@
         }
 
         .grid-controls {
-            /* Modified for placement inside header */
+            /* 关键修改：调整宽度以匹配下方的书写格 */
             background-color: #2d2d44;
             border-radius: 10px;
             padding: 10px;
@@ -204,7 +204,9 @@
             align-items: center;
             justify-content: center;
             margin-top: 10px;
-            max-width: 400px;
+            /* 宽度设置 */
+            width: 100%;
+            max-width: 500px; /* 默认与 desktop-grid-wrapper 的 max-width 保持一致 */
             margin-left: auto;
             margin-right: auto;
         }
@@ -647,7 +649,8 @@
             gap: 10px;
             padding: 10px 5px;
             -webkit-overflow-scrolling: touch;
-            justify-content: center;
+            /* 关键修改：从 center 改为 flex-start，解决最左侧格子无法滑动查看的问题 */
+            justify-content: flex-start;
         }
 
         .mobile-preview-grid {
@@ -1079,6 +1082,11 @@
                 gap: 25px;
             }
             
+            /* 关键修改：大屏幕时控件宽度跟随变大 */
+            .grid-controls {
+                max-width: 600px;
+            }
+
             .desktop-grid-item {
                 width: 140px;
                 height: 140px;
