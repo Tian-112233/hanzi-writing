@@ -193,26 +193,20 @@
             overflow: hidden;
         }
 
-        /* 工具区域 - 固定在顶部 */
-        .tools-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 10px;
-            flex-shrink: 0;
-        }
-
         .grid-controls {
-            flex: 1;
-            min-width: 200px;
+            /* Modified for placement inside header */
             background-color: #2d2d44;
             border-radius: 10px;
-            padding: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin-top: 10px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         h2 {
@@ -1112,13 +1106,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- 左侧边栏 - 颜色信息 -->
         <div class="sidebar left-sidebar">
             <h2>颜色信息 | Цветова информация</h2>
             
             <div class="color-sequence" id="desktopColorSequence">
-                <!-- 颜色圆点将通过JavaScript动态生成 -->
-            </div>
+                </div>
             
             <div class="color-display">
                 <div class="color-display-item">
@@ -1139,13 +1131,11 @@
             </div>
         </div>
         
-        <!-- 中间内容区域 -->
         <div class="main-content">
             <header>
                 <h1>汉字书写练习板<br><span style="font-size: 1rem; color: #b8b8d0;">Дъска за писане на китайски йероглифи</span></h1>
             </header>
             
-            <!-- 使用说明 -->
             <div class="instructions-section">
                 <h3>使用说明 | Инструкции за употреба</h3>
                 <div class="instructions-content">
@@ -1163,39 +1153,31 @@
                 </div>
             </div>
             
-            <!-- 添加格子功能（固定在顶部） -->
-            <div class="tools-section">
-                <div class="grid-controls">
-                    <h2>添加格子 | Добави клетки</h2>
-                    <div class="add-grid-control">
-                        <input type="number" id="gridCount" min="1" max="50" value="9">
-                        <button id="generateGrids" class="button button-primary">添加 | Добави</button>
-                    </div>
-                    <div class="grid-count-info">
-                        已有 <span id="currentGridTotal">9</span> 个格子
-                        <div class="bulgarian-translation">Има <span id="currentGridTotalBg">9</span> клетки</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 桌面版书写板区域（电脑端显示） -->
             <div class="desktop-board-container board-container">
                 <div class="board-header">
                     <div class="board-title">书写板 | Писмена дъска</div>
+                    
+                    <div class="grid-controls">
+                        <h2>添加格子 | Добави клетки</h2>
+                        <div class="add-grid-control">
+                            <input type="number" id="gridCount" min="1" max="50" value="9">
+                            <button id="generateGrids" class="button button-primary">添加 | Добави</button>
+                        </div>
+                        <div class="grid-count-info">
+                            已有 <span id="currentGridTotal">9</span> 个格子
+                            <div class="bulgarian-translation">Има <span id="currentGridTotalBg">9</span> клетки</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- 桌面版书写格子（可滚动区域） -->
                 <div class="board" id="desktopBoard">
-                    <!-- 格子将通过JavaScript动态生成 -->
-                </div>
+                    </div>
             </div>
             
-            <!-- 手机版书写板区域（手机端显示） -->
             <div class="mobile-board-container board-container">
                 <div class="board-header">
                     <div class="board-title">书写板 | Писмена дъска</div>
                     
-                    <!-- 手机版添加格子功能 -->
                     <div class="mobile-add-grid-section">
                         <h2>添加格子 | Добави клетки</h2>
                         <div class="add-grid-control">
@@ -1208,7 +1190,6 @@
                         </div>
                     </div>
                     
-                    <!-- 功能按钮 -->
                     <div class="board-actions">
                         <button id="clearCurrentMobile" class="button button-secondary">
                             <span>清空当前格子 | Изчисти текуща клетка</span>
@@ -1228,17 +1209,13 @@
                     </div>
                 </div>
                 
-                <!-- 手机版书写板 -->
                 <div class="mobile-board">
-                    <!-- 手机版颜色顺序提示 -->
                     <div class="mobile-color-sequence-bar">
                         <div class="mobile-color-sequence-title">颜色顺序 | Цветова последователност</div>
                         <div class="mobile-color-sequence" id="mobileColorSequence">
-                            <!-- 颜色圆点将通过JavaScript动态生成 -->
-                        </div>
+                            </div>
                     </div>
                     
-                    <!-- 手机版当前/下一笔颜色指示 -->
                     <div class="mobile-color-indicator">
                         <div class="mobile-color-indicator-item">
                             <div class="mobile-color-label">当前笔画颜色 | Текущ цвят</div>
@@ -1252,19 +1229,16 @@
                     
                     <div class="mobile-current-grid-container">
                         <div class="mobile-current-grid" id="mobileCurrentGrid">
-                            <!-- 格子背景 -->
                             <div class="grid-background">
                                 <div class="diagonal-1"></div>
                                 <div class="diagonal-2"></div>
                             </div>
-                            <!-- 当前格子的画布 -->
                             <canvas class="grid-canvas" id="mobileCurrentCanvas"></canvas>
                         </div>
                         <div class="mobile-grid-label" id="mobileGridLabel">格子 1</div>
                         <div class="mobile-grid-stroke-info" id="mobileGridStrokeInfo">0 笔 | 0 щриха</div>
                     </div>
                     
-                    <!-- 手机版导航按钮 -->
                     <div class="mobile-navigation">
                         <button id="prevGridBtn" class="button button-primary mobile-nav-button" disabled>
                             ← 上一个 | Предишен
@@ -1274,18 +1248,15 @@
                         </button>
                     </div>
                     
-                    <!-- 手机版预览区域 -->
                     <div class="mobile-preview-section">
                         <div class="mobile-preview-title">格子预览 | Преглед на клетки</div>
                         <div class="mobile-preview-grids" id="mobilePreviewGrids">
-                            <!-- 预览格子将通过JavaScript动态生成 -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 右侧边栏 - 功能按钮 -->
         <div class="sidebar right-sidebar">
             <h2>功能工具 | Функционални инструменти</h2>
             <div class="desktop-tools">
@@ -1308,7 +1279,6 @@
         </div>
     </div>
     
-    <!-- 导出模态框 -->
     <div class="modal" id="exportModal">
         <div class="modal-content">
             <h3>导出图片 | Експортиране на снимка</h3>
@@ -1334,7 +1304,6 @@
         </div>
     </div>
     
-    <!-- 整体预览模态框 -->
     <div class="modal" id="overviewModal">
         <div class="modal-content">
             <div class="overview-header">
@@ -1342,8 +1311,7 @@
                 <button class="overview-close" id="overviewCloseBtn">&times;</button>
             </div>
             <div class="overview-container" id="overviewContainer">
-                <!-- 整体预览内容将通过JavaScript动态生成 -->
-            </div>
+                </div>
             <div class="overview-info">
                 显示 <span id="overviewDisplayRows">3</span> 行 <span id="overviewDisplayGrids">9</span> 个格子，共 <span id="overviewTotalGrids">0</span> 个格子，<span id="overviewTotalStrokes">0</span> 笔
                 <div class="bulgarian-translation">Показва <span id="overviewDisplayRowsBg">3</span> реда <span id="overviewDisplayGridsBg">9</span> клетки, общо <span id="overviewTotalGridsBg">0</span> клетки, <span id="overviewTotalStrokesBg">0</span> щриха</div>
@@ -1395,7 +1363,7 @@
                     end: '#cc66ff'       // 浅紫色
                 }
             ];
-            
+
             // 全局变量
             let currentGridIndex = 0;
             let strokesHistory = {}; // 按格子索引存储笔画历史
@@ -1436,7 +1404,6 @@
             const overviewModal = document.getElementById('overviewModal');
             const overviewContainer = document.getElementById('overviewContainer');
             const overviewCloseBtn = document.getElementById('overviewCloseBtn');
-            
             const currentGridNumber = document.getElementById('currentGridNumber');
             const currentGridNumberBg = document.getElementById('currentGridNumberBg');
             const currentGridStrokeCount = document.getElementById('currentGridStrokeCount');
@@ -1460,12 +1427,12 @@
             const cancelExportBtn = document.getElementById('cancelExport');
             const previewContainer = document.getElementById('previewContainer');
             const previewImage = document.getElementById('previewImage');
-            
+
             // 初始化
             createDesktopColorSequence();
             createMobileColorSequence();
             updateColorDisplay();
-            
+
             // 设置手机版画布尺寸（固定为280x280像素）
             if (mobileCurrentCanvas) {
                 mobileCurrentCanvas.width = 280;
@@ -1500,7 +1467,7 @@
             
             // 初始化生成9个格子
             addGrids(9);
-            
+
             // 导航按钮事件
             if (prevGridBtn) {
                 prevGridBtn.addEventListener('click', function() {
@@ -1554,6 +1521,7 @@
             if (userNameInput) {
                 userNameInput.addEventListener('input', function() {
                     const userName = userNameInput.value.trim();
+                    
                     if (userName) {
                         // 生成预览图片
                         generatePreviewImage(userName);
@@ -1590,7 +1558,7 @@
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    
+
                     // 将Canvas转换为Blob
                     canvas.toBlob(function(blob) {
                         // 创建ClipboardItem
@@ -1639,7 +1607,7 @@
                 const gridStrokes = strokesHistory[currentGridIndex] || [];
                 const currentStrokesCount = gridStrokes.length;
                 const nextColorIdx = currentColorIndex[currentGridIndex] || 0;
-                
+
                 // 如果当前格子有笔画，显示最后一笔的颜色
                 let displayColorIdx = nextColorIdx;
                 if (currentStrokesCount > 0) {
@@ -1666,7 +1634,7 @@
                         dot.classList.add('next');
                     }
                 });
-                
+
                 document.querySelectorAll('.mobile-color-dot').forEach((dot, index) => {
                     dot.classList.remove('current', 'next');
                     if (index === displayColorIdx) {
@@ -1675,7 +1643,7 @@
                         dot.classList.add('next');
                     }
                 });
-                
+
                 // 更新手机版笔画数信息
                 if (mobileGridStrokeInfo) {
                     mobileGridStrokeInfo.textContent = `${currentStrokesCount} 笔 | ${currentStrokesCount} щриха`;
@@ -1685,17 +1653,16 @@
             // 添加指定数量的格子（修复版：只添加新格子，不清空已有内容）
             function addGrids(count) {
                 if (count <= 0) return;
-                
                 const startIndex = totalGrids;
                 const endIndex = startIndex + count;
-                
+
                 // 更新总格子数
                 totalGrids = endIndex;
                 if (currentGridTotal) currentGridTotal.textContent = totalGrids;
                 if (currentGridTotalBg) currentGridTotalBg.textContent = totalGrids;
                 if (currentGridTotalMobile) currentGridTotalMobile.textContent = totalGrids;
                 if (currentGridTotalBgMobile) currentGridTotalBgMobile.textContent = totalGrids;
-                
+
                 // 获取或创建桌面版网格包装器
                 let desktopGridWrapper = desktopBoard ? desktopBoard.querySelector('.desktop-grid-wrapper') : null;
                 if (desktopBoard && !desktopGridWrapper) {
@@ -1710,7 +1677,7 @@
                     strokesHistory[i] = strokesHistory[i] || [];
                     currentColorIndex[i] = currentColorIndex[i] || 0;
                     strokeCount[i] = strokeCount[i] || 0;
-                    
+
                     // === 创建桌面版格子 ===
                     if (desktopBoard && desktopGridWrapper) {
                         const gridContainer = document.createElement('div');
@@ -1736,7 +1703,7 @@
                         
                         gridBackground.appendChild(diagonal1);
                         gridBackground.appendChild(diagonal2);
-                        
+
                         // 添加画布 - 使用固定尺寸
                         const canvas = document.createElement('canvas');
                         canvas.className = 'grid-canvas';
@@ -1753,7 +1720,6 @@
                         gridLabel.className = 'grid-label';
                         gridLabel.textContent = `${i + 1}`; // 只显示数字
                         gridLabel.id = `desktop-grid-label-${i}`;
-                        
                         if (i === currentGridIndex) {
                             gridLabel.style.color = '#f0d26e';
                             gridLabel.style.fontWeight = 'bold';
@@ -1789,10 +1755,10 @@
                             
                             // 更新当前格子索引
                             currentGridIndex = i;
-                            
+
                             // 更新手机端显示
                             updateMobileDisplay();
-                            
+
                             // 更新显示
                             updateColorDisplay();
                             updateGridInfo();
@@ -1800,7 +1766,6 @@
                         
                         // 添加绘图事件（桌面版）
                         addDesktopDrawingEvents(canvas, i);
-                        
                         desktopGridWrapper.appendChild(gridContainer);
                     }
                     
@@ -1812,7 +1777,7 @@
                             previewGrid.classList.add('active');
                         }
                         previewGrid.dataset.index = i;
-                        
+
                         // 预览格子背景
                         const previewBackground = document.createElement('div');
                         previewBackground.className = 'grid-background';
@@ -1825,7 +1790,7 @@
                         
                         previewBackground.appendChild(previewDiagonal1);
                         previewBackground.appendChild(previewDiagonal2);
-                        
+
                         // 预览格子画布
                         const previewCanvas = document.createElement('canvas');
                         previewCanvas.width = 70;
@@ -1833,7 +1798,7 @@
                         previewCanvas.style.width = '100%';
                         previewCanvas.style.height = '100%';
                         previewCanvas.id = `mobile-preview-canvas-${i}`;
-                        
+
                         // 预览格子标签
                         const previewLabel = document.createElement('div');
                         previewLabel.className = 'mobile-preview-label';
@@ -1842,7 +1807,7 @@
                         previewGrid.appendChild(previewBackground);
                         previewGrid.appendChild(previewCanvas);
                         previewGrid.appendChild(previewLabel);
-                        
+
                         // 点击预览格子切换
                         previewGrid.addEventListener('click', function() {
                             const index = parseInt(this.dataset.index);
@@ -1886,7 +1851,7 @@
                 
                 // 更新导航按钮状态
                 updateNavigationButtons();
-                
+
                 // 更新整体预览信息
                 updateOverviewInfo();
             }
@@ -1894,10 +1859,10 @@
             // 切换到指定格子
             function switchToGrid(index) {
                 if (index < 0 || index >= totalGrids) return;
-                
+
                 // 更新当前格子索引
                 currentGridIndex = index;
-                
+
                 // 更新桌面版显示
                 document.querySelectorAll('.desktop-grid-item').forEach((item, i) => {
                     if (i === index) {
@@ -1906,7 +1871,7 @@
                         item.classList.remove('grid-active');
                     }
                 });
-                
+
                 document.querySelectorAll('.grid-label').forEach((label, i) => {
                     if (i === index) {
                         label.style.color = '#f0d26e';
@@ -1916,10 +1881,10 @@
                         label.style.fontWeight = 'normal';
                     }
                 });
-                
+
                 // 更新手机版显示
                 updateMobileDisplay();
-                
+
                 // 更新预览格子激活状态
                 document.querySelectorAll('.mobile-preview-grid').forEach((preview, i) => {
                     if (i === index) {
@@ -1928,10 +1893,10 @@
                         preview.classList.remove('active');
                     }
                 });
-                
+
                 // 更新导航按钮状态
                 updateNavigationButtons();
-                
+
                 // 更新全局显示
                 updateColorDisplay();
                 updateGridInfo();
@@ -1946,10 +1911,10 @@
                 
                 // 重新绘制手机版当前格子
                 redrawMobileCurrentGrid();
-                
+
                 // 重新绘制手机预览格子
                 redrawPreviewGrid(currentGridIndex);
-                
+
                 // 更新笔画数信息
                 const currentStrokesCount = strokesHistory[currentGridIndex] ? strokesHistory[currentGridIndex].length : 0;
                 if (mobileGridStrokeInfo) {
@@ -2022,10 +1987,10 @@
                 // 继续绘制
                 function continueDrawing(pos) {
                     if (!isDrawing) return;
-                    
+
                     // 添加到点数组
                     points.push({x: pos.x, y: pos.y});
-                    
+
                     // 绘制临时线条
                     ctx.lineTo(pos.x, pos.y);
                     ctx.strokeStyle = colorSequence[currentColorIndex[gridIndex]].start;
@@ -2033,7 +1998,7 @@
                     ctx.lineCap = 'round';
                     ctx.lineJoin = 'round';
                     ctx.stroke();
-                    
+
                     // 继续路径
                     ctx.beginPath();
                     ctx.moveTo(pos.x, pos.y);
@@ -2042,11 +2007,11 @@
                 // 结束绘制
                 function endDrawing() {
                     if (!isDrawing) return;
-                    
+
                     if (points.length > 1) {
                         // 获取当前格子的颜色索引
                         const colorIdx = currentColorIndex[gridIndex];
-                        
+
                         // 保存笔画到历史记录
                         strokesHistory[gridIndex] = strokesHistory[gridIndex] || [];
                         strokesHistory[gridIndex].push({
@@ -2054,13 +2019,13 @@
                             colorIndex: colorIdx,
                             points: [...points]
                         });
-                        
+
                         // 更新笔画计数
                         strokeCount[gridIndex] = (strokeCount[gridIndex] || 0) + 1;
-                        
+
                         // 更新颜色索引（循环到下一个颜色）
                         currentColorIndex[gridIndex] = (colorIdx + 1) % colorSequence.length;
-                        
+
                         // 重新绘制所有相关格子
                         redrawDesktopGrid(gridIndex);
                         redrawMobileCurrentGrid();
@@ -2081,18 +2046,15 @@
                     e.preventDefault();
                     startDrawing(getPos(e));
                 });
-                
                 canvas.addEventListener('mousemove', function(e) {
                     if (!isDrawing) return;
                     e.preventDefault();
                     continueDrawing(getPos(e));
                 });
-                
                 canvas.addEventListener('mouseup', function(e) {
                     e.preventDefault();
                     endDrawing();
                 });
-                
                 canvas.addEventListener('mouseleave', function(e) {
                     if (isDrawing) {
                         e.preventDefault();
@@ -2107,14 +2069,12 @@
                         startDrawing(getPos(e));
                     }
                 }, { passive: false });
-                
                 canvas.addEventListener('touchmove', function(e) {
                     if (isDrawing && e.touches.length === 1) {
                         e.preventDefault();
                         continueDrawing(getPos(e));
                     }
                 }, { passive: false });
-                
                 canvas.addEventListener('touchend', function(e) {
                     if (isDrawing) {
                         e.preventDefault();
@@ -2126,11 +2086,10 @@
             // 为手机版当前画布添加绘图事件 - 修复：实时获取当前gridIndex
             function addMobileDrawingEvents() {
                 if (!mobileCurrentCanvas) return;
-                
                 const ctx = mobileCurrentCanvas.getContext('2d');
                 let points = [];
                 let isDrawing = false;
-                
+
                 // 获取坐标（考虑手机版画布较大）
                 function getPos(event) {
                     const rect = mobileCurrentCanvas.getBoundingClientRect();
@@ -2145,9 +2104,8 @@
                     }
                     
                     // 转换为画布坐标（120x120坐标系）
-                    const scaleX = 120 / rect.width;  // 从280px转换为120px
+                    const scaleX = 120 / rect.width; // 从280px转换为120px
                     const scaleY = 120 / rect.height;
-                    
                     return {
                         x: x * scaleX,
                         y: y * scaleY
@@ -2170,10 +2128,10 @@
                 // 继续绘制
                 function continueDrawing(pos) {
                     if (!isDrawing) return;
-                    
+
                     // 添加到点数组
                     points.push({x: pos.x, y: pos.y});
-                    
+
                     // 绘制临时线条（将120x120坐标转换为280x280坐标）
                     const scale = 280 / 120;
                     ctx.lineTo(pos.x * scale, pos.y * scale);
@@ -2191,7 +2149,7 @@
                 // 结束绘制 - 修复：使用当前gridIndex而不是固定值
                 function endDrawing() {
                     if (!isDrawing) return;
-                    
+
                     if (points.length > 1) {
                         // 获取当前格子的颜色索引 - 关键修复：使用currentGridIndex而不是固定值
                         const gridIndex = currentGridIndex;
@@ -2204,13 +2162,13 @@
                             colorIndex: colorIdx,
                             points: [...points]
                         });
-                        
+
                         // 更新笔画计数
                         strokeCount[gridIndex] = (strokeCount[gridIndex] || 0) + 1;
-                        
+
                         // 更新颜色索引（循环到下一个颜色）
                         currentColorIndex[gridIndex] = (colorIdx + 1) % colorSequence.length;
-                        
+
                         // 重新绘制所有相关格子
                         redrawDesktopGrid(gridIndex);
                         redrawMobileCurrentGrid();
@@ -2233,14 +2191,12 @@
                         startDrawing(getPos(e));
                     }
                 }, { passive: false });
-                
                 mobileCurrentCanvas.addEventListener('touchmove', function(e) {
                     if (isDrawing && e.touches.length === 1) {
                         e.preventDefault();
                         continueDrawing(getPos(e));
                     }
                 }, { passive: false });
-                
                 mobileCurrentCanvas.addEventListener('touchend', function(e) {
                     if (isDrawing) {
                         e.preventDefault();
@@ -2253,13 +2209,11 @@
                     e.preventDefault();
                     startDrawing(getPos(e));
                 });
-                
                 mobileCurrentCanvas.addEventListener('mousemove', function(e) {
                     if (!isDrawing) return;
                     e.preventDefault();
                     continueDrawing(getPos(e));
                 });
-                
                 mobileCurrentCanvas.addEventListener('mouseup', function(e) {
                     e.preventDefault();
                     endDrawing();
@@ -2268,7 +2222,7 @@
             
             // 初始化手机版绘图事件
             addMobileDrawingEvents();
-            
+
             // 重新绘制桌面版指定格子
             function redrawDesktopGrid(gridIndex) {
                 const canvas = document.getElementById(`desktop-grid-canvas-${gridIndex}`);
@@ -2289,7 +2243,6 @@
             // 重新绘制手机版当前格子
             function redrawMobileCurrentGrid() {
                 if (!mobileCurrentCanvas) return;
-                
                 const ctx = mobileCurrentCanvas.getContext('2d');
                 const gridStrokes = strokesHistory[currentGridIndex] || [];
                 
@@ -2343,7 +2296,6 @@
             // 绘制完整的一笔（从深到浅渐变）
             function drawCompleteStroke(ctx, points, colorIndex, lineWidth) {
                 if (points.length < 2) return;
-                
                 const color = colorSequence[colorIndex];
                 
                 // 创建线性渐变（从起点到终点）
@@ -2353,8 +2305,8 @@
                 );
                 
                 // 设置渐变颜色
-                gradient.addColorStop(0, color.start);  // 起点深色
-                gradient.addColorStop(1, color.end);    // 终点浅色
+                gradient.addColorStop(0, color.start); // 起点深色
+                gradient.addColorStop(1, color.end);   // 终点浅色
                 
                 // 绘制路径
                 ctx.beginPath();
@@ -2434,7 +2386,6 @@
                     
                     // 重新绘制所有格子
                     redrawAllGrids();
-                    
                     updateColorDisplay();
                     updateGridInfo();
                     updateOverviewInfo();
@@ -2473,7 +2424,7 @@
             function showOverview() {
                 // 清空预览容器
                 overviewContainer.innerHTML = '';
-                
+
                 // 计算需要显示的行数和格子数量
                 // 1. 找出有内容的格子中最大的行号
                 let maxRowUsed = -1;
@@ -2489,7 +2440,7 @@
                 
                 // 3. 计算需要显示的格子总数
                 const gridsToShow = rowsToShow * 3;
-                
+
                 // 创建网格包装器
                 const gridWrapper = document.createElement('div');
                 gridWrapper.className = 'overview-grid-wrapper';
@@ -2511,14 +2462,14 @@
                     
                     gridBackground.appendChild(diagonal1);
                     gridBackground.appendChild(diagonal2);
-                    
+
                     // 添加画布
                     const canvas = document.createElement('canvas');
                     canvas.width = 100;
                     canvas.height = 100;
                     canvas.style.width = '100%';
                     canvas.style.height = '100%';
-                    
+
                     // 格子编号
                     const gridNumber = document.createElement('div');
                     gridNumber.className = 'overview-grid-number';
@@ -2564,10 +2515,10 @@
                 }
                 
                 overviewContainer.appendChild(gridWrapper);
-                
+
                 // 更新预览信息
                 updateOverviewInfo(rowsToShow, gridsToShow);
-                
+
                 // 显示模态框
                 overviewModal.classList.add('active');
             }
@@ -2629,25 +2580,25 @@
                 
                 const canvasWidth = maxCols * gridSize + padding * 2;
                 const canvasHeight = rows * (gridSize + labelHeight) + padding * 2 + infoHeight;
-                
+
                 // 创建临时画布
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = canvasWidth;
                 tempCanvas.height = canvasHeight;
                 const tempCtx = tempCanvas.getContext('2d');
-                
+
                 // 绘制背景
                 tempCtx.fillStyle = '#0a2912';
                 tempCtx.fillRect(0, 0, canvasWidth, canvasHeight);
                 
                 // 绘制网格背景
                 drawGridBackground(tempCtx, canvasWidth, canvasHeight - infoHeight);
-                
+
                 // 绘制边框
                 tempCtx.strokeStyle = '#2c1b0e';
                 tempCtx.lineWidth = 10;
                 tempCtx.strokeRect(5, 5, canvasWidth - 10, canvasHeight - infoHeight - 10);
-                
+
                 // 绘制所有格子内容
                 for (let i = 0; i < gridsToExport; i++) {
                     const row = Math.floor(i / maxCols);
@@ -2655,25 +2606,24 @@
                     
                     const x = padding + col * gridSize;
                     const y = padding + row * (gridSize + labelHeight);
-                    
+
                     // 绘制格子背景
                     drawGridTemplate(tempCtx, x, y, gridSize, gridSize);
-                    
+
                     // 绘制格子边框
                     tempCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                     tempCtx.lineWidth = 1;
                     tempCtx.strokeRect(x - 1, y - 1, gridSize + 2, gridSize + 2);
-                    
+
                     // 绘制格子编号
                     tempCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                     tempCtx.font = 'bold 14px Microsoft YaHei';
                     tempCtx.textAlign = 'center';
                     tempCtx.fillText(`${i + 1}`, x + gridSize / 2, y + gridSize + 15);
-                    
+
                     // 绘制格子内的笔画（只绘制有内容的格子）
                     if (i < totalGrids && strokesHistory[i] && strokesHistory[i].length > 0) {
                         const gridStrokes = strokesHistory[i];
-                        
                         gridStrokes.forEach(stroke => {
                             // 绘制笔画
                             drawExportStroke(tempCtx, stroke.points, stroke.colorIndex, x, y, gridSize);
@@ -2683,14 +2633,13 @@
                 
                 // 绘制底部信息区域
                 const infoY = canvasHeight - infoHeight + 15;
-                
                 // 获取当前时间
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = now.getMonth() + 1;
                 const day = now.getDate();
                 const timeStr = `${year}年${month}月${day}日`;
-                
+
                 // 绘制姓名和时间
                 tempCtx.fillStyle = '#f0d26e';
                 tempCtx.font = 'bold 16px Microsoft YaHei';
@@ -2698,10 +2647,9 @@
                 
                 // 绘制姓名
                 tempCtx.fillText(userName, canvasWidth - padding, infoY + 15);
-                
                 // 绘制时间
                 tempCtx.fillText(timeStr, canvasWidth - padding, infoY + 40);
-                
+
                 // 绘制水印
                 tempCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 tempCtx.font = '14px Microsoft YaHei';
@@ -2715,7 +2663,6 @@
             // 绘制导出图片中的笔画
             function drawExportStroke(ctx, points, colorIndex, offsetX, offsetY, gridSize) {
                 if (points.length < 2) return;
-                
                 const color = colorSequence[colorIndex];
                 
                 // 转换坐标到导出画布
@@ -2724,13 +2671,13 @@
                 const startY = offsetY + points[0].y * scale;
                 const endX = offsetX + points[points.length-1].x * scale;
                 const endY = offsetY + points[points.length-1].y * scale;
-                
+
                 // 创建线性渐变（从起点到终点）
                 const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
                 
                 // 设置渐变颜色
-                gradient.addColorStop(0, color.start);  // 起点深色
-                gradient.addColorStop(1, color.end);    // 终点浅色
+                gradient.addColorStop(0, color.start); // 起点深色
+                gradient.addColorStop(1, color.end);   // 终点浅色
                 
                 // 绘制路径
                 ctx.beginPath();
@@ -2752,7 +2699,6 @@
             // 绘制网格背景
             function drawGridBackground(ctx, width, height) {
                 const gridSize = 60;
-                
                 // 径向渐变背景
                 for (let y = 0; y < height; y += gridSize) {
                     for (let x = 0; x < width; x += gridSize) {
