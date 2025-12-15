@@ -25,7 +25,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            /* 核心修改2：设置字体栈。优先使用网络字体“LXGW WenKai Screen”，然后是系统楷体，最后是宋体 */
+            /* 字体栈：优先使用网络字体“LXGW WenKai Screen”，然后是系统楷体，最后是宋体 */
             font-family: "LXGW WenKai Screen", "KaiTi", "STKaiti", "楷体", "SimSun", "STSong", "Songti SC", serif;
             background-color: var(--color-bg-body);
             color: var(--color-text-main);
@@ -34,7 +34,7 @@
             background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4b483' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
 
-        /* 核心修改3：保加利亚语强制使用 Times New Roman */
+        /* 保加利亚语强制使用 Times New Roman */
         .bg-font {
             font-family: 'Times New Roman', Times, serif;
         }
@@ -178,7 +178,6 @@
             width: 100%; margin-bottom: 8px;
             color: #fff5e6; transition: transform 0.1s;
             font-size: 0.9rem; line-height: 1.2;
-            /* 按钮字体继承body的设置 */
         }
         .button span { 
             font-size: 0.75rem;
@@ -315,10 +314,10 @@
         <div class="info-panel-item">
             <div class="info-label">当前位置 | <span class="bg-font">Позиция</span></div>
             <div style="font-size:1.1rem; font-weight:bold; color:var(--color-text-main); margin-bottom:5px;">
-                格子 <span id="curGridNum" class="bg-font">1</span>
+                格子 | <span class="bg-font">Клетка</span> <span id="curGridNum" class="bg-font">1</span>
             </div>
             <div style="font-size:0.9rem; color:var(--color-text-secondary);">
-                笔画数: <span id="curStrokeNum" class="bg-font">0</span>
+                笔画数 | <span class="bg-font">Щрихи</span>: <span id="curStrokeNum" class="bg-font">0</span>
             </div>
         </div>
     </div>
@@ -347,7 +346,7 @@
 
         <div class="mobile-layout">
             <div class="board-header">
-                <div class="board-title">书写板</div>
+                <div class="board-title">书写板 | <span class="bg-font">Писмена дъска</span></div>
             </div>
 
             <div class="mobile-add-grid-section">
@@ -356,7 +355,7 @@
                      <input type="number" id="gridCountMobile" value="9" min="1" max="50">
                      <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0; padding:6px 12px;">+</button>
                  </div>
-                 <div class="total-info">总数: <span id="totalGridNumMobile" class="bg-font">9</span></div>
+                 <div class="total-info">总数 | <span class="bg-font">Общо</span>: <span id="totalGridNumMobile" class="bg-font">9</span></div>
             </div>
 
             <div class="mobile-function-buttons">
@@ -386,7 +385,8 @@
 
             <div class="mobile-board-area">
                 <div style="margin-bottom:5px; font-weight:bold; color:var(--color-accent);">
-                    格子 <span id="mobileCurGridNum" class="bg-font">1</span> (笔画: <span id="mobileCurStroke" class="bg-font">0</span>)
+                    格子 | <span class="bg-font">Клетка</span> <span id="mobileCurGridNum" class="bg-font">1</span> 
+                    (笔画 | <span class="bg-font">Щрихи</span>: <span id="mobileCurStroke" class="bg-font">0</span>)
                 </div>
                 <div class="mobile-current-grid" id="mobileGridTarget">
                     <div class="grid-background">
@@ -848,7 +848,6 @@
         
         ctx.fillStyle = '#fff5e6'; ctx.fillRect(0,0,width,height);
         
-        // 导出图片的字体也需要包含网络字体（虽然Canvas不一定能立即渲染出网络字体，但浏览器一般会处理）
         ctx.fillStyle = '#8b4513'; 
         ctx.font = 'bold 20px "LXGW WenKai Screen", "KaiTi", "楷体", "Times New Roman", serif';
         ctx.textAlign = 'left';
