@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>汉字书写练习板 - 传统书法风</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-web@latest/style.css" />
+
     <style>
         :root {
             --color-bg-body: #fff8f0;
@@ -22,8 +25,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            /* 修改：将楷体设为首选字体，以此控制所有汉字显示为楷体 */
-            font-family: 'KaiTi', 'STKaiti', '楷体', 'SimSun', 'STSong', serif;
+            /* 核心修改2：设置字体栈。优先使用网络字体“LXGW WenKai Screen”，然后是系统楷体，最后是宋体 */
+            font-family: "LXGW WenKai Screen", "KaiTi", "STKaiti", "楷体", "SimSun", "STSong", "Songti SC", serif;
             background-color: var(--color-bg-body);
             color: var(--color-text-main);
             min-height: 100vh;
@@ -31,7 +34,7 @@
             background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4b483' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
         }
 
-        /* 新增：保加利亚语专用字体类 */
+        /* 核心修改3：保加利亚语强制使用 Times New Roman */
         .bg-font {
             font-family: 'Times New Roman', Times, serif;
         }
@@ -75,7 +78,6 @@
         }
         .title-translation { 
             font-size: 0.9rem; color: var(--color-accent); font-style: italic; display: block; margin-top: 5px;
-            /* 修改：标题翻译强制使用 Times New Roman */
             font-family: 'Times New Roman', Times, serif; 
         }
 
@@ -95,7 +97,6 @@
             border-radius: 8px; padding: 20px; flex: 1;
         }
 
-        /* 桌面网格布局 */
         .desktop-grid-wrapper {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -106,7 +107,6 @@
             align-content: start;
         }
 
-        /* 格子容器 */
         .grid-container {
             position: relative;
             width: 100%;
@@ -116,13 +116,11 @@
             border-radius: 4px;
         }
         
-        /* 激活格子高亮 */
         .grid-container.grid-active {
             box-shadow: 0 0 0 3px var(--color-accent);
             border-color: var(--color-accent);
         }
 
-        /* 米字格背景 */
         .grid-background {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -140,19 +138,16 @@
         .dot-tl { top: 10%; left: 10%; } .dot-tr { top: 10%; right: 10%; }
         .dot-bl { bottom: 10%; left: 10%; } .dot-br { bottom: 10%; right: 10%; }
 
-        /* 画布 */
         .grid-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10; cursor: crosshair; touch-action: none;
         }
 
-        /* 序号 */
         .grid-number-label {
             position: absolute;
             bottom: 2px; right: 5px; 
             font-size: 12px; color: var(--color-text-secondary); z-index: 5; pointer-events: none;
-            /* 序号使用 Times New Roman 会更好看 */
             font-family: 'Times New Roman', serif;
         }
         .grid-container.grid-active .grid-number-label {
@@ -160,7 +155,6 @@
             font-weight: bold;
         }
 
-        /* 信息面板组件 */
         .info-panel-item {
             background-color: var(--color-active-bg);
             padding: 10px; border-radius: 8px;
@@ -177,7 +171,6 @@
         .color-box-wrapper { display: flex; flex-direction: column; align-items: center; }
         .small-color-box { width: 30px; height: 30px; border-radius: 4px; border: 2px solid #ccc; }
 
-        /* 按钮通用样式 */
         .button {
             padding: 8px;
             border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
@@ -185,12 +178,11 @@
             width: 100%; margin-bottom: 8px;
             color: #fff5e6; transition: transform 0.1s;
             font-size: 0.9rem; line-height: 1.2;
-            /* 按钮汉字部分使用继承的楷体 */
+            /* 按钮字体继承body的设置 */
         }
         .button span { 
             font-size: 0.75rem;
             opacity: 0.9; font-weight: normal; margin-top: 2px; 
-            /* 修改：按钮内的第二行外语强制使用 Times New Roman */
             font-family: 'Times New Roman', Times, serif;
         }
         .button:active { transform: translateY(2px); }
@@ -205,7 +197,6 @@
         .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; font-family: 'Times New Roman', serif; }
 
-        /* 弹窗 */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -221,10 +212,9 @@
         }
         .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
-        /* 整体预览列表 */
         .overview-grid-wrapper {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 强制3列 */
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             padding: 10px;
             justify-items: center;
@@ -240,39 +230,29 @@
         }
         .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
         
-        /* 手机端独有样式 */
         .mobile-layout { display: none; }
         
-        /* --- 核心修改：强制手机布局的断点提升至 1100px，涵盖所有横屏手机 --- */
         @media (max-width: 1100px) {
-            /* 隐藏电脑端侧边栏和主容器 */
             .sidebar, .desktop-board-container { display: none !important; }
-            
             .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
             .main-content { overflow: visible; padding-bottom: 20px; }
-            
-            /* 显示手机布局 */
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
 
-            /* 手机添加格子：改为与电脑端一致的紧凑设计 */
             .mobile-add-grid-section {
                 display: flex;
                 justify-content: center; align-items: center; gap: 10px;
                 margin-bottom: 15px; padding: 10px; 
                 background-color: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main);
             }
-            /* 隐藏不需要的标题，只保留控件 */
             .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
             .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
 
-            /* 5个功能按钮网格 */
             .mobile-function-buttons {
                 display: grid;
                 grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px;
             }
             .mobile-function-buttons .button:last-child { grid-column: span 2; }
 
-            /* 手机颜色信息 */
             .mobile-color-section {
                 margin: 0 15px 15px;
                 background-color: var(--color-active-bg);
@@ -281,7 +261,6 @@
                 padding: 10px;
             }
 
-            /* 手机书写区域 */
             .mobile-board-area {
                 display: flex;
                 flex-direction: column; align-items: center;
@@ -295,7 +274,6 @@
 
             .mobile-nav { display: flex; justify-content: space-between; width: 280px; margin-bottom: 20px; }
             
-            /* 手机预览条 */
             .mobile-preview-bar {
                 margin: 0 15px;
                 background: var(--color-active-bg);
@@ -454,7 +432,7 @@
     <div class="modal-content">
         <button class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">&times;</button>
         <h3 style="color:var(--color-accent); margin-bottom:15px;">导出图片 | <span class="bg-font">Експортиране</span></h3>
-        <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center; font-family: 'KaiTi', 'Times New Roman', serif;">
+        <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center; font-family: 'LXGW WenKai Screen', 'Times New Roman', serif;">
         <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | <span class="bg-font" style="display:inline; font-weight:normal;">Генерирай</span></button>
         
         <div id="exportPreviewArea" style="margin-top:15px; display:none;">
@@ -481,7 +459,6 @@
 </div>
 
 <script>
-    // === 颜色配置 ===
     const COLORS = [
         { s: '#a00000', e: '#ff8a8a' }, // 红
         { s: '#b8860b', e: '#ffd700' }, // 黄
@@ -492,7 +469,7 @@
     
     let totalGrids = 9;
     let currentGridIdx = 0;
-    let strokesData = {}; // { 0: [{points, colorIdx}] }
+    let strokesData = {};
     let gridColorState = {}; 
 
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
@@ -518,7 +495,6 @@
                 d.className = 'color-dot';
                 d.style.backgroundColor = col.s;
                 d.innerText = i + 1;
-                // 数字用 Times New Roman
                 d.style.fontFamily = "'Times New Roman', serif";
                 d.id = (containerId === 'colorSeqMobile' ? 'm-' : '') + `c-dot-${i}`;
                 c.appendChild(d);
@@ -526,7 +502,6 @@
         }
     }
 
-    // === 核心逻辑：获取需要展示的最大格子数（基于书写内容） ===
     function calculateVisualTotal() {
         let maxFilledIndex = -1;
         Object.keys(strokesData).forEach(idx => {
@@ -577,7 +552,6 @@
             const item = document.createElement('div');
             item.className = `mobile-preview-item ${i === currentGridIdx ? 'active' : ''}`;
             item.onclick = () => switchGrid(i);
-            // 背景
             const bg = document.createElement('div');
             bg.style.position='absolute'; bg.style.top='0'; bg.style.left='0';
             bg.style.width='100%'; bg.style.height='100%';
@@ -594,7 +568,6 @@
             });
             const lbl = document.createElement('div');
             lbl.className = 'mobile-preview-label';
-            // 样式内联设置字体
             lbl.style.position = 'absolute'; lbl.style.bottom='2px'; lbl.style.right='2px';
             lbl.style.fontSize='10px'; lbl.style.color='#7a5c3c'; lbl.style.fontFamily="'Times New Roman', serif";
             lbl.innerText = i + 1;
@@ -606,7 +579,6 @@
         }
     }
 
-    // 复用米字格HTML字符串
     function getGridBgHTML() {
         return `<div class="diagonal-1"></div><div class="diagonal-2"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>
@@ -810,7 +782,6 @@
         const list = document.getElementById('overviewList');
         list.innerHTML = '';
         
-        // 核心逻辑：只显示到有字的最后一格，并补齐3列
         const visualTotal = calculateVisualTotal();
         const rows = visualTotal / 3;
 
@@ -821,7 +792,6 @@
             
             const box = document.createElement('div');
             box.className = 'overview-canvas-box';
-            // 确保预览有米字格背景
             const bg = document.createElement('div');
             bg.className = 'grid-background';
             bg.innerHTML = getGridBgHTML();
@@ -838,7 +808,6 @@
                     drawGradientStroke(ctx, sp, s.colorIdx, 2);
                 });
                 box.appendChild(cvs);
-                // 修改：预览序号用 Times New Roman
                 item.innerHTML = `<div style="margin-top:5px; font-weight:bold; color:var(--color-accent); font-family:'Times New Roman', serif;">${i+1}</div>`;
             } else {
                 box.style.opacity = '0.5';
@@ -859,7 +828,7 @@
 
     function doExport() {
         const name = document.getElementById('exportName').value;
-        const visualTotal = calculateVisualTotal(); // 核心逻辑：按内容裁剪
+        const visualTotal = calculateVisualTotal(); 
         const cols = 3;
         const rows = visualTotal / cols;
         
@@ -879,14 +848,13 @@
         
         ctx.fillStyle = '#fff5e6'; ctx.fillRect(0,0,width,height);
         
-        // 修改：导出的名字可能是汉字（楷体）也可能是外文（Times）
+        // 导出图片的字体也需要包含网络字体（虽然Canvas不一定能立即渲染出网络字体，但浏览器一般会处理）
         ctx.fillStyle = '#8b4513'; 
-        ctx.font = 'bold 20px "KaiTi", "STKaiti", "楷体", "Times New Roman", serif';
+        ctx.font = 'bold 20px "LXGW WenKai Screen", "KaiTi", "楷体", "Times New Roman", serif';
         ctx.textAlign = 'left';
         ctx.fillText(name ? `姓名: ${name}` : '汉字练习', padding, padding + 25);
         
         ctx.fillStyle = '#7a5c3c'; 
-        // 修改：日期用 Times New Roman
         ctx.font = '14px "Times New Roman", serif';
         ctx.textAlign = 'right';
         ctx.fillText(new Date().toLocaleDateString(), width - padding, padding + 25);
@@ -901,7 +869,6 @@
             ctx.fillStyle = '#fffaf5'; ctx.fillRect(x,y,gridSize,gridSize);
             ctx.strokeStyle = '#d4b483'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
-            // 强制画出米字格
             ctx.beginPath();
             ctx.moveTo(x, y+gridSize/2); ctx.lineTo(x+gridSize, y+gridSize/2);
             ctx.moveTo(x+gridSize/2, y); ctx.lineTo(x+gridSize/2, y+gridSize);
@@ -916,7 +883,6 @@
                     drawGradientStroke(ctx, sp, s.colorIdx, 3);
                 });
                 ctx.fillStyle = '#7a5c3c'; 
-                // 修改：格子右下角序号用 Times New Roman
                 ctx.font = '10px "Times New Roman", serif'; 
                 ctx.textAlign = 'right';
                 ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
