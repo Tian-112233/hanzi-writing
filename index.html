@@ -25,7 +25,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            /* 字体栈：优先使用网络字体“LXGW WenKai Screen”，然后是系统楷体，最后是宋体 */
+            /* 字体栈 */
             font-family: "LXGW WenKai Screen", "KaiTi", "STKaiti", "楷体", "SimSun", "STSong", "Songti SC", serif;
             background-color: var(--color-bg-body);
             color: var(--color-text-main);
@@ -193,7 +193,14 @@
         .button-success { background-color: #2e8b57; }
         .button-warning { background-color: #d2691e; }
         
-        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
+        .add-grid-control { 
+            display: flex; 
+            /* 修改：缩小间距，让输入框和文字更紧凑 */
+            gap: 4px; 
+            margin-bottom: 0; 
+            justify-content: center; 
+            align-items: center; 
+        }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; font-family: 'Times New Roman', serif; }
 
         .modal {
@@ -237,14 +244,17 @@
             .main-content { overflow: visible; padding-bottom: 20px; }
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
 
+            /* 修改：手机端添加格子区域更紧凑 */
             .mobile-add-grid-section {
                 display: flex;
-                justify-content: center; align-items: center; gap: 10px;
+                flex-wrap: wrap; /* 防止屏幕过小时换行混乱 */
+                justify-content: center; 
+                align-items: center; 
+                gap: 15px; /* 添加格子组 和 总数信息 之间的距离 */
                 margin-bottom: 15px; padding: 10px; 
                 background-color: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main);
             }
-            .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
-            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
+            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 0; }
 
             .mobile-function-buttons {
                 display: grid;
@@ -327,15 +337,15 @@
             <h1>汉字书写练习板<br><span class="title-translation">Дъска за писане на китайски йероглифи</span></h1>
         </header>
 
-        <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(245, 230, 211, 0.6); padding:10px; border-radius:8px;">
-            <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height:1.6;">
-                • 颜色顺序：红→黄→绿→蓝→紫 (<span class="bg-font">Червено → Жълто → Зелено → Синьо → Лилаво</span>)<br>
-                • 每个新格子从红色开始 (<span class="bg-font">Всяка нова клетка започва от червено</span>)<br>
-                • 每笔都是完整的从深到浅渐变 (<span class="bg-font">Всеки щрих е пълен градиент от тъмно към светло</span>)
-            </div>
-        </div>
-
         <div class="desktop-board-container board-container">
+            <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(245, 230, 211, 0.6); padding:10px; border-radius:8px;">
+                <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height:1.6;">
+                    • 颜色顺序：红→黄→绿→蓝→紫 (<span class="bg-font">Червено → Жълто → Зелено → Синьо → Лилаво</span>)<br>
+                    • 每个新格子从红色开始 (<span class="bg-font">Всяка нова клетка започва от червено</span>)<br>
+                    • 每笔都是完整的从深到浅渐变 (<span class="bg-font">Всеки щрих е пълен градиент от тъмно към светло</span>)
+                </div>
+            </div>
+
             <div class="board-header">
                 <div class="board-title">书写板 | <span class="bg-font">Писмена дъска</span></div>
             </div>
@@ -345,6 +355,14 @@
         </div>
 
         <div class="mobile-layout">
+            <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(245, 230, 211, 0.6); padding:10px; border-radius:8px;">
+                <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height:1.6;">
+                    • 颜色顺序：红→黄→绿→蓝→紫 (<span class="bg-font">Червено → Жълто → Зелено → Синьо → Лилаво</span>)<br>
+                    • 每个新格子从红色开始 (<span class="bg-font">Всяка нова клетка започва от червено</span>)<br>
+                    • 每笔都是完整的从深到浅渐变 (<span class="bg-font">Всеки щрих е пълен градиент от тъмно към светло</span>)
+                </div>
+            </div>
+
             <div class="board-header">
                 <div class="board-title">书写板 | <span class="bg-font">Писмена дъска</span></div>
             </div>
