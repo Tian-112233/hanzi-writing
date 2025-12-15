@@ -121,7 +121,7 @@
         /* 画布 */
         .grid-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; cursor: crosshair; touch-action: none;
+            z-index: 10; cursor: crosshair; touch-action: none; pointer-events: auto;
         }
 
         /* 序号 */
@@ -202,8 +202,8 @@
         /* 手机端独有样式 */
         .mobile-layout { display: none; }
         
-        /* 手机端/小屏幕适配 */
-        @media (max-width: 768px) {
+        /* 手机端/小屏幕适配 - 修改了媒体查询范围以包含横屏手机 */
+        @media (max-width: 1024px) {
             /* 隐藏电脑端侧边栏和主容器 */
             .sidebar, .desktop-board-container { display: none !important; }
             
@@ -345,9 +345,9 @@
 
             <div class="mobile-add-grid-section" style="text-align:center; margin-bottom:10px;">
                  <div class="add-grid-control">
-                     <span style="font-size:0.9rem; color:var(--color-text-secondary);">数量 | Брой:</span>
+                     <span style="font-size:0.9rem; color:var(--color-text-secondary); white-space:nowrap;">添加格子 | Добави клетки:</span>
                      <input type="number" id="gridCountMobile" value="9" min="1" max="50">
-                     <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0;">添加 | Добави</button>
+                     <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0;">+</button>
                  </div>
                  <div style="font-size:0.8rem; color:#999;">当前总数 | Общо: <span id="totalGridNumMobile">9</span></div>
             </div>
@@ -403,7 +403,7 @@
     <div class="sidebar right-sidebar">
         <h2>工具 | Инструменти</h2>
         <div class="info-panel-item" style="margin-bottom: 20px;">
-            <div class="info-label">添加格子 | Добави</div>
+            <div class="info-label">添加格子 | Добави клетки</div>
             <div class="add-grid-control">
                 <input type="number" id="gridCount" value="9" min="1" max="50">
                 <button id="btnGenGrid" class="button button-primary" style="width:auto; margin:0;">+</button>
@@ -895,7 +895,8 @@
         
         // 计算行数，补齐3列
         const cols = 3;
-        const rows = Math.ceil(Math.max(totalGrids, 9) / cols); // 至少9格
+        // 核心修改：无论用户加了多少格，都基于 totalGrids 计算，最小9格，不满一行补齐
+        const rows = Math.ceil(Math.max(totalGrids, 9) / cols); 
         const visualTotal = rows * cols;
 
         document.getElementById('ovTotal').innerText = totalGrids;
@@ -950,6 +951,7 @@
         
         // 生成大图
         const cols = 3;
+        // 核心修改：同预览逻辑，基于 totalGrids，最小9，补齐3列
         const rows = Math.ceil(Math.max(totalGrids, 9) / cols);
         const visualTotal = rows * cols;
         
