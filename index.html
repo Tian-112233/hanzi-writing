@@ -77,8 +77,9 @@
             font-size: 1.8rem; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.2;
         }
         .title-translation { 
-            font-size: 0.9rem; color: var(--color-accent); font-style: italic; display: block; margin-top: 5px;
-            font-family: 'Times New Roman', Times, serif; 
+            font-size: 0.9rem;
+            color: var(--color-accent); font-style: italic; display: block; margin-top: 5px;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         .board-container {
@@ -162,7 +163,9 @@
         }
         .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
         .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .color-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; text-shadow: 0 0 2px rgba(0,0,0,0.5); }
+        .color-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: #fff; font-size: 10px; font-weight: bold; text-shadow: 0 0 2px rgba(0,0,0,0.5);
+        }
         .color-dot.current { transform: scale(1.3); border: 2px solid var(--color-accent); z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8; }
         .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9); }
@@ -194,14 +197,15 @@
         .button-warning { background-color: #d2691e; }
         
         .add-grid-control { 
-            display: flex; 
-            /* 修改：缩小间距，让输入框和文字更紧凑 */
+            display: flex;
             gap: 4px; 
             margin-bottom: 0; 
-            justify-content: center; 
+            justify-content: center;
             align-items: center; 
         }
-        .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; font-family: 'Times New Roman', serif; }
+        .add-grid-control input { width: 50px; text-align: center; padding: 6px;
+            border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; font-family: 'Times New Roman', serif;
+        }
 
         .modal {
             position: fixed;
@@ -216,7 +220,9 @@
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative;
         }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
+        .close-btn { position: absolute;
+            top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent);
+        }
 
         .overview-grid-wrapper {
             display: grid;
@@ -244,14 +250,14 @@
             .main-content { overflow: visible; padding-bottom: 20px; }
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
 
-            /* 修改：手机端添加格子区域更紧凑 */
             .mobile-add-grid-section {
                 display: flex;
-                flex-wrap: wrap; /* 防止屏幕过小时换行混乱 */
-                justify-content: center; 
+                flex-wrap: wrap; 
+                justify-content: center;
                 align-items: center; 
-                gap: 15px; /* 添加格子组 和 总数信息 之间的距离 */
-                margin-bottom: 15px; padding: 10px; 
+                gap: 15px;
+                margin-bottom: 15px;
+                padding: 10px; 
                 background-color: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main);
             }
             .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 0; }
@@ -488,12 +494,10 @@
     let totalGrids = 9;
     let currentGridIdx = 0;
     let strokesData = {};
-    let gridColorState = {}; 
-
+    let gridColorState = {};
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
-    
     window.onload = function() {
         initColorUI('colorSeqDesktop');
         initColorUI('colorSeqMobile');
@@ -503,7 +507,6 @@
         updateUI();
         setupButtons();
     };
-
     function initColorUI(containerId) {
         const c = document.getElementById(containerId);
         if(c) {
@@ -545,7 +548,6 @@
             const label = document.createElement('div');
             label.className = 'grid-number-label';
             label.innerText = i + 1;
-            
             const cvs = document.createElement('canvas');
             cvs.className = 'grid-canvas';
             cvs.width = 300; cvs.height = 300;
@@ -571,7 +573,8 @@
             item.className = `mobile-preview-item ${i === currentGridIdx ? 'active' : ''}`;
             item.onclick = () => switchGrid(i);
             const bg = document.createElement('div');
-            bg.style.position='absolute'; bg.style.top='0'; bg.style.left='0';
+            bg.style.position='absolute';
+            bg.style.top='0'; bg.style.left='0';
             bg.style.width='100%'; bg.style.height='100%';
             bg.innerHTML = getGridBgHTML(); 
             
@@ -802,7 +805,6 @@
         
         const visualTotal = calculateVisualTotal();
         const rows = visualTotal / 3;
-
         document.getElementById('ovLayout').innerText = `${rows}行 x 3列`;
         for (let i = 0; i < visualTotal; i++) {
             const item = document.createElement('div');
@@ -859,13 +861,11 @@
         const cvs = document.createElement('canvas');
         const width = padding*2 + cols*gridSize + (cols-1)*gap;
         const height = padding*2 + headerH + footerH + rows*(gridSize+gap);
-        
         cvs.width = width * 2; cvs.height = height * 2;
         const ctx = cvs.getContext('2d');
         ctx.scale(2, 2);
         
         ctx.fillStyle = '#fff5e6'; ctx.fillRect(0,0,width,height);
-        
         ctx.fillStyle = '#8b4513'; 
         ctx.font = 'bold 20px "LXGW WenKai Screen", "KaiTi", "楷体", "Times New Roman", serif';
         ctx.textAlign = 'left';
@@ -874,7 +874,27 @@
         ctx.fillStyle = '#7a5c3c'; 
         ctx.font = '14px "Times New Roman", serif';
         ctx.textAlign = 'right';
-        ctx.fillText(new Date().toLocaleDateString(), width - padding, padding + 25);
+
+        // --- 修改开始：保加利亚时间 YYYY/M/D 格式 ---
+        try {
+            const now = new Date();
+            // 使用 Intl API 获取保加利亚时区的具体年月日部分
+            const fmt = new Intl.DateTimeFormat('en-US', { 
+                timeZone: 'Europe/Sofia', 
+                year: 'numeric', 
+                month: 'numeric', 
+                day: 'numeric' 
+            });
+            const parts = fmt.formatToParts(now);
+            const y = parts.find(p => p.type === 'year').value;
+            const m = parts.find(p => p.type === 'month').value;
+            const d = parts.find(p => p.type === 'day').value;
+            ctx.fillText(`${y}/${m}/${d}`, width - padding, padding + 25);
+        } catch (e) {
+            const d = new Date();
+            ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, width - padding, padding + 25);
+        }
+        // --- 修改结束 ---
         
         ctx.beginPath(); ctx.moveTo(padding, padding+40); ctx.lineTo(width-padding, padding+40);
         ctx.strokeStyle='#d4b483'; ctx.lineWidth=2; ctx.stroke();
@@ -889,7 +909,8 @@
             ctx.beginPath();
             ctx.moveTo(x, y+gridSize/2); ctx.lineTo(x+gridSize, y+gridSize/2);
             ctx.moveTo(x+gridSize/2, y); ctx.lineTo(x+gridSize/2, y+gridSize);
-            ctx.moveTo(x,y); ctx.lineTo(x+gridSize, y+gridSize);
+            ctx.moveTo(x,y);
+            ctx.lineTo(x+gridSize, y+gridSize);
             ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize, y);
             ctx.strokeStyle = 'rgba(139,69,19,0.15)'; ctx.stroke();
             if (i < totalGrids) {
