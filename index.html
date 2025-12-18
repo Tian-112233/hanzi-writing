@@ -265,6 +265,7 @@
 <div class="container">
     <div class="sidebar left-sidebar">
         <h2>状态面板 | Статус</h2>
+        
         <div class="info-panel-item">
             <div class="info-label">颜色顺序 | Цветова последователност</div>
             <div class="color-sequence" id="colorSeqDesktop"></div>
@@ -614,7 +615,13 @@
         
         ctx.fillStyle='#fff5e6'; ctx.fillRect(0,0,width,height);
         ctx.fillStyle='#8b4513'; ctx.font='bold 20px serif'; ctx.textAlign='left'; ctx.fillText(name?`姓名: ${name}`:'汉字练习', padding, padding+25);
-        ctx.fillStyle='#7a5c3c'; ctx.font='14px serif'; ctx.textAlign='right'; ctx.fillText(new Date().toLocaleDateString(), width-padding, padding+25);
+        ctx.fillStyle='#7a5c3c'; ctx.font='14px serif'; ctx.textAlign='right'; 
+        
+        // 强制格式：YYYY/M/D (例如 2025/5/15)
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+        ctx.fillText(dateStr, width-padding, padding+25);
+        
         ctx.beginPath(); ctx.moveTo(padding, padding+40); ctx.lineTo(width-padding, padding+40); ctx.strokeStyle='#d4b483'; ctx.lineWidth=2; ctx.stroke();
         
         for(let i=0; i<vt; i++){
