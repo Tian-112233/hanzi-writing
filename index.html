@@ -6,22 +6,17 @@
     <title>汉字书写练习（圣诞版）</title>
     <style>
         :root {
-            /* --- 圣诞配色 --- */
-            --color-bg-body: #f8fcfd; /* 极淡的冰雪白 */
-            --color-bg-container: #fffbf0; 
+            --color-bg-body: #f8fcfd;
+            --color-bg-container: #fffbf0;
             --color-bg-board: #fff;
-            
             --color-text-main: #2c3e50;
             --color-text-secondary: #146B3A;
-            
             --color-accent: #D42426; /* 圣诞红 */
             --color-accent-green: #146B3A; /* 松叶绿 */
             --color-accent-gold: #F8B229; /* 铃铛金 */
-            
             --color-border-main: #146B3A;
             --color-border-board: #D42426;
-            
-            --color-grid-line: rgba(248, 178, 41, 0.3); /* 淡金色网格 */
+            --color-grid-line: rgba(248, 178, 41, 0.3);
             --color-active-bg: #E8F5E9;
             --color-grid-dot: #D42426; 
         }
@@ -34,65 +29,52 @@
             color: var(--color-text-main);
             min-height: 100vh;
             touch-action: manipulation;
-            /* 纸纹背景 */
             background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
             background-size: 30px 30px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* --- 1. 雪花动画 --- */
-        .snow-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
-        }
-        .snowflake {
-            position: absolute; top: -20px; color: #fff; text-shadow: 0 0 3px rgba(0,0,0,0.1);
-            font-size: 1.2em; opacity: 0.8; animation: fall linear infinite;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
-        }
-
-        /* --- 2. 烟花容器 --- */
+        /* --- 1. 烟花层 (Z-Index 调高) --- */
         .fireworks-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;
         }
         .firework-particle {
-            position: absolute; width: 4px; height: 4px; border-radius: 50%;
-            animation: explode 1s ease-out forwards;
+            position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            box-shadow: 0 0 6px currentColor; /* 发光效果 */
+            animation: explode 1.2s ease-out forwards;
         }
         @keyframes explode {
             0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
         }
 
-        /* --- 3. 圣诞老人巡游动画 --- */
+        /* --- 2. 圣诞老人巡游 (Z-Index 调高，尺寸调大) --- */
         .santa-fly-container {
-            position: fixed; top: 10px; left: -200px; z-index: 2; pointer-events: none;
-            animation: flySanta 45s linear infinite; opacity: 0.8;
+            position: fixed; top: 5%; left: -300px; z-index: 100; pointer-events: none;
+            animation: flySanta 30s linear infinite; opacity: 0.9;
         }
-        .santa-svg { width: 180px; height: auto; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+        .santa-svg { width: 220px; height: auto; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
         @keyframes flySanta {
-            0% { left: -200px; top: 5%; transform: rotate(5deg); }
+            0% { left: -300px; top: 5%; transform: rotate(5deg); }
             40% { top: 15%; }
-            100% { left: 110vw; top: 2%; transform: rotate(-5deg); }
+            100% { left: 110vw; top: 8%; transform: rotate(-5deg); }
         }
 
-        /* --- 4. 圣诞树与礼物 --- */
+        /* --- 3. 圣诞树 (位置优化) --- */
         .christmas-scene {
-            position: fixed; bottom: 0; left: 20px; z-index: 2; pointer-events: none;
+            position: fixed; bottom: 20px; left: 20px; z-index: 50; pointer-events: none;
             display: flex; align-items: flex-end;
         }
-        .xmas-tree { font-size: 100px; line-height: 1; position: relative; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2)); }
-        /* 彩灯闪烁 */
+        .xmas-tree { font-size: 140px; line-height: 1; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
         .tree-light {
-            position: absolute; width: 6px; height: 6px; border-radius: 50%;
-            animation: twinkle 1.5s infinite alternate;
+            position: absolute; width: 8px; height: 8px; border-radius: 50%;
+            animation: twinkle 1s infinite alternate;
         }
-        @keyframes twinkle { 0% { opacity: 0.4; box-shadow: 0 0 2px currentColor; } 100% { opacity: 1; box-shadow: 0 0 8px currentColor; } }
-        .gift-pile { font-size: 40px; margin-left: -20px; margin-bottom: 5px; }
+        @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px currentColor; } }
+        .gift-pile { font-size: 60px; margin-left: -30px; margin-bottom: 5px; }
 
+        /* 主容器 */
         .container {
             max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 10;
         }
@@ -109,7 +91,7 @@
             border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold;
         }
 
-        /* 主内容区 */
+        /* 主内容 */
         .main-content {
             flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
             background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main);
@@ -118,7 +100,7 @@
 
         header {
             text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main);
-            flex-shrink: 0; background-image: linear-gradient(to right, transparent, rgba(212, 36, 38, 0.05), transparent);
+            flex-shrink: 0;
         }
         h1 {
             color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2;
@@ -130,73 +112,49 @@
         .board-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px; }
         .board-title { color: var(--color-accent-green); font-size: 1.3rem; font-weight: bold; }
 
-        /* 糖果手杖边框 */
         .board {
             background-color: var(--color-bg-board); 
-            /* 红白斜纹 */
             border: 10px solid transparent;
-            border-image: repeating-linear-gradient(45deg, #D42426, #D42426 10px, #fff 10px, #fff 20px, #146B3A 20px, #146B3A 30px, #fff 30px, #fff 40px) 10;
+            border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
             border-radius: 12px; padding: 20px; flex: 1;
             box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05);
         }
 
         .desktop-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 700px; margin: 0 auto; align-content: start; }
-        
         .grid-container {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
             background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
         }
         .grid-container.grid-active {
-            box-shadow: 0 0 0 3px var(--color-accent-gold), 0 0 15px var(--color-accent-gold);
-            border-color: var(--color-accent-gold); z-index: 2;
+            box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
         }
 
+        /* 预览用的简化装饰 */
         .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .grid-background::before, .grid-background::after, .diagonal-1, .diagonal-2 { content: ''; position: absolute; background-color: var(--color-grid-line); }
-        .grid-background::before { top: 50%; left: 0; width: 100%; height: 1px; transform: translateY(-50%); }
-        .grid-background::after { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
-        .diagonal-1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
-        .diagonal-2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
-        
-        /* 预览用的简化红点 */
-        .grid-dot { 
-            position: absolute; width: 8px; height: 8px; background-color: var(--color-grid-dot); border-radius: 50%;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
+        .grid-dot { position: absolute; width: 10px; height: 10px; background-color: var(--color-grid-dot); border-radius: 50%; }
         .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
         .dot-bl { bottom: 8%; left: 8%; } .dot-br { bottom: 8%; right: 8%; }
 
         .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; touch-action: none; }
-        .grid-number-label {
-            position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold;
-        }
-        .grid-container.grid-active .grid-number-label { color: var(--color-accent); }
+        .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
 
         /* UI组件 */
         .info-panel-item { background-color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--color-border-main); text-align: center; }
         .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
         .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .color-dot { 
-            width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            color: #fff; font-size: 10px; font-weight: bold; text-shadow: 0 0 2px rgba(0,0,0,0.5); 
-            border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
+        .color-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .color-dot.current { transform: scale(1.3); border-color: var(--color-accent-gold); z-index: 2; }
-        .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8; }
-        .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9); }
         .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
-        .color-box-wrapper { display: flex; flex-direction: column; align-items: center; }
         .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
         .button {
             padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
+            width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s;
             font-size: 0.9rem; line-height: 1.2; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
-        .button span { font-size: 0.75rem; opacity: 0.9; font-weight: normal; margin-top: 2px; }
-        .button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .button:active { transform: translateY(2px); }
         .button-primary { background-color: var(--color-accent); }
         .button-utility { background-color: #8b4513; }
         .button-secondary { background-color: #c0392b; }
@@ -207,12 +165,12 @@
         .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.3); backdrop-filter: blur(3px); display: none; z-index: 500; justify-content: center; align-items: center; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 500; justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
-        .overview-item { width: 100%; max-width: 120px; display: flex; flex-direction: column; align-items: center; }
+        .overview-item { width: 100%; max-width: 120px; }
         .overview-canvas-box { width: 100%; padding-bottom: 100%; position: relative; border: 1px solid var(--color-border-main); background-color: #fff; border-radius: 4px; }
         .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
         
@@ -224,8 +182,6 @@
             .main-content { overflow: visible; padding-bottom: 20px; }
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
             .mobile-add-grid-section { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main); }
-            .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
-            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
             .mobile-function-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px; }
             .mobile-function-buttons .button:last-child { grid-column: span 2; }
             .mobile-color-section { margin: 0 15px 15px; background: var(--color-active-bg); border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px; }
@@ -236,20 +192,19 @@
             .mobile-preview-item { display: inline-block; width: 60px; height: 60px; border: 1px solid var(--color-border-main); background: #fff; flex-shrink: 0; position: relative; border-radius: 4px; }
             .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
             .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
-            .christmas-scene { display: none; } /* 手机端隐藏左下角圣诞树，以免遮挡 */
+            .christmas-scene { display: none; } /* 手机端隐藏左下角装饰 */
         }
     </style>
 </head>
 <body>
-
-<div class="snow-container" id="snowContainer"></div>
 
 <div class="fireworks-container" id="fireworksContainer"></div>
 
 <div class="santa-fly-container">
     <svg class="santa-svg" viewBox="0 0 200 80" fill="#D42426">
         <path d="M20,50 Q40,30 60,50 T100,50 T140,50 L160,40 L170,30 L150,60 H120 L100,70 H60 L40,60 Z" />
-        <circle cx="165" cy="35" r="5" fill="#F8B229" /> <text x="10" y="70" font-size="10" fill="#146B3A">★ Merry Christmas ★</text>
+        <circle cx="165" cy="35" r="5" fill="#F8B229" />
+        <text x="10" y="70" font-size="10" fill="#146B3A">★ Merry Christmas ★</text>
     </svg>
 </div>
 
@@ -294,6 +249,7 @@
             <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
             <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
         </div>
+        
         <div class="mobile-layout">
             <div class="board-header"><div class="board-title">书写板</div></div>
             <div class="mobile-add-grid-section">
@@ -302,7 +258,7 @@
                      <input type="number" id="gridCountMobile" value="9" min="1" max="50">
                      <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0; padding:6px 12px;">+</button>
                  </div>
-                 <div class="total-info">总数: <span id="totalGridNumMobile">9</span></div>
+                 <div class="total-info" style="margin-left:10px; font-size:0.85rem;">总数: <span id="totalGridNumMobile">9</span></div>
             </div>
             <div class="mobile-function-buttons">
                 <button id="btnUndoMobile" class="button button-utility">撤销上一笔<span>Отмени</span></button>
@@ -323,7 +279,6 @@
             <div class="mobile-board-area">
                 <div style="margin-bottom:5px; font-weight:bold; color:var(--color-accent);">格子 <span id="mobileCurGridNum">1</span> (笔画: <span id="mobileCurStroke">0</span>)</div>
                 <div class="mobile-current-grid" id="mobileGridTarget">
-                    <div class="grid-background"><div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div></div>
                     <canvas class="grid-canvas" id="mobileCanvas"></canvas>
                 </div>
                 <div class="mobile-nav">
@@ -381,63 +336,44 @@
 </div>
 
 <script>
-    // --- 圣诞五色方案 ---
     const COLORS = [
-        { s: '#D42426', e: '#FFCCCC' }, { s: '#F8B229', e: '#FFF8E0' },
-        { s: '#146B3A', e: '#D0F0D0' }, { s: '#1E90FF', e: '#D0E8FF' }, { s: '#800080', e: '#E6CCFF' }
+        { s: '#D42426', e: '#FFCCCC' }, // 圣诞红
+        { s: '#F8B229', e: '#FFF8E0' }, // 铃铛金
+        { s: '#146B3A', e: '#D0F0D0' }, // 松叶绿
+        { s: '#1E90FF', e: '#D0E8FF' }, // 冰雪蓝
+        { s: '#800080', e: '#E6CCFF' }  // 浆果紫
     ];
     let totalGrids = 9; let currentGridIdx = 0; let strokesData = {}; let gridColorState = {}; 
 
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
+    
     const BASE_SIZE = 300; const BASE_LINE_WIDTH = 12; const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
 
     window.onload = function() {
-        initSnow(); initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
+        initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
     };
 
-    function initSnow() {
-        const c = document.getElementById('snowContainer');
-        for(let i=0; i<30; i++) {
-            const d=document.createElement('div'); d.className='snowflake'; d.innerHTML='❄';
-            d.style.left=Math.random()*100+'vw'; d.style.animationDuration=Math.random()*3+5+'s'; 
-            d.style.animationDelay=Math.random()*5+'s'; d.style.opacity=Math.random()*0.5+0.3;
-            d.style.fontSize=Math.random()*10+10+'px'; c.appendChild(d);
-        }
-    }
-
-    // --- 烟花效果 ---
+    // 烟花逻辑
     function spawnFirework() {
-        const container = document.getElementById('fireworksContainer');
-        const colors = ['#D42426', '#F8B229', '#146B3A', '#1E90FF', '#800080'];
-        const x = Math.random() * 100;
-        const y = Math.random() * 80; // Top 80%
-        
-        for (let i = 0; i < 20; i++) {
+        const c = document.getElementById('fireworksContainer');
+        const x = Math.random()*100, y = Math.random()*80;
+        const colors = ['#D42426','#F8B229','#146B3A','#1E90FF'];
+        for(let i=0;i<20;i++){
             const p = document.createElement('div');
-            p.className = 'firework-particle';
-            p.style.left = x + 'vw';
-            p.style.top = y + 'vh';
-            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            // Random direction
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 100 + 50;
-            const tx = Math.cos(angle) * velocity + 'px';
-            const ty = Math.sin(angle) * velocity + 'px';
-            p.style.setProperty('--tx', tx);
-            p.style.setProperty('--ty', ty);
-            
-            container.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
+            p.className='firework-particle'; p.style.left=x+'vw'; p.style.top=y+'vh';
+            p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+            const angle=Math.random()*Math.PI*2, vel=Math.random()*100+50;
+            p.style.setProperty('--tx', Math.cos(angle)*vel+'px');
+            p.style.setProperty('--ty', Math.sin(angle)*vel+'px');
+            c.appendChild(p); setTimeout(()=>p.remove(),1200);
         }
     }
-    
-    // 随机自动放烟花
-    setInterval(() => { if(Math.random() > 0.7) spawnFirework(); }, 3000);
+    // 随机烟花
+    setInterval(() => { if(Math.random()>0.8) spawnFirework(); }, 2000);
 
     function initColorUI(cid) {
         const c = document.getElementById(cid);
@@ -447,18 +383,25 @@
     function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
     function calculateVisualTotal() { let m=-1; Object.keys(strokesData).forEach(i=>{ if(strokesData[i]&&strokesData[i].length>0)m=Math.max(m,parseInt(i)); }); return Math.ceil(Math.max(9,m+1)/3)*3; }
     
+    // 米字格+星星背景(仅用于网页预览，导出时单独绘制高清版)
     function getGridBgHTML() {
-        return `<div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div><div style="position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(248,178,41,0.3);transform:translateY(-50%)"></div><div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(248,178,41,0.3);transform:translateX(-50%)"></div>`;
+        // 使用CSS画星星
+        return `<div class="grid-dot dot-tl" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
+                <div class="grid-dot dot-tr" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
+                <div class="grid-dot dot-bl" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
+                <div class="grid-dot dot-br" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
+                <div class="diagonal-1"></div><div class="diagonal-2"></div>
+                <div style="position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(248,178,41,0.3);transform:translateY(-50%)"></div>
+                <div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(248,178,41,0.3);transform:translateX(-50%)"></div>`;
     }
 
     function renderDesktopGrids() {
         elDesktopWrapper.innerHTML='';
         for(let i=0; i<totalGrids; i++){
             const div=document.createElement('div'); div.className=`grid-container ${i===currentGridIdx?'grid-active':''}`; div.onclick=()=>switchGrid(i);
-            const bg=document.createElement('div'); bg.className='grid-background'; bg.innerHTML=getGridBgHTML();
-            const lbl=document.createElement('div'); lbl.className='grid-number-label'; lbl.innerText=i+1;
+            div.innerHTML=`<div class="grid-background">${getGridBgHTML()}</div><div class="grid-number-label">${i+1}</div>`;
             const cvs=document.createElement('canvas'); cvs.className='grid-canvas'; cvs.width=BASE_SIZE; cvs.height=BASE_SIZE; cvs.id=`d-canvas-${i}`;
-            setupCanvasEvents(cvs, i); div.appendChild(bg); div.appendChild(lbl); div.appendChild(cvs); elDesktopWrapper.appendChild(div);
+            setupCanvasEvents(cvs, i); div.appendChild(cvs); elDesktopWrapper.appendChild(div);
             redrawCanvas(cvs, i);
         }
         document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
@@ -468,11 +411,11 @@
         elMobilePreviewBar.innerHTML='';
         for(let i=0; i<totalGrids; i++){
             const div=document.createElement('div'); div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`; div.onclick=()=>switchGrid(i);
-            const bg=document.createElement('div'); bg.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;"; bg.innerHTML=getGridBgHTML();
+            div.innerHTML=`<div style="position:absolute;top:0;left:0;width:100%;height:100%">${getGridBgHTML()}</div>`;
             const cvs=document.createElement('canvas'); cvs.width=100; cvs.height=100;
             const ctx=cvs.getContext('2d'); (strokesData[i]||[]).forEach(s=>{ const sc=100/300; drawGradientStroke(ctx,s.points.map(p=>({x:p.x*sc,y:p.y*sc})),s.colorIdx,100*LINE_RATIO); });
-            const lbl=document.createElement('div'); lbl.className='mobile-preview-label'; lbl.innerText=i+1;
-            div.appendChild(bg); div.appendChild(cvs); div.appendChild(lbl); elMobilePreviewBar.appendChild(div);
+            div.appendChild(cvs); div.innerHTML+=`<div class="mobile-preview-label">${i+1}</div>`;
+            elMobilePreviewBar.appendChild(div);
         }
     }
 
@@ -483,10 +426,11 @@
         redrawMobileCanvas(); updateUI();
     }
 
+    // Canvas Events
     function setupCanvasEvents(cvs, idx) {
         let isD=false, pts=[]; const ctx=cvs.getContext('2d');
         const gp=(e)=>{const r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(300/r.width),y:(t.clientY-r.top)*(300/r.height)}};
-        const st=(e)=>{e.preventDefault();if(idx!==currentGridIdx)switchGrid(idx);isD=true;pts=[gp(e)];};
+        const st=(e)=>{e.preventDefault();if(idx!==currentGridIdx)switchGrid(idx);isD=true;pts=[gp(e)];spawnFirework();};
         const mv=(e)=>{if(!isD)return;e.preventDefault();const p=gp(e);pts.push(p);const c=gridColorState[idx]||0;ctx.beginPath();if(pts.length>1){ctx.moveTo(pts[pts.length-2].x,pts[pts.length-2].y);ctx.lineTo(p.x,p.y);}else{ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y);}ctx.strokeStyle=COLORS[c%5].s;ctx.lineWidth=BASE_LINE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();};
         const ed=(e)=>{if(!isD)return;isD=false;if(pts.length>1){if(!strokesData[idx])strokesData[idx]=[];strokesData[idx].push({points:[...pts],colorIdx:(gridColorState[idx]||0)%5});gridColorState[idx]=(gridColorState[idx]||0)+1;redrawGrid(idx);renderMobilePreview();updateUI();}};
         cvs.addEventListener('mousedown',st);cvs.addEventListener('mousemove',mv);cvs.addEventListener('mouseup',ed);cvs.addEventListener('mouseleave',ed);
@@ -496,7 +440,7 @@
     function setupMobileEvents() {
         elMobileCanvas.width=300; elMobileCanvas.height=300; let isD=false, pts=[]; const ctx=elMobileCanvas.getContext('2d');
         const gp=(e)=>{const r=elMobileCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(300/r.width),y:(t.clientY-r.top)*(300/r.height)}};
-        const st=(e)=>{e.preventDefault();isD=true;pts=[gp(e)];};
+        const st=(e)=>{e.preventDefault();isD=true;pts=[gp(e)];spawnFirework();};
         const mv=(e)=>{if(!isD)return;e.preventDefault();const p=gp(e);pts.push(p);const c=gridColorState[currentGridIdx]||0;ctx.beginPath();if(pts.length>1){ctx.moveTo(pts[pts.length-2].x,pts[pts.length-2].y);ctx.lineTo(p.x,p.y);}else{ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y);}ctx.strokeStyle=COLORS[c%5].s;ctx.lineWidth=BASE_LINE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();};
         const ed=(e)=>{if(!isD)return;isD=false;if(pts.length>1){if(!strokesData[currentGridIdx])strokesData[currentGridIdx]=[];strokesData[currentGridIdx].push({points:[...pts],colorIdx:(gridColorState[currentGridIdx]||0)%5});gridColorState[currentGridIdx]=(gridColorState[currentGridIdx]||0)+1;redrawGrid(currentGridIdx);renderMobilePreview();updateUI();}};
         elMobileCanvas.addEventListener('touchstart',st,{passive:false});elMobileCanvas.addEventListener('touchmove',mv,{passive:false});elMobileCanvas.addEventListener('touchend',ed);
@@ -506,11 +450,14 @@
     function redrawCanvas(c,i){const x=c.getContext('2d');x.clearRect(0,0,300,300);(strokesData[i]||[]).forEach(s=>drawGradientStroke(x,s.points,s.colorIdx,BASE_LINE_WIDTH));}
     function redrawMobileCanvas(){redrawCanvas(elMobileCanvas,currentGridIdx);}
     
+    // 路径渐变
     function drawGradientStroke(ctx,pts,cIdx,lw){
         if(pts.length<2)return;const c1=hexToRgb(COLORS[cIdx].s),c2=hexToRgb(COLORS[cIdx].e);
         ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=1;ctx.shadowColor=COLORS[cIdx].s;
-        for(let i=0;i<pts.length-1;i++){
-            const t=i/(pts.length-1),r=Math.round(c1.r+(c2.r-c1.r)*t),g=Math.round(c1.g+(c2.g-c1.g)*t),b=Math.round(c1.b+(c2.b-c1.b)*t);
+        
+        const total = pts.length - 1;
+        for(let i=0;i<total;i++){
+            const t=i/total, r=Math.round(c1.r+(c2.r-c1.r)*t), g=Math.round(c1.g+(c2.g-c1.g)*t), b=Math.round(c1.b+(c2.b-c1.b)*t);
             ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[i+1].x,pts[i+1].y);ctx.strokeStyle=`rgb(${r},${g},${b})`;ctx.stroke();
         } ctx.shadowBlur=0;
     }
@@ -552,128 +499,134 @@
         document.getElementById('btnConfirmExport').onclick=doExport;
     }
 
-    // 绘制冬青果 + 铃铛 (豪华版)
-    function drawHollyCorner(ctx, cx, cy, isBottom=false) {
-        const r=4; 
-        // 绿叶 (菱形模拟)
+    // --- 豪华版装饰绘制 (导出用) ---
+    function drawHollyCorner(ctx, cx, cy, align) {
+        // align: 0=TL, 1=TR, 2=BL, 3=BR
+        ctx.save(); ctx.translate(cx, cy);
+        if(align==1) ctx.scale(-1,1); if(align==2) ctx.scale(1,-1); if(align==3) ctx.scale(-1,-1);
+        
+        // 绿叶
         ctx.fillStyle='#146B3A';
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx-10,cy-10); ctx.lineTo(cx-5,cy-15); ctx.lineTo(cx,cy-10); ctx.fill(); // Left Leaf
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+10,cy-10); ctx.lineTo(cx+5,cy-15); ctx.lineTo(cx,cy-10); ctx.fill(); // Right Leaf
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-15,-5,-20,-20); ctx.quadraticCurveTo(-5,-15,0,0); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-5,-15,-20,-20); ctx.quadraticCurveTo(-15,-5,0,0); ctx.fill();
         
-        // 三颗红果
+        // 三红果
         ctx.fillStyle='#D42426';
-        ctx.beginPath(); ctx.arc(cx, cy-r, r, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx-r, cy+1, r, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx+r, cy+1, r, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-5,-5, 4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-12,-8, 4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(-8,-12, 4, 0, Math.PI*2); ctx.fill();
         
-        // 铃铛 (仅下方两个角显示，或全部显示)
-        // 简易铃铛：金色三角形圆底
+        // 双铃铛 (金)
         ctx.fillStyle='#F8B229';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy+5); 
-        ctx.bezierCurveTo(cx-8, cy+15, cx-8, cy+20, cx, cy+20);
-        ctx.bezierCurveTo(cx+8, cy+20, cx+8, cy+15, cx, cy+5);
-        ctx.fill();
-        // 铃铛口
-        ctx.fillStyle='#B8860B';
-        ctx.beginPath(); ctx.arc(cx, cy+20, 2, 0, Math.PI*2); ctx.fill();
+        // Bell 1
+        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill();
+        // Bell 2
+        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill();
+        
+        ctx.restore();
     }
 
-    // 绘制圣诞老人印章 (压角)
+    // 镂空线条圣诞印章 (压角)
     function drawSantaSeal(ctx, right, bottom) {
-        const r=45, cx=right-r+5, cy=bottom-r+5; // 稍微往里一点
+        const r=45, cx=right-r, cy=bottom-r; // 压角位置
         ctx.save();
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); 
-        ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fill(); // 底色遮挡线条
-        ctx.strokeStyle='#D42426'; ctx.lineWidth=3; ctx.stroke();
         
-        // 圣诞老人简笔画
-        ctx.fillStyle='#D42426'; // 红帽
-        ctx.beginPath(); ctx.moveTo(cx-15, cy-10); ctx.quadraticCurveTo(cx, cy-35, cx+15, cy-10); ctx.fill();
-        ctx.fillStyle='#fff'; // 脸部底
-        ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle='#000'; // 眼睛
-        ctx.beginPath(); ctx.arc(cx-4, cy-2, 2, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx+4, cy-2, 2, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle='#D42426'; // 鼻子
-        ctx.beginPath(); ctx.arc(cx, cy+3, 3, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle='#ccc'; ctx.lineWidth=2; // 胡子
-        ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI, false); ctx.stroke();
+        // 外圈
+        ctx.strokeStyle='#D42426'; ctx.lineWidth=3; 
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, r-4, 0, Math.PI*2); ctx.lineWidth=1; ctx.stroke();
 
-        // 环绕文字
-        ctx.fillStyle='#D42426'; ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.font='bold 14px serif';
-        // 上弧
-        ctx.save(); ctx.translate(cx, cy); 
-        ctx.rotate(-0.5); ctx.fillText('圣', 0, -32); 
-        ctx.rotate(0.35); ctx.fillText('诞', 0, -32);
-        ctx.rotate(0.35); ctx.fillText('快', 0, -32);
-        ctx.rotate(0.35); ctx.fillText('乐', 0, -32);
-        ctx.restore();
+        // 镂空圣诞老人 (线条)
+        ctx.beginPath(); 
+        ctx.moveTo(cx-15, cy-5); ctx.lineTo(cx, cy-25); ctx.lineTo(cx+15, cy-5); // 帽子
+        ctx.moveTo(cx+15, cy-5); ctx.arc(cx, cy-5, 15, 0, Math.PI); // 脸沿
+        ctx.moveTo(cx-12, cy+5); ctx.arc(cx, cy+5, 12, 0, Math.PI); // 胡子
+        ctx.stroke();
         
-        // 下弧保加利亚语
-        ctx.font='10px sans-serif';
-        ctx.save(); ctx.translate(cx, cy);
-        ctx.fillText('Весела Коледа', 0, 32);
-        ctx.restore();
+        // 眼睛
+        ctx.beginPath(); ctx.arc(cx-5, cy, 1, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx+5, cy, 1, 0, Math.PI*2); ctx.stroke();
+
+        // 弧形文字
+        ctx.font='bold 14px serif'; ctx.fillStyle='#D42426'; ctx.textAlign='center';
+        drawTextAlongArc(ctx, "圣诞快乐", cx, cy, r-12, -0.8, 0.8);
+        
+        ctx.font='bold 10px sans-serif';
+        drawTextAlongArc(ctx, "Весела Коледа", cx, cy, r-12, 2.5, 3.8); // 下方
 
         ctx.restore();
+    }
+
+    function drawTextAlongArc(ctx, str, cx, cy, radius, startAngle, endAngle) {
+        const angleStep = (endAngle - startAngle) / (str.length - 1);
+        for(let i=0; i<str.length; i++) {
+            const angle = startAngle + i * angleStep;
+            ctx.save();
+            ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+            ctx.rotate(angle + Math.PI / 2);
+            ctx.fillText(str[i], 0, 0);
+            ctx.restore();
+        }
+    }
+
+    // 绘制静态雪花
+    function drawStaticSnow(ctx, w, h) {
+        for(let i=0; i<60; i++) {
+            ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.font=`${Math.random()*15+10}px serif`;
+            ctx.fillText('❄', Math.random()*w, Math.random()*h);
+        }
     }
 
     function doExport() {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
         const dpr=6, gridSize=120, gap=10, padding=40, hH=60, fH=40;
-        const cvs=document.createElement('canvas'); cvs.width=(padding*2+cols*gridSize+(cols-1)*gap)*dpr; cvs.height=(padding*2+hH+fH+rows*(gridSize+gap))*dpr;
+        const cvs=document.createElement('canvas'); 
+        const width = padding*2 + cols*gridSize + (cols-1)*gap;
+        const height = padding*2 + hH + fH + rows*(gridSize+gap);
+        cvs.width = width * dpr; cvs.height = height * dpr;
+        
         const ctx=cvs.getContext('2d'); ctx.scale(dpr,dpr);
         
-        ctx.fillStyle='#fff'; ctx.fillRect(0,0,cvs.width/dpr,cvs.height/dpr);
-        // 静态雪花
-        for(let i=0; i<50; i++) {
-            ctx.fillStyle='rgba(200,230,255,0.5)';
-            ctx.font=`${Math.random()*20+10}px serif`;
-            ctx.fillText('❄', Math.random()*(cvs.width/dpr), Math.random()*(cvs.height/dpr));
-        }
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
+        drawStaticSnow(ctx, width, height);
 
-        const W=padding*2+cols*gridSize+(cols-1)*gap;
-        
         // 边框
-        ctx.strokeStyle='#D42426'; ctx.lineWidth=4; ctx.strokeRect(10,10,W-20,cvs.height/dpr-20);
-        ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.strokeRect(16,16,W-32,cvs.height/dpr-32);
+        ctx.strokeStyle='#D42426'; ctx.lineWidth=4; ctx.strokeRect(10,10,width-20,height-20);
+        ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.strokeRect(16,16,width-32,height-32);
 
         // 头部
         ctx.fillStyle='#146B3A'; ctx.font='bold 24px serif'; ctx.textAlign='left'; ctx.fillText(`姓名: ${name}`, padding, padding+30);
-        ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; const d=new Date(); ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, W-padding, padding+30);
-        ctx.beginPath(); ctx.moveTo(padding, padding+45); ctx.lineTo(W-padding, padding+45); ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.stroke();
+        ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; const d=new Date(); ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, width-padding, padding+30);
+        ctx.beginPath(); ctx.moveTo(padding, padding+45); ctx.lineTo(width-padding, padding+45); ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.stroke();
 
         for(let i=0;i<vt;i++){
             const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
             ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(x,y,gridSize,gridSize);
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
+            // 米字格
             ctx.beginPath();
             ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(248,178,41,0.25)'; ctx.stroke();
             
-            // 绘制豪华角落 (冬青+铃铛)
-            drawHollyCorner(ctx, x+5, y+5);
-            drawHollyCorner(ctx, x+gridSize-5, y+5);
-            drawHollyCorner(ctx, x+5, y+gridSize-5);
-            drawHollyCorner(ctx, x+gridSize-5, y+gridSize-5);
+            // 绘制四个豪华角标
+            drawHollyCorner(ctx, x, y, 0); // TL
+            drawHollyCorner(ctx, x+gridSize, y, 1); // TR
+            drawHollyCorner(ctx, x, y+gridSize, 2); // BL
+            drawHollyCorner(ctx, x+gridSize, y+gridSize, 3); // BR
 
             if(i<totalGrids){
                 const strokes=strokesData[i]||[];
                 strokes.forEach(s=>{
-                    const sc=gridSize/300, sp=s.points.map(p=>({x:p.x*sc+x,y:p.y*sc+y}));
+                    const sc=gridSize/300, sp=s.points.map(p=>({x:p.x*sc,y:p.y*sc}));
                     drawGradientStroke(ctx, sp, s.colorIdx, gridSize*LINE_RATIO);
                 });
-                ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
+                ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-5, y+gridSize-5);
             }
             
-            // 最后一个格子盖章
-            if(i === vt-1) {
-                drawSantaSeal(ctx, x+gridSize, y+gridSize);
-            }
+            // 最后一个格子压角章
+            if(i === vt-1) drawSantaSeal(ctx, x+gridSize+10, y+gridSize+10);
         }
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
