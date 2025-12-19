@@ -23,7 +23,7 @@
             
             --color-grid-line: rgba(20, 107, 58, 0.15);
             --color-active-bg: #E8F5E9;
-            --color-grid-dot: #D42426; /* 改回红色点 */
+            --color-grid-dot: #D42426; /* 红色点 */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -132,7 +132,7 @@
         .diagonal-1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
         .diagonal-2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
         
-        /* 修改：恢复为红色圆点 */
+        /* 红色圆点 */
         .grid-dot { 
             position: absolute;
             width: 6px; height: 6px; 
@@ -278,7 +278,7 @@
                 display: flex; flex-direction: column; align-items: center; width: 100%;
             }
             
-            /* 关键修改：手机端格子自适应宽度 */
+            /* 手机端格子自适应宽度 */
             .mobile-current-grid { 
                 width: 85vw; /* 屏幕宽度的85% */
                 height: 85vw; /* 保持正方形 */
@@ -295,9 +295,28 @@
                 margin-bottom: 20px; 
             }
             
-            /* 隐藏底部预览栏 */
-            .mobile-preview-bar, .mobile-preview-title {
-                display: none !important;
+            /* 恢复并优化预览条样式，宽度适配 */
+            .mobile-preview-bar {
+                margin: 0 0 20px 0;
+                background: var(--color-active-bg);
+                border: 1px solid var(--color-border-main); border-radius: 8px;
+                padding: 10px; 
+                overflow-x: auto; 
+                white-space: nowrap; 
+                display: flex; gap: 10px;
+                
+                /* 关键：宽度与上方格子一致 */
+                width: 85vw; max-width: 340px;
+            }
+            .mobile-preview-item {
+                display: inline-block; width: 60px; height: 60px;
+                border: 1px solid var(--color-border-main); background: #fff;
+                flex-shrink: 0; position: relative; border-radius: 4px;
+            }
+            .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
+            .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
+            .mobile-preview-label {
+                position: absolute; bottom: 0; right: 2px; font-size: 10px; color: var(--color-accent-green); z-index: 3;
             }
         }
     </style>
@@ -375,7 +394,10 @@
                     <button class="button button-primary" id="btnNextMobile" style="width:48%;">下一格 | Следваща</button>
                 </div>
             </div>
-            </div>
+            
+            <div class="mobile-preview-title" style="margin-bottom:5px; font-weight:bold; color:var(--color-text-secondary); font-size:0.9rem; width:85vw; max-width:340px; text-align:left;">快速预览 | Бърз преглед</div>
+            <div class="mobile-preview-bar" id="mobilePreviewBar"></div>
+        </div>
     </div>
 
     <div class="sidebar right-sidebar">
@@ -435,6 +457,8 @@
 
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
+    // 恢复：移动端预览容器引用
+    const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
     // 基础尺寸
     const BASE_SIZE = 300;
@@ -445,7 +469,8 @@
         initSnow(); // 启动雪花
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); 
-        // 手机端预览条已移除，无需渲染
+        // 恢复：初始化时渲染移动端预览
+        renderMobilePreview();
         setupMobileEvents();
         updateUI(); setupButtons();
     };
@@ -486,7 +511,7 @@
     }
     
     function getGridBgHTML() {
-        // 回归红色圆点 (CSS控制)
+        // 红色圆点 (CSS控制)
         return `<div class="diagonal-1"></div><div class="diagonal-2"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>
                 <div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>
@@ -508,10 +533,35 @@
         document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
     }
 
+    // 恢复：渲染手机端底部预览条
+    function renderMobilePreview() {
+        elMobilePreviewBar.innerHTML='';
+        for(let i=0; i<totalGrids; i++){
+            const div=document.createElement('div'); div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`; div.onclick=()=>switchGrid(i);
+            const bg=document.createElement('div'); bg.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;"; bg.innerHTML=getGridBgHTML();
+            const cvs=document.createElement('canvas'); 
+            const previewSize = 100; cvs.width=previewSize; cvs.height=previewSize;
+            
+            const ctx=cvs.getContext('2d'); 
+            const s=strokesData[i]||[]; 
+            const scale=previewSize/BASE_SIZE;
+            const previewLineWidth = previewSize * LINE_RATIO;
+
+            s.forEach(st => {
+                const sp = st.points.map(p => ({x:p.x*scale, y:p.y*scale}));
+                drawGradientStroke(ctx, sp, st.colorIdx, previewLineWidth);
+            });
+            const lbl=document.createElement('div'); lbl.className='mobile-preview-label'; lbl.innerText=i+1;
+            div.appendChild(bg); div.appendChild(cvs); div.appendChild(lbl); elMobilePreviewBar.appendChild(div);
+        }
+    }
+
     function switchGrid(idx) {
         if(idx<0||idx>=totalGrids)return;
         currentGridIdx=idx;
         document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active', i===idx));
+        // 恢复：切换时同步预览条的高亮
+        document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{ e.classList.toggle('active', i===idx); if(i===idx) e.scrollIntoView({behavior:"smooth", inline:"center"}); });
         redrawMobileCanvas(); updateUI();
     }
 
@@ -541,7 +591,8 @@
                 const cIdx=gridColorState[gridIdx]||0;
                 strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[gridIdx]=(cIdx+1);
-                redrawGrid(gridIdx); updateUI();
+                // 恢复：笔画结束时更新预览
+                redrawGrid(gridIdx); renderMobilePreview(); updateUI();
             }
         };
         canvas.addEventListener('mousedown', start);
@@ -574,7 +625,8 @@
                 const cIdx=gridColorState[currentGridIdx]||0;
                 strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[currentGridIdx]=(cIdx+1);
-                redrawGrid(currentGridIdx); updateUI();
+                // 恢复：笔画结束时更新预览
+                redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
             }
         };
         elMobileCanvas.addEventListener('touchstart', start, {passive:false});
@@ -631,13 +683,14 @@
 
     function setupButtons() {
         const add=(m)=>{ const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1; totalGrids+=v; renderDesktopGrids();
-        updateUI(); };
+        // 恢复：添加格子时更新预览
+        renderMobilePreview(); updateUI(); };
         document.getElementById('btnGenGrid').onclick=()=>add(false); document.getElementById('btnGenGridMobile').onclick=()=>add(true);
-        const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); updateUI();} };
+        const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
         document.getElementById('btnUndo').onclick=undo; document.getElementById('btnUndoMobile').onclick=undo;
-        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); updateUI();} };
+        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
         document.getElementById('btnClear').onclick=cls; document.getElementById('btnClearMobile').onclick=cls;
-        const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); updateUI();
+        const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); renderMobilePreview(); updateUI();
         switchGrid(0);} };
         document.getElementById('btnClearAll').onclick=cla; document.getElementById('btnClearAllMobile').onclick=cla;
         document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1); document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
@@ -720,7 +773,7 @@
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(20,107,58,0.15)'; ctx.stroke();
             
-            // 修改：绘制红色圆点 (替代铃铛)
+            // 红色圆点
             ctx.fillStyle = '#D42426'; // 红色
             const dotR = 2; // 圆点半径
             const off = 10;
