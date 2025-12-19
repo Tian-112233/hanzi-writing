@@ -6,9 +6,9 @@
     <title>汉字书写练习（圣诞版）</title>
     <style>
         :root {
+            /* 圣诞配色 */
             --color-bg-body: #f8fcfd;
             --color-bg-container: #fffbf0;
-            --color-bg-board: #fff;
             --color-text-main: #2c3e50;
             --color-text-secondary: #146B3A;
             --color-accent: #D42426; /* 圣诞红 */
@@ -16,9 +16,8 @@
             --color-accent-gold: #F8B229; /* 铃铛金 */
             --color-border-main: #146B3A;
             --color-border-board: #D42426;
-            --color-grid-line: rgba(248, 178, 41, 0.3);
+            --color-grid-line: rgba(248, 178, 41, 0.4); /* 加深一点网格线 */
             --color-active-bg: #E8F5E9;
-            --color-grid-dot: #D42426; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -35,77 +34,49 @@
             position: relative;
         }
 
-        /* --- 1. 烟花层 (Z-Index 调高) --- */
-        .fireworks-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999;
-        }
-        .firework-particle {
-            position: absolute; width: 6px; height: 6px; border-radius: 50%;
-            box-shadow: 0 0 6px currentColor; /* 发光效果 */
-            animation: explode 1.2s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
-        }
+        /* 烟花层 */
+        .fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+        .firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 6px currentColor; animation: explode 1.2s ease-out forwards; }
+        @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; } }
 
-        /* --- 2. 圣诞老人巡游 (Z-Index 调高，尺寸调大) --- */
+        /* 雪花层 */
+        .snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .snowflake { position: absolute; top: -20px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.2); font-size: 1.2em; opacity: 0.8; animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } }
+
+        /* 圣诞老人飞行 (优化剪影) */
         .santa-fly-container {
-            position: fixed; top: 5%; left: -300px; z-index: 100; pointer-events: none;
-            animation: flySanta 30s linear infinite; opacity: 0.9;
+            position: fixed; top: 8%; left: -300px; z-index: 100; pointer-events: none;
+            animation: flySanta 35s linear infinite; opacity: 0.8;
         }
-        .santa-svg { width: 220px; height: auto; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.2)); }
+        /* 更新：更清晰的驯鹿+雪橇路径 */
+        .santa-svg { width: 260px; height: auto; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2)); }
         @keyframes flySanta {
             0% { left: -300px; top: 5%; transform: rotate(5deg); }
-            40% { top: 15%; }
-            100% { left: 110vw; top: 8%; transform: rotate(-5deg); }
+            40% { top: 12%; }
+            100% { left: 110vw; top: 5%; transform: rotate(-5deg); }
         }
 
-        /* --- 3. 圣诞树 (位置优化) --- */
+        /* 圣诞树 (左下角) */
         .christmas-scene {
             position: fixed; bottom: 20px; left: 20px; z-index: 50; pointer-events: none;
             display: flex; align-items: flex-end;
         }
         .xmas-tree { font-size: 140px; line-height: 1; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .tree-light {
-            position: absolute; width: 8px; height: 8px; border-radius: 50%;
-            animation: twinkle 1s infinite alternate;
-        }
+        .tree-light { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: twinkle 1s infinite alternate; }
         @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px currentColor; } }
         .gift-pile { font-size: 60px; margin-left: -30px; margin-bottom: 5px; }
 
-        /* 主容器 */
-        .container {
-            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 10;
-        }
+        .container { max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 10; }
 
-        /* 侧边栏 */
-        .sidebar {
-            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px;
-            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main);
-            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto;
-        }
+        .sidebar { width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main); flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
         .left-sidebar { order: 1; } .right-sidebar { order: 3; }
-        .sidebar h2 {
-            color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px;
-            border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold;
-        }
 
-        /* 主内容 */
-        .main-content {
-            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
-            background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main);
-            box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15);
-        }
+        .main-content { flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%; background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main); box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15); }
 
-        header {
-            text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main);
-            flex-shrink: 0;
-        }
-        h1 {
-            color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2;
-            font-family: 'Microsoft YaHei', sans-serif;
-        }
+        header { text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main); flex-shrink: 0; }
+        h1 { color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2; font-family: 'Microsoft YaHei', sans-serif; }
         .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
 
         .board-container { flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto; }
@@ -113,29 +84,46 @@
         .board-title { color: var(--color-accent-green); font-size: 1.3rem; font-weight: bold; }
 
         .board {
-            background-color: var(--color-bg-board); 
+            background-color: #fff;
             border: 10px solid transparent;
+            /* 糖果条纹边框 */
             border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
             border-radius: 12px; padding: 20px; flex: 1;
             box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05);
         }
 
         .desktop-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 700px; margin: 0 auto; align-content: start; }
+        
+        /* 修复：格子容器去掉了多余的 border，完全由内部 canvas 和 background 撑起 */
         .grid-container {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
-            background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
+            background-color: #fff; 
+            border: 1px solid var(--color-border-main); /* 仅外框 */
+            border-radius: 4px;
+            box-sizing: border-box; /* 关键：防止边框撑大 */
         }
         .grid-container.grid-active {
             box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
         }
 
-        /* 预览用的简化装饰 */
         .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .grid-dot { position: absolute; width: 10px; height: 10px; background-color: var(--color-grid-dot); border-radius: 50%; }
-        .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
-        .dot-bl { bottom: 8%; left: 8%; } .dot-br { bottom: 8%; right: 8%; }
+        
+        /* 米字格线条 */
+        .grid-line-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--color-grid-line); transform: translateY(-50%); }
+        .grid-line-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: var(--color-grid-line); transform: translateX(-50%); }
+        .grid-line-d1 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
+        .grid-line-d2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
 
-        .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; touch-action: none; }
+        /* 预览用的简化冬青果点 (网页显示) */
+        .grid-dot { position: absolute; width: 8px; height: 8px; background-color: var(--color-accent); border-radius: 50%; z-index: 2; }
+        .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
+        /* 底部两个点去掉，只留顶部两个 */
+
+        /* 修复：Canvas 位于最上层，响应事件 */
+        .grid-canvas { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            z-index: 10; cursor: crosshair; touch-action: none; 
+        }
         .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
 
         /* UI组件 */
@@ -166,7 +154,7 @@
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 500; justify-content: center; align-items: center; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
@@ -182,6 +170,8 @@
             .main-content { overflow: visible; padding-bottom: 20px; }
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
             .mobile-add-grid-section { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main); }
+            .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
+            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
             .mobile-function-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px; }
             .mobile-function-buttons .button:last-child { grid-column: span 2; }
             .mobile-color-section { margin: 0 15px 15px; background: var(--color-active-bg); border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px; }
@@ -192,19 +182,23 @@
             .mobile-preview-item { display: inline-block; width: 60px; height: 60px; border: 1px solid var(--color-border-main); background: #fff; flex-shrink: 0; position: relative; border-radius: 4px; }
             .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
             .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
-            .christmas-scene { display: none; } /* 手机端隐藏左下角装饰 */
+            .christmas-scene { display: none; }
         }
     </style>
 </head>
 <body>
 
 <div class="fireworks-container" id="fireworksContainer"></div>
+<div class="snow-container" id="snowContainer"></div>
 
 <div class="santa-fly-container">
-    <svg class="santa-svg" viewBox="0 0 200 80" fill="#D42426">
-        <path d="M20,50 Q40,30 60,50 T100,50 T140,50 L160,40 L170,30 L150,60 H120 L100,70 H60 L40,60 Z" />
-        <circle cx="165" cy="35" r="5" fill="#F8B229" />
-        <text x="10" y="70" font-size="10" fill="#146B3A">★ Merry Christmas ★</text>
+    <svg class="santa-svg" viewBox="0 0 300 100" fill="#D42426">
+        <path d="M50,60 Q60,50 70,60 L80,50 L75,40 L85,35 L80,30 L90,25 L85,40 L95,50 Q100,55 90,70 L85,80 L75,75 L65,80 Z" />
+        <line x1="90" y1="55" x2="130" y2="55" stroke="#F8B229" stroke-width="2" />
+        <path d="M130,55 L140,75 H190 L200,50 H150 L130,55 Z" />
+        <path d="M135,80 Q160,85 205,75" stroke="#F8B229" stroke-width="3" fill="none" />
+        <circle cx="170" cy="45" r="12" />
+        <path d="M160,45 Q170,25 180,45 Z" /> <text x="20" y="90" font-size="12" fill="#146B3A">★ Merry Christmas ★</text>
     </svg>
 </div>
 
@@ -279,6 +273,7 @@
             <div class="mobile-board-area">
                 <div style="margin-bottom:5px; font-weight:bold; color:var(--color-accent);">格子 <span id="mobileCurGridNum">1</span> (笔画: <span id="mobileCurStroke">0</span>)</div>
                 <div class="mobile-current-grid" id="mobileGridTarget">
+                    <div class="grid-background"><div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div></div>
                     <canvas class="grid-canvas" id="mobileCanvas"></canvas>
                 </div>
                 <div class="mobile-nav">
@@ -337,11 +332,8 @@
 
 <script>
     const COLORS = [
-        { s: '#D42426', e: '#FFCCCC' }, // 圣诞红
-        { s: '#F8B229', e: '#FFF8E0' }, // 铃铛金
-        { s: '#146B3A', e: '#D0F0D0' }, // 松叶绿
-        { s: '#1E90FF', e: '#D0E8FF' }, // 冰雪蓝
-        { s: '#800080', e: '#E6CCFF' }  // 浆果紫
+        { s: '#D42426', e: '#FFCCCC' }, { s: '#F8B229', e: '#FFF8E0' },
+        { s: '#146B3A', e: '#D0F0D0' }, { s: '#1E90FF', e: '#D0E8FF' }, { s: '#800080', e: '#E6CCFF' }
     ];
     let totalGrids = 9; let currentGridIdx = 0; let strokesData = {}; let gridColorState = {}; 
 
@@ -349,15 +341,19 @@
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
-    const BASE_SIZE = 300; const BASE_LINE_WIDTH = 12; const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
+    // 基础尺寸
+    const BASE_SIZE = 300;
+    const BASE_LINE_WIDTH = 12;
+    const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
 
     window.onload = function() {
+        initSnow(); 
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
     };
 
-    // 烟花逻辑
+    // 烟花
     function spawnFirework() {
         const c = document.getElementById('fireworksContainer');
         const x = Math.random()*100, y = Math.random()*80;
@@ -372,8 +368,19 @@
             c.appendChild(p); setTimeout(()=>p.remove(),1200);
         }
     }
-    // 随机烟花
-    setInterval(() => { if(Math.random()>0.8) spawnFirework(); }, 2000);
+    // 随机烟花 (频率略降)
+    setInterval(() => { if(Math.random()>0.85) spawnFirework(); }, 2500);
+
+    // 雪花
+    function initSnow() {
+        const c = document.getElementById('snowContainer');
+        for(let i=0; i<30; i++) {
+            const d=document.createElement('div'); d.className='snowflake'; d.innerHTML='❄';
+            d.style.left=Math.random()*100+'vw'; d.style.animationDuration=Math.random()*3+5+'s'; 
+            d.style.animationDelay=Math.random()*5+'s'; d.style.opacity=Math.random()*0.5+0.3;
+            d.style.fontSize=Math.random()*10+10+'px'; c.appendChild(d);
+        }
+    }
 
     function initColorUI(cid) {
         const c = document.getElementById(cid);
@@ -383,16 +390,10 @@
     function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
     function calculateVisualTotal() { let m=-1; Object.keys(strokesData).forEach(i=>{ if(strokesData[i]&&strokesData[i].length>0)m=Math.max(m,parseInt(i)); }); return Math.ceil(Math.max(9,m+1)/3)*3; }
     
-    // 米字格+星星背景(仅用于网页预览，导出时单独绘制高清版)
+    // 米字格 HTML 结构
     function getGridBgHTML() {
-        // 使用CSS画星星
-        return `<div class="grid-dot dot-tl" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
-                <div class="grid-dot dot-tr" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
-                <div class="grid-dot dot-bl" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
-                <div class="grid-dot dot-br" style="clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)"></div>
-                <div class="diagonal-1"></div><div class="diagonal-2"></div>
-                <div style="position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(248,178,41,0.3);transform:translateY(-50%)"></div>
-                <div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(248,178,41,0.3);transform:translateX(-50%)"></div>`;
+        return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>
+                <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>`;
     }
 
     function renderDesktopGrids() {
@@ -414,7 +415,7 @@
             div.innerHTML=`<div style="position:absolute;top:0;left:0;width:100%;height:100%">${getGridBgHTML()}</div>`;
             const cvs=document.createElement('canvas'); cvs.width=100; cvs.height=100;
             const ctx=cvs.getContext('2d'); (strokesData[i]||[]).forEach(s=>{ const sc=100/300; drawGradientStroke(ctx,s.points.map(p=>({x:p.x*sc,y:p.y*sc})),s.colorIdx,100*LINE_RATIO); });
-            div.appendChild(cvs); div.innerHTML+=`<div class="mobile-preview-label">${i+1}</div>`;
+            div.appendChild(cvs); div.innerHTML+=`<div class="grid-number-label">${i+1}</div>`;
             elMobilePreviewBar.appendChild(div);
         }
     }
@@ -426,48 +427,108 @@
         redrawMobileCanvas(); updateUI();
     }
 
-    // Canvas Events
-    function setupCanvasEvents(cvs, idx) {
-        let isD=false, pts=[]; const ctx=cvs.getContext('2d');
-        const gp=(e)=>{const r=cvs.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(300/r.width),y:(t.clientY-r.top)*(300/r.height)}};
-        const st=(e)=>{e.preventDefault();if(idx!==currentGridIdx)switchGrid(idx);isD=true;pts=[gp(e)];spawnFirework();};
-        const mv=(e)=>{if(!isD)return;e.preventDefault();const p=gp(e);pts.push(p);const c=gridColorState[idx]||0;ctx.beginPath();if(pts.length>1){ctx.moveTo(pts[pts.length-2].x,pts[pts.length-2].y);ctx.lineTo(p.x,p.y);}else{ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y);}ctx.strokeStyle=COLORS[c%5].s;ctx.lineWidth=BASE_LINE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();};
-        const ed=(e)=>{if(!isD)return;isD=false;if(pts.length>1){if(!strokesData[idx])strokesData[idx]=[];strokesData[idx].push({points:[...pts],colorIdx:(gridColorState[idx]||0)%5});gridColorState[idx]=(gridColorState[idx]||0)+1;redrawGrid(idx);renderMobilePreview();updateUI();}};
-        cvs.addEventListener('mousedown',st);cvs.addEventListener('mousemove',mv);cvs.addEventListener('mouseup',ed);cvs.addEventListener('mouseleave',ed);
-        cvs.addEventListener('touchstart',st,{passive:false});cvs.addEventListener('touchmove',mv,{passive:false});cvs.addEventListener('touchend',ed);
-    }
-    
-    function setupMobileEvents() {
-        elMobileCanvas.width=300; elMobileCanvas.height=300; let isD=false, pts=[]; const ctx=elMobileCanvas.getContext('2d');
-        const gp=(e)=>{const r=elMobileCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(300/r.width),y:(t.clientY-r.top)*(300/r.height)}};
-        const st=(e)=>{e.preventDefault();isD=true;pts=[gp(e)];spawnFirework();};
-        const mv=(e)=>{if(!isD)return;e.preventDefault();const p=gp(e);pts.push(p);const c=gridColorState[currentGridIdx]||0;ctx.beginPath();if(pts.length>1){ctx.moveTo(pts[pts.length-2].x,pts[pts.length-2].y);ctx.lineTo(p.x,p.y);}else{ctx.moveTo(p.x,p.y);ctx.lineTo(p.x,p.y);}ctx.strokeStyle=COLORS[c%5].s;ctx.lineWidth=BASE_LINE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();};
-        const ed=(e)=>{if(!isD)return;isD=false;if(pts.length>1){if(!strokesData[currentGridIdx])strokesData[currentGridIdx]=[];strokesData[currentGridIdx].push({points:[...pts],colorIdx:(gridColorState[currentGridIdx]||0)%5});gridColorState[currentGridIdx]=(gridColorState[currentGridIdx]||0)+1;redrawGrid(currentGridIdx);renderMobilePreview();updateUI();}};
-        elMobileCanvas.addEventListener('touchstart',st,{passive:false});elMobileCanvas.addEventListener('touchmove',mv,{passive:false});elMobileCanvas.addEventListener('touchend',ed);
+    function setupCanvasEvents(canvas, gridIdx) {
+        let isDown=false; let points=[]; const ctx=canvas.getContext('2d');
+        // 关键修复：修正坐标计算
+        const getPos=(e)=>{
+            const r=canvas.getBoundingClientRect(); 
+            const clientX = e.touches?e.touches[0].clientX:e.clientX;
+            const clientY = e.touches?e.touches[0].clientY:e.clientY;
+            return {
+                x:(clientX - r.left) * (BASE_SIZE / r.width),
+                y:(clientY - r.top) * (BASE_SIZE / r.height)
+            };
+        };
+        const start=(e)=>{ e.preventDefault(); if(gridIdx!==currentGridIdx)switchGrid(gridIdx); isDown=true; points=[getPos(e)]; spawnFirework(); };
+        const move=(e)=>{
+            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
+            const cIdx=gridColorState[gridIdx]||0;
+            ctx.beginPath();
+            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
+            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
+            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+        };
+        const end=(e)=>{
+            if(!isDown)return; isDown=false;
+            if(points.length>1) {
+                if(!strokesData[gridIdx]) strokesData[gridIdx]=[];
+                const cIdx=gridColorState[gridIdx]||0;
+                strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
+                gridColorState[gridIdx]=(cIdx+1);
+                redrawGrid(gridIdx); renderMobilePreview(); updateUI();
+            }
+        };
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
+        canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
     }
 
-    function redrawGrid(i){const d=document.getElementById(`d-canvas-${i}`);if(d)redrawCanvas(d,i);if(i===currentGridIdx)redrawMobileCanvas();}
-    function redrawCanvas(c,i){const x=c.getContext('2d');x.clearRect(0,0,300,300);(strokesData[i]||[]).forEach(s=>drawGradientStroke(x,s.points,s.colorIdx,BASE_LINE_WIDTH));}
-    function redrawMobileCanvas(){redrawCanvas(elMobileCanvas,currentGridIdx);}
+    function setupMobileEvents() {
+        elMobileCanvas.width=BASE_SIZE; elMobileCanvas.height=BASE_SIZE;
+        let isDown=false; let points=[]; const ctx=elMobileCanvas.getContext('2d');
+        const getPos=(e)=>{
+            const r=elMobileCanvas.getBoundingClientRect(); 
+            const clientX = e.touches?e.touches[0].clientX:e.clientX;
+            const clientY = e.touches?e.touches[0].clientY:e.clientY;
+            return {x:(clientX-r.left)*(BASE_SIZE/r.width), y:(clientY-r.top)*(BASE_SIZE/r.height)};
+        };
+        const start=(e)=>{ e.preventDefault(); isDown=true; points=[getPos(e)]; spawnFirework(); };
+        const move=(e)=>{
+            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
+            const cIdx=gridColorState[currentGridIdx]||0;
+            ctx.beginPath();
+            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
+            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
+            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+        };
+        const end=(e)=>{
+            if(!isDown)return; isDown=false;
+            if(points.length>1) {
+                if(!strokesData[currentGridIdx]) strokesData[currentGridIdx]=[];
+                const cIdx=gridColorState[currentGridIdx]||0;
+                strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
+                gridColorState[currentGridIdx]=(cIdx+1);
+                redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
+            }
+        };
+        elMobileCanvas.addEventListener('touchstart', start, {passive:false}); elMobileCanvas.addEventListener('touchmove', move, {passive:false}); elMobileCanvas.addEventListener('touchend', end);
+    }
+
+    function redrawGrid(idx) { const d=document.getElementById(`d-canvas-${idx}`); if(d) redrawCanvas(d, idx); if(idx===currentGridIdx) redrawMobileCanvas(); }
+    function redrawCanvas(canvas, idx) {
+        const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height);
+        (strokesData[idx]||[]).forEach(s=>drawGradientStroke(ctx, s.points, s.colorIdx, BASE_LINE_WIDTH));
+    }
+    function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx); }
     
     // 路径渐变
-    function drawGradientStroke(ctx,pts,cIdx,lw){
-        if(pts.length<2)return;const c1=hexToRgb(COLORS[cIdx].s),c2=hexToRgb(COLORS[cIdx].e);
-        ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.shadowBlur=1;ctx.shadowColor=COLORS[cIdx].s;
+    function drawGradientStroke(ctx, points, cIdx, lineWidth) {
+        if(points.length < 2) return;
+        const c1 = hexToRgb(COLORS[cIdx].s);
+        const c2 = hexToRgb(COLORS[cIdx].e);
         
-        const total = pts.length - 1;
-        for(let i=0;i<total;i++){
-            const t=i/total, r=Math.round(c1.r+(c2.r-c1.r)*t), g=Math.round(c1.g+(c2.g-c1.g)*t), b=Math.round(c1.b+(c2.b-c1.b)*t);
-            ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[i+1].x,pts[i+1].y);ctx.strokeStyle=`rgb(${r},${g},${b})`;ctx.stroke();
-        } ctx.shadowBlur=0;
+        ctx.lineWidth = lineWidth; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.shadowBlur = 1; ctx.shadowColor = COLORS[cIdx].s;
+        
+        const totalSegments = points.length - 1;
+        for(let i=0; i<totalSegments; i++) {
+            const t = i / totalSegments; 
+            const r = Math.round(c1.r + (c2.r - c1.r) * t);
+            const g = Math.round(c1.g + (c2.g - c1.g) * t);
+            const b = Math.round(c1.b + (c2.b - c1.b) * t);
+            ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[i+1].x, points[i+1].y);
+            ctx.strokeStyle = `rgb(${r},${g},${b})`; ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
     }
 
     function updateUI() {
-        const i=currentGridIdx,n=(strokesData[i]||[]).length,nc=(gridColorState[i]||0)%5;
-        document.getElementById('curGridNum').innerText=i+1;document.getElementById('curStrokeNum').innerText=n;document.getElementById('mobileCurGridNum').innerText=i+1;document.getElementById('mobileCurStroke').innerText=n;
-        const c1=COLORS[nc].s,c2=COLORS[(nc+1)%5].s;
-        document.getElementById('curColorBox').style.background=c1;document.getElementById('nextColorBox').style.background=c2;document.getElementById('mobileCurColorBox').style.background=c1;document.getElementById('mobileNextColorBox').style.background=c2;
-        const u=(p)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${p}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});u('');u('m-');
+        const idx=currentGridIdx, count=(strokesData[idx]||[]).length, nextC=(gridColorState[idx]||0)%5;
+        document.getElementById('curGridNum').innerText=idx+1; document.getElementById('curStrokeNum').innerText=count;
+        document.getElementById('mobileCurGridNum').innerText=idx+1; document.getElementById('mobileCurStroke').innerText=count;
+        const c1=COLORS[nextC].s, c2=COLORS[(nextC+1)%5].s;
+        document.getElementById('curColorBox').style.background=c1; document.getElementById('nextColorBox').style.background=c2;
+        document.getElementById('mobileCurColorBox').style.background=c1; document.getElementById('mobileNextColorBox').style.background=c2;
+        const u=(p)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${p}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
+        upd(''); upd('m-');
     }
 
     function setupButtons() {
@@ -501,7 +562,6 @@
 
     // --- 豪华版装饰绘制 (导出用) ---
     function drawHollyCorner(ctx, cx, cy, align) {
-        // align: 0=TL, 1=TR, 2=BL, 3=BR
         ctx.save(); ctx.translate(cx, cy);
         if(align==1) ctx.scale(-1,1); if(align==2) ctx.scale(1,-1); if(align==3) ctx.scale(-1,-1);
         
@@ -516,43 +576,60 @@
         ctx.beginPath(); ctx.arc(-12,-8, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(-8,-12, 4, 0, Math.PI*2); ctx.fill();
         
-        // 双铃铛 (金)
+        // 双铃铛
         ctx.fillStyle='#F8B229';
-        // Bell 1
-        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill();
-        // Bell 2
-        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill(); // Left
+        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill(); // Right
         
         ctx.restore();
     }
 
-    // 镂空线条圣诞印章 (压角)
+    // 绘制静态雪花 (用于导出图片)
+    function drawStaticSnow(ctx, w, h) {
+        for(let i=0; i<60; i++) {
+            ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.font=`${Math.random()*15+10}px serif`;
+            ctx.fillText('❄', Math.random()*w, Math.random()*h);
+        }
+    }
+
+    // --- 修改：镂空线条圣诞印章 (压角，真正弧形文字) ---
     function drawSantaSeal(ctx, right, bottom) {
-        const r=45, cx=right-r, cy=bottom-r; // 压角位置
+        const r=45, cx=right-r, cy=bottom-r; // 压角位置 (印章中心在格子外)
         ctx.save();
         
-        // 外圈
+        // 1. 外圈 (红色细线)
         ctx.strokeStyle='#D42426'; ctx.lineWidth=3; 
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
         ctx.beginPath(); ctx.arc(cx, cy, r-4, 0, Math.PI*2); ctx.lineWidth=1; ctx.stroke();
 
-        // 镂空圣诞老人 (线条)
+        // 2. 镂空圣诞老人 (红色线条)
+        ctx.lineWidth=2;
         ctx.beginPath(); 
-        ctx.moveTo(cx-15, cy-5); ctx.lineTo(cx, cy-25); ctx.lineTo(cx+15, cy-5); // 帽子
-        ctx.moveTo(cx+15, cy-5); ctx.arc(cx, cy-5, 15, 0, Math.PI); // 脸沿
-        ctx.moveTo(cx-12, cy+5); ctx.arc(cx, cy+5, 12, 0, Math.PI); // 胡子
+        // 帽子
+        ctx.moveTo(cx-15, cy-8); ctx.lineTo(cx+5, cy-25); ctx.lineTo(cx+20, cy-5); 
+        ctx.moveTo(cx+20, cy-5); ctx.arc(cx+22, cy-3, 3, 0, Math.PI*2); // 帽球
+        // 脸轮廓
+        ctx.moveTo(cx-15, cy-5); ctx.quadraticCurveTo(cx, cy+25, cx+15, cy-5); 
+        // 大胡子
+        ctx.moveTo(cx-12, cy+5); ctx.bezierCurveTo(cx-20, cy+25, cx+20, cy+25, cx+12, cy+5); 
         ctx.stroke();
         
-        // 眼睛
-        ctx.beginPath(); ctx.arc(cx-5, cy, 1, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(cx+5, cy, 1, 0, Math.PI*2); ctx.stroke();
+        // 眼睛鼻子
+        ctx.fillStyle='#D42426';
+        ctx.beginPath(); ctx.arc(cx-5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy+2, 2, 0, Math.PI*2); ctx.fill();
 
-        // 弧形文字
-        ctx.font='bold 14px serif'; ctx.fillStyle='#D42426'; ctx.textAlign='center';
+        // 3. 真正弧形文字
+        ctx.fillStyle='#D42426'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        
+        // 上弧：圣诞快乐
+        ctx.font='bold 14px "SimSun", serif';
         drawTextAlongArc(ctx, "圣诞快乐", cx, cy, r-12, -0.8, 0.8);
         
-        ctx.font='bold 10px sans-serif';
-        drawTextAlongArc(ctx, "Весела Коледа", cx, cy, r-12, 2.5, 3.8); // 下方
+        // 下弧：保加利亚语 (Весела Коледа)
+        ctx.font='bold 9px sans-serif';
+        drawTextAlongArc(ctx, "Весела Коледа", cx, cy, r-12, 2.4, 3.9); 
 
         ctx.restore();
     }
@@ -560,20 +637,12 @@
     function drawTextAlongArc(ctx, str, cx, cy, radius, startAngle, endAngle) {
         const angleStep = (endAngle - startAngle) / (str.length - 1);
         for(let i=0; i<str.length; i++) {
-            const angle = startAngle + i * angleStep;
+            const angle = startAngle + i * angleStep + Math.PI / 2; // +90deg to start from top
             ctx.save();
-            ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
-            ctx.rotate(angle + Math.PI / 2);
+            ctx.translate(cx + Math.cos(angle - Math.PI/2) * radius, cy + Math.sin(angle - Math.PI/2) * radius);
+            ctx.rotate(angle);
             ctx.fillText(str[i], 0, 0);
             ctx.restore();
-        }
-    }
-
-    // 绘制静态雪花
-    function drawStaticSnow(ctx, w, h) {
-        for(let i=0; i<60; i++) {
-            ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.font=`${Math.random()*15+10}px serif`;
-            ctx.fillText('❄', Math.random()*w, Math.random()*h);
         }
     }
 
@@ -584,8 +653,7 @@
         const width = padding*2 + cols*gridSize + (cols-1)*gap;
         const height = padding*2 + hH + fH + rows*(gridSize+gap);
         cvs.width = width * dpr; cvs.height = height * dpr;
-        
-        const ctx=cvs.getContext('2d'); ctx.scale(dpr,dpr);
+        const ctx=cvs.getContext('2d'); ctx.scale(dpr,dpr); 
         
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
         drawStaticSnow(ctx, width, height);
@@ -596,37 +664,37 @@
 
         // 头部
         ctx.fillStyle='#146B3A'; ctx.font='bold 24px serif'; ctx.textAlign='left'; ctx.fillText(`姓名: ${name}`, padding, padding+30);
-        ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; const d=new Date(); ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, width-padding, padding+30);
+        ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; 
+        const now=new Date(); ctx.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, width-padding, padding+30);
+        
         ctx.beginPath(); ctx.moveTo(padding, padding+45); ctx.lineTo(width-padding, padding+45); ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.stroke();
 
         for(let i=0;i<vt;i++){
             const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
-            ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(x,y,gridSize,gridSize);
+            ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fillRect(x,y,gridSize,gridSize);
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
-            // 米字格
+            // 米字格 (淡金)
             ctx.beginPath();
             ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(248,178,41,0.25)'; ctx.stroke();
             
-            // 绘制四个豪华角标
-            drawHollyCorner(ctx, x, y, 0); // TL
-            drawHollyCorner(ctx, x+gridSize, y, 1); // TR
-            drawHollyCorner(ctx, x, y+gridSize, 2); // BL
-            drawHollyCorner(ctx, x+gridSize, y+gridSize, 3); // BR
+            // 顶部两角装饰
+            drawHollyCorner(ctx, x+5, y+5, 0); // TL
+            drawHollyCorner(ctx, x+gridSize-5, y+5, 1); // TR
 
             if(i<totalGrids){
                 const strokes=strokesData[i]||[];
                 strokes.forEach(s=>{
-                    const sc=gridSize/300, sp=s.points.map(p=>({x:p.x*sc,y:p.y*sc}));
+                    const sc=gridSize/300, sp=s.points.map(p=>({x:p.x*sc+x,y:p.y*sc+y}));
                     drawGradientStroke(ctx, sp, s.colorIdx, gridSize*LINE_RATIO);
                 });
-                ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-5, y+gridSize-5);
+                ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
             }
             
-            // 最后一个格子压角章
-            if(i === vt-1) drawSantaSeal(ctx, x+gridSize+10, y+gridSize+10);
+            // 最后一格压角章
+            if(i === vt-1) drawSantaSeal(ctx, x+gridSize, y+gridSize);
         }
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
