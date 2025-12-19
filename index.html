@@ -3,399 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习（圣诞最终修复版）</title>
+    <title>汉字书写练习（圣诞修复版）</title>
     <style>
+        /* --- 全局变量 --- */
         :root {
-            --color-bg: #f0f4f8;
-            --color-red: #D42426;
-            --color-green: #146B3A;
-            --color-gold: #F8B229;
-            --color-text: #2c3e50;
+            --c-bg: #fdfcf5;
+            --c-red: #D42426;
+            --c-green: #146B3A;
+            --c-gold: #F8B229;
+            --c-text: #2c3e50;
+            --c-border: #146B3A;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'SimSun', serif;
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            min-height: 100vh;
-            overflow-x: hidden;
-            /* 防止手机端下拉刷新影响写字 */
-            overscroll-behavior: none; 
+            font-family: "SimSun", "STSong", serif;
+            background-color: var(--c-bg);
+            color: var(--c-text);
+            height: 100vh;
+            overflow: hidden; /* 防止整个页面滚动 */
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- 1. 特效层 (z-index: 1) --- 
-           放在最底层，绝对不会挡住按钮 */
-        #effectsLayer {
+        /* --- 背景特效 (绝对底层，不可点击) --- */
+        #effects-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; pointer-events: none;
+            pointer-events: none; z-index: 0;
+        }
+        .snowflake { position: absolute; color: #b0d4f1; opacity: 0.6; animation: fall linear infinite; }
+        .firework { position: absolute; border-radius: 50%; animation: pop 0.8s ease-out forwards; }
+        @keyframes fall { to { transform: translateY(110vh); } }
+        @keyframes pop { 0% { opacity:1; transform:scale(1); } 100% { opacity:0; transform:translate(var(--tx), var(--ty)); } }
+
+        /* --- 主布局容器 --- */
+        .app-container {
+            position: relative; z-index: 10;
+            display: flex;
+            width: 100%; max-width: 1400px; margin: 0 auto;
+            height: 100%;
+            padding: 10px;
+            gap: 15px;
+        }
+
+        /* --- 侧边栏 (左右) --- */
+        .sidebar {
+            width: 220px;
+            background: #fff;
+            border: 2px solid var(--c-green);
+            border-radius: 10px;
+            display: flex; flex-direction: column;
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .sidebar h2 {
+            font-size: 16px; color: var(--c-green); text-align: center;
+            border-bottom: 2px dashed var(--c-gold);
+            padding-bottom: 8px; margin-bottom: 15px;
+        }
+
+        /* --- 中间主区域 --- */
+        .main-area {
+            flex: 1;
+            display: flex; flex-direction: column;
+            background: #fff;
+            border: 4px solid var(--c-red);
+            border-radius: 12px;
+            position: relative;
             overflow: hidden;
         }
-        .snowflake { position: absolute; top: -20px; color: #b0d4f1; animation: fall linear infinite; }
-        .firework { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: explode 1s ease-out forwards; }
-        @keyframes fall { to { transform: translateY(110vh); } }
-        @keyframes explode { to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 
-        /* --- 2. 主界面层 (z-index: 10) --- 
-           放在上层，确保点击有效 */
-        .container {
-            position: relative; z-index: 10;
-            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px;
+        /* 标题栏 */
+        .header {
+            text-align: center; padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: linear-gradient(to bottom, #fff, #f9f9f9);
+        }
+        .header h1 { font-size: 24px; color: var(--c-red); margin-bottom: 4px; }
+        .header p { font-size: 12px; color: var(--c-green); }
+
+        /* 书写板滚动区 */
+        .board-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex; justify-content: center; align-items: start;
         }
 
-        /* 侧边栏 */
-        .sidebar {
-            width: 240px; background: #fff; border-radius: 12px; padding: 15px;
-            border: 2px solid var(--color-green);
-            display: flex; flex-direction: column; overflow-y: auto;
-        }
-        .sidebar h2 { color: var(--color-green); text-align: center; border-bottom: 2px dashed var(--color-gold); padding-bottom: 5px; margin-bottom: 10px; }
-        .left-sidebar { order: 1; } .right-sidebar { order: 3; }
-
-        /* 中间区域 */
-        .main-content {
-            flex: 1; order: 2; display: flex; flex-direction: column; height: 100%;
-            background: rgba(255, 255, 255, 0.85); /* 半透明背景，透出烟花 */
-            border-radius: 12px; border: 3px solid var(--color-red);
-            backdrop-filter: blur(5px);
+        /* 网格包装器 (电脑端) */
+        .grid-wrapper {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 强制3列 */
+            gap: 15px;
+            width: 100%; max-width: 600px; /* 限制最大宽度，防止乱套 */
         }
 
-        header { text-align: center; padding: 10px; border-bottom: 2px solid var(--color-green); }
-        h1 { color: var(--color-red); font-size: 1.5rem; text-shadow: 1px 1px 0 #fff; }
-        .sub-title { color: var(--color-green); font-size: 0.9rem; margin-top: 5px; }
-
-        .board-container { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 桌面格子布局 */
-        .desktop-grid-wrapper { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; 
-            width: 100%; max-width: 600px; 
-        }
-
-        /* 格子样式 */
+        /* 单个格子 */
         .grid-box {
-            position: relative; width: 100%; aspect-ratio: 1;
-            background: #fff; border: 1px solid var(--color-green); border-radius: 4px;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #fff;
+            border: 1px solid var(--c-green);
+            border-radius: 4px;
             cursor: crosshair;
         }
         .grid-box.active {
-            box-shadow: 0 0 0 3px var(--color-gold); border-color: var(--color-gold);
+            box-shadow: 0 0 0 3px var(--c-gold);
+            border-color: var(--c-gold);
+            z-index: 5;
         }
+
+        /* 米字格线 (绝对定位) */
+        .bg-line { position: absolute; pointer-events: none; z-index: 1; }
+        .l-h { top: 50%; left: 0; width: 100%; height: 1px; background: rgba(248,178,41,0.4); }
+        .l-v { left: 50%; top: 0; height: 100%; width: 1px; background: rgba(248,178,41,0.4); }
+        .l-d1 { width:100%; height:100%; background: linear-gradient(to top right, transparent 49.5%, rgba(248,178,41,0.4) 50%, transparent 50.5%); }
+        .l-d2 { width:100%; height:100%; background: linear-gradient(to top left, transparent 49.5%, rgba(248,178,41,0.4) 50%, transparent 50.5%); }
         
-        /* 米字格线 */
-        .line { position: absolute; background: rgba(248, 178, 41, 0.4); pointer-events: none; }
-        .line-h { top: 50%; left: 0; width: 100%; height: 1px; }
-        .line-v { left: 50%; top: 0; width: 1px; height: 100%; }
-        .line-d1 { top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent 49.5%, rgba(248, 178, 41, 0.4) 50%, transparent 50.5%); }
-        .line-d2 { top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent 49.5%, rgba(248, 178, 41, 0.4) 50%, transparent 50.5%); }
+        /* 装饰点 */
+        .deco-dot { position: absolute; width: 6px; height: 6px; background: var(--c-red); border-radius: 50%; z-index: 2; }
+        .dt-tl { top:5px; left:5px; } .dt-tr { top:5px; right:5px; }
 
-        /* 画布 - 必须 touch-action: none 防止滚动 */
-        canvas.drawing-layer {
+        /* 画布 */
+        canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 20; touch-action: none;
+            z-index: 10; touch-action: none;
         }
 
-        /* 装饰角标 */
-        .corner-deco { position: absolute; font-size: 16px; z-index: 5; pointer-events: none; }
-        .tl { top: 2px; left: 2px; } .tr { top: 2px; right: 2px; }
+        /* 序号 */
+        .idx-label {
+            position: absolute; bottom: 2px; right: 5px; 
+            font-size: 12px; color: var(--c-green); z-index: 5; font-weight: bold; pointer-events: none;
+        }
 
-        /* UI 元素 */
-        .status-box { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; text-align: center; }
-        .color-row { display: flex; justify-content: center; gap: 5px; margin-top: 5px; }
-        .color-dot { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ccc; }
-        .color-dot.active { transform: scale(1.3); border: 2px solid var(--color-gold); }
-
+        /* --- 控件样式 --- */
         .btn {
-            display: block; width: 100%; padding: 10px; margin-bottom: 8px;
-            border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer;
-            font-size: 14px; position: relative; z-index: 100; /* 确保按钮可点 */
+            width: 100%; padding: 10px; margin-bottom: 10px;
+            border: none; border-radius: 6px;
+            font-weight: bold; color: #fff; cursor: pointer;
+            font-size: 14px; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
-        .btn:active { transform: translateY(2px); }
-        .btn-red { background: var(--color-red); }
-        .btn-green { background: var(--color-green); }
-        .btn-gold { background: var(--color-gold); color: #8b4513; }
-        .btn-blue { background: #3498db; }
+        .btn:active { transform: scale(0.98); }
+        .btn-red { background: var(--c-red); }
+        .btn-green { background: var(--c-green); }
+        .btn-gold { background: var(--c-gold); color: #8b4513; text-shadow: none; }
+        
+        .panel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
+        .color-dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 15px; }
+        .c-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid #ddd; }
+        .c-dot.active { transform: scale(1.3); border: 2px solid var(--c-gold); }
 
-        .input-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
-        .input-group input { width: 50px; text-align: center; border: 1px solid var(--color-green); border-radius: 4px; }
+        .add-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        .add-group input { width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
 
-        /* 弹窗 */
+        /* --- 弹窗 --- */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; z-index: 2000;
+            background: rgba(0,0,0,0.5); display: none; z-index: 9999;
             justify-content: center; align-items: center;
         }
-        .modal-content {
-            background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 600px;
-            max-height: 90vh; overflow-y: auto; text-align: center; border: 4px solid var(--color-red);
+        .modal-box {
+            background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px;
+            border: 4px solid var(--c-red); text-align: center; max-height: 90vh; overflow-y: auto;
         }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--color-red); }
+        .close-x { float: right; font-size: 24px; cursor: pointer; color: var(--c-red); }
 
-        /* 手机端布局 */
-        .mobile-view { display: none; width: 100%; flex-direction: column; }
-        .mobile-preview { display: flex; overflow-x: auto; gap: 10px; padding: 10px; background: #fff; border-bottom: 1px solid #ccc; margin-bottom: 10px; }
-        .mobile-preview-item { flex-shrink: 0; width: 60px; height: 60px; border: 1px solid #ccc; position: relative; }
-        .mobile-preview-item.active { border-color: var(--color-red); box-shadow: 0 0 0 2px var(--color-red); }
-        
-        .mobile-canvas-area { width: 300px; height: 300px; margin: 0 auto 15px; position: relative; border: 4px solid var(--color-red); background: #fff; }
-        
-        @media (max-width: 1000px) {
-            .sidebar, .desktop-board-container { display: none !important; }
-            .container { flex-direction: column; padding: 5px; height: auto; min-height: 100vh; }
-            .main-content { padding-bottom: 20px; }
-            .mobile-view { display: flex; }
-            .mobile-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
-            .mobile-controls .btn:last-child { grid-column: span 2; }
+        /* --- 手机端适配 --- */
+        .mobile-only { display: none; }
+
+        @media (max-width: 900px) {
+            body { overflow: auto; height: auto; }
+            .app-container { flex-direction: column; height: auto; padding: 10px; }
+            .sidebar { display: none; } /* 隐藏电脑侧边栏 */
+            .mobile-only { display: flex; flex-direction: column; width: 100%; }
+            
+            .main-area { height: auto; min-height: 60vh; border: 2px solid var(--c-red); }
+            .grid-wrapper { display: none; } /* 隐藏电脑网格 */
+            
+            /* 手机网格显示逻辑 */
+            .mobile-canvas-wrapper {
+                width: 300px; height: 300px; margin: 20px auto;
+                position: relative;
+                border: 4px solid var(--c-green); background: #fff;
+            }
+            
+            .mobile-tools {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+                background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;
+                margin-top: 15px;
+            }
+            
+            .mobile-status {
+                display: flex; justify-content: space-between; padding: 10px; background: var(--c-bg); border-radius: 8px; margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div id="effectsLayer"></div>
+<div id="effects-layer"></div>
 
-<div class="container">
-    <div class="sidebar left-sidebar">
-        <h2>状态 | Status</h2>
-        <div class="status-box">
-            <div>颜色顺序</div>
-            <div class="color-row" id="colorSeqDesktop"></div>
+<div class="app-container">
+    <div class="sidebar">
+        <h2>状态面板</h2>
+        <div class="panel-row">
+            <span>当前格子:</span>
+            <strong style="color:var(--c-red); font-size:18px;" id="pcCurIdx">1</strong>
         </div>
-        <div class="status-box">
-            <div>当前: <span id="curIdx">1</span></div>
-            <div>笔画: <span id="strokeCount">0</span></div>
+        <div class="color-dots" id="pcColorDots"></div>
+        <div style="font-size:12px; color:#666; text-align:center; margin-top:20px;">
+            颜色顺序:<br>红 → 金 → 绿 → 蓝 → 紫
         </div>
     </div>
 
-    <div class="main-content">
-        <header>
+    <div class="main-area">
+        <div class="header">
             <h1>汉字书写练习（圣诞版）</h1>
-            <span class="sub-title">Дъска за писане на китайски йероглифи</span>
-        </header>
-
-        <div class="desktop-board-container board-container">
-            <div class="desktop-grid-wrapper" id="desktopGridWrapper"></div>
+            <p>Весела Коледа - Калиграфия</p>
         </div>
 
-        <div class="mobile-view">
-            <div class="mobile-preview" id="mobilePreviewBar"></div>
-            
-            <div class="mobile-canvas-area" id="mobileCanvasContainer">
+        <div class="board-scroll">
+            <div class="grid-wrapper" id="pcGridList"></div>
+
+            <div class="mobile-only">
+                <div class="mobile-status">
+                    <span>格子: <b id="mobCurIdx">1</b></span>
+                    <span>笔画: <b id="mobStrokeCount">0</b></span>
                 </div>
+                <div id="mobPreviewBar" style="display:flex; overflow-x:auto; gap:5px; padding-bottom:10px; margin-bottom:10px; border-bottom:1px solid #eee;"></div>
+                
+                <div class="mobile-canvas-wrapper" id="mobCanvasArea">
+                    </div>
 
-            <div class="input-group" style="margin-top:10px;">
-                <span style="line-height:30px;">添加格子:</span>
-                <input type="number" id="mobileAddCount" value="9">
-                <button class="btn btn-red" style="width:auto;" onclick="addGrids(true)">+</button>
-            </div>
-
-            <div class="mobile-controls">
-                <button class="btn btn-green" onclick="prevGrid()">上一格</button>
-                <button class="btn btn-green" onclick="nextGrid()">下一格</button>
-                <button class="btn btn-gold" onclick="undo()">撤销</button>
-                <button class="btn btn-red" onclick="clearGrid()">清空当前</button>
-                <button class="btn btn-blue" onclick="exportImg()">导出图片</button>
-                <button class="btn btn-gold" onclick="showOverview()">整体预览</button>
+                <div class="mobile-tools">
+                    <button class="btn btn-green" onclick="prevGrid()">上一格</button>
+                    <button class="btn btn-green" onclick="nextGrid()">下一格</button>
+                    <button class="btn btn-gold" onclick="undo()">撤销</button>
+                    <button class="btn btn-red" onclick="clearCurrent()">清空</button>
+                    <button class="btn btn-red" style="grid-column:span 2" onclick="addGrid()">+ 添加新格子</button>
+                    <button class="btn btn-green" style="grid-column:span 2" onclick="openExport()">导出图片</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="sidebar right-sidebar">
-        <h2>工具 | Tools</h2>
-        <div class="input-group">
-            <input type="number" id="pcAddCount" value="9">
-            <button class="btn btn-red" style="width:auto;" onclick="addGrids(false)">添加格子</button>
+    <div class="sidebar">
+        <h2>工具箱</h2>
+        <div class="add-group">
+            <input type="number" id="addNum" value="3" min="1">
+            <button class="btn btn-red" style="margin:0; flex:1;" onclick="addGridPc()">添加格子</button>
         </div>
+        <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
         <button class="btn btn-gold" onclick="undo()">撤销上一笔</button>
-        <button class="btn btn-red" onclick="clearGrid()">清空所选</button>
-        <button class="btn btn-red" onclick="resetAll()">清空所有</button>
-        <button class="btn btn-blue" onclick="exportImg()">导出图片</button>
-        <button class="btn btn-gold" onclick="showOverview()">整体预览</button>
+        <button class="btn btn-red" onclick="clearCurrent()">清空当前格</button>
+        <button class="btn btn-red" onclick="clearAll()">清空所有</button>
+        <button class="btn btn-green" style="margin-top:20px;" onclick="openExport()">导出图片</button>
     </div>
 </div>
 
 <div class="modal" id="exportModal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">&times;</span>
-        <h3 style="color:#D42426; margin-bottom:10px;">导出图片</h3>
-        <input type="text" id="exportName" placeholder="输入姓名" style="padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
-        <button class="btn btn-green" onclick="generateImage()" style="width:50%; margin:0 auto;">生成贺卡</button>
-        <div id="imgPreview" style="margin-top:15px;"></div>
-    </div>
-</div>
-
-<div class="modal" id="overviewModal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="document.getElementById('overviewModal').style.display='none'">&times;</span>
-        <h3>整体预览</h3>
-        <div id="overviewList" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;"></div>
+    <div class="modal-box">
+        <span class="close-x" onclick="document.getElementById('exportModal').style.display='none'">&times;</span>
+        <h3 style="color:var(--c-red); margin-bottom:15px;">生成圣诞贺卡</h3>
+        <input type="text" id="exportName" placeholder="请输入姓名" style="padding:10px; border:1px solid #ccc; border-radius:4px; font-size:16px; text-align:center;">
+        <br><br>
+        <button class="btn btn-green" style="width:120px; display:inline-block;" onclick="doGenerate()">生成</button>
+        <div id="exportResult" style="margin-top:20px;"></div>
     </div>
 </div>
 
 <script>
-    // --- 配置 ---
+    // --- 数据状态 ---
     const COLORS = [
-        { s: '#D42426', e: '#FFCCCC' }, // 红
-        { s: '#F8B229', e: '#FFF8E0' }, // 金
-        { s: '#146B3A', e: '#D0F0D0' }, // 绿
-        { s: '#1E90FF', e: '#D0E8FF' }, // 蓝
-        { s: '#800080', e: '#E6CCFF' }  // 紫
+        { s: '#D42426', e: '#FFC0C0' }, // 红
+        { s: '#F8B229', e: '#FFF0C0' }, // 金
+        { s: '#146B3A', e: '#C0E0C0' }, // 绿
+        { s: '#1E90FF', e: '#C0D0FF' }, // 蓝
+        { s: '#800080', e: '#E0C0FF' }  // 紫
     ];
     
     let state = {
         total: 9,
         current: 0,
-        strokes: {}, // { 0: [{points:[], colorIdx:0}] }
-        colorState: {} // { 0: 2 }
+        strokes: {}, // key: gridIndex, val: [{points:[], colorIdx:0}]
+        colorState: {} // key: gridIndex, val: nextColorIndex
     };
 
-    const SIZE = 300; // 画布逻辑大小
+    const SIZE = 300; // 统一逻辑分辨率
 
     // --- 初始化 ---
-    window.onload = () => {
-        initEffects();
-        initUI();
+    window.onload = function() {
+        initSnow();
         render();
+        // 自动烟花
+        setInterval(() => { if(Math.random()>0.7) spawnFirework(); }, 2000);
     };
 
-    // --- 核心渲染逻辑 ---
+    // --- 渲染引擎 ---
     function render() {
         renderDesktop();
         renderMobile();
-        updateStatus();
+        updateUI();
     }
 
     function renderDesktop() {
-        const wrap = document.getElementById('desktopGridWrapper');
+        const wrap = document.getElementById('pcGridList');
         wrap.innerHTML = '';
-        for(let i=0; i<state.total; i++) {
-            const div = document.createElement('div');
-            div.className = `grid-box ${i === state.current ? 'active' : ''}`;
-            div.onclick = () => { state.current = i; render(); };
+        
+        for (let i = 0; i < state.total; i++) {
+            const box = document.createElement('div');
+            box.className = `grid-box ${i === state.current ? 'active' : ''}`;
+            box.onclick = () => { state.current = i; render(); };
             
-            // 背景结构
-            div.innerHTML = `
-                <div class="line line-h"></div><div class="line line-v"></div>
-                <div class="line line-d1"></div><div class="line line-d2"></div>
-                <div class="corner-deco tl">🍒</div><div class="corner-deco tr">🍒</div>
-                <div style="position:absolute; bottom:2px; right:5px; font-size:12px; color:#146B3A; font-weight:bold;">${i+1}</div>
+            // 背景层
+            box.innerHTML = `
+                <div class="bg-line l-h"></div><div class="bg-line l-v"></div>
+                <div class="bg-line l-d1"></div><div class="bg-line l-d2"></div>
+                <div class="deco-dot dt-tl"></div><div class="deco-dot dt-tr"></div>
+                <div class="idx-label">${i+1}</div>
             `;
             
-            // 画布
+            // 画布层
             const cvs = document.createElement('canvas');
-            cvs.className = 'drawing-layer';
             cvs.width = SIZE; cvs.height = SIZE;
-            setupCanvas(cvs, i);
-            drawStrokes(cvs, i);
+            drawGridContent(cvs, i);
+            setupTouch(cvs, i); // 绑定事件
             
-            div.appendChild(cvs);
-            wrap.appendChild(div);
+            box.appendChild(cvs);
+            wrap.appendChild(box);
         }
     }
 
     function renderMobile() {
-        const container = document.getElementById('mobileCanvasContainer');
-        container.innerHTML = '';
+        const wrap = document.getElementById('mobCanvasArea');
+        wrap.innerHTML = ''; // 清空
         
-        // 当前大格子
-        const div = document.createElement('div');
-        div.style.position = 'relative'; div.style.width='100%'; div.style.height='100%';
-        div.innerHTML = `
-            <div class="line line-h"></div><div class="line line-v"></div>
-            <div class="line line-d1"></div><div class="line line-d2"></div>
-            <div class="corner-deco tl">🍒</div><div class="corner-deco tr">🍒</div>
+        // 只渲染当前格子
+        const i = state.current;
+        const box = document.createElement('div');
+        box.style.position = 'relative'; box.style.width='100%'; box.style.height='100%';
+        
+        box.innerHTML = `
+            <div class="bg-line l-h"></div><div class="bg-line l-v"></div>
+            <div class="bg-line l-d1"></div><div class="bg-line l-d2"></div>
+            <div class="deco-dot dt-tl"></div><div class="deco-dot dt-tr"></div>
         `;
-        const cvs = document.createElement('canvas');
-        cvs.className = 'drawing-layer';
-        cvs.width = SIZE; cvs.height = SIZE;
-        setupCanvas(cvs, state.current);
-        drawStrokes(cvs, state.current);
         
-        div.appendChild(cvs);
-        container.appendChild(div);
+        const cvs = document.createElement('canvas');
+        cvs.width = SIZE; cvs.height = SIZE;
+        drawGridContent(cvs, i);
+        setupTouch(cvs, i);
+        
+        box.appendChild(cvs);
+        wrap.appendChild(box);
 
-        // 预览条
-        const bar = document.getElementById('mobilePreviewBar');
+        // 手机预览条
+        const bar = document.getElementById('mobPreviewBar');
         bar.innerHTML = '';
-        for(let i=0; i<state.total; i++) {
+        for(let k=0; k<state.total; k++){
             const item = document.createElement('div');
-            item.className = `mobile-preview-item ${i===state.current?'active':''}`;
-            item.onclick = () => { state.current = i; render(); };
+            item.style.flexShrink='0'; item.style.width='50px'; item.style.height='50px';
+            item.style.border = k===state.current ? '2px solid red' : '1px solid #ccc';
             
             const pCvs = document.createElement('canvas');
-            pCvs.width = 60; pCvs.height = 60;
-            pCvs.style.width='100%'; pCvs.style.height='100%';
-            drawStrokes(pCvs, i, 60/SIZE); // 缩放绘制
-            
+            pCvs.width=50; pCvs.height=50; pCvs.style.width='100%';
+            drawGridContent(pCvs, k, 50/SIZE);
             item.appendChild(pCvs);
-            // 序号
-            const num = document.createElement('div');
-            num.innerText = i+1;
-            num.style.position='absolute'; num.style.bottom='0'; num.style.right='2px'; num.style.fontSize='10px';
-            item.appendChild(num);
-            
+            item.onclick = ()=>{ state.current=k; render(); };
             bar.appendChild(item);
         }
     }
 
-    // --- 画布事件处理 (修复偏移和滚动) ---
-    function setupCanvas(cvs, idx) {
+    function drawGridContent(cvs, idx, scale = 1) {
         const ctx = cvs.getContext('2d');
+        ctx.clearRect(0,0,cvs.width,cvs.height);
+        
+        const strokes = state.strokes[idx] || [];
+        strokes.forEach(s => {
+            drawStroke(ctx, s.points, s.colorIdx, 12 * scale);
+        });
+    }
+
+    // --- 核心绘画逻辑 (路径渐变) ---
+    function drawStroke(ctx, points, cIdx, lw) {
+        if(points.length < 2) return;
+        const c1 = hexToRgb(COLORS[cIdx%5].s);
+        const c2 = hexToRgb(COLORS[cIdx%5].e);
+        
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        
+        for(let i=0; i<points.length-1; i++) {
+            const t = i / (points.length-1);
+            const r = c1.r + (c2.r-c1.r)*t;
+            const g = c1.g + (c2.g-c1.g)*t;
+            const b = c1.b + (c2.b-c1.b)*t;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.lineTo(points[i+1].x, points[i+1].y);
+            ctx.stroke();
+        }
+    }
+
+    // --- 事件处理 (解决偏移) ---
+    function setupTouch(cvs, idx) {
         let isDown = false;
         let points = [];
+        const ctx = cvs.getContext('2d');
 
-        // 统一坐标获取
-        const getPoint = (e) => {
-            const rect = cvs.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: (clientX - rect.left) * (cvs.width / rect.width),
-                y: (clientY - rect.top) * (cvs.height / rect.height)
-            };
+        const getPos = (e) => {
+            const r = cvs.getBoundingClientRect();
+            const cx = e.touches ? e.touches[0].clientX : e.clientX;
+            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            // 考虑缩放比例 scale
+            const scaleX = cvs.width / r.width;
+            const scaleY = cvs.height / r.height;
+            return { x: (cx - r.left)*scaleX, y: (cy - r.top)*scaleY };
         };
 
         const start = (e) => {
-            if(e.cancelable) e.preventDefault(); // 阻止滚动
+            e.preventDefault();
             isDown = true;
-            points = [getPoint(e)];
-            spawnFirework(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
+            if(state.current !== idx) { state.current = idx; render(); return; } // 切换格子
+            points = [getPos(e)];
+            spawnFirework(); // 点击出烟花
         };
 
         const move = (e) => {
             if(!isDown) return;
-            if(e.cancelable) e.preventDefault();
-            const p = getPoint(e);
+            e.preventDefault();
+            const p = getPos(e);
             points.push(p);
             
-            // 实时绘制
-            const cIdx = state.colorState[idx] || 0;
+            // 实时绘制当前笔画
+            const cIdx = (state.colorState[idx] || 0) % 5;
             ctx.beginPath();
-            if(points.length > 1) {
+            ctx.strokeStyle = COLORS[cIdx].s;
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            if(points.length>1) {
                 ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
                 ctx.lineTo(p.x, p.y);
             } else {
                 ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y);
             }
-            ctx.strokeStyle = COLORS[cIdx % 5].s;
-            ctx.lineWidth = 12;
-            ctx.lineCap = 'round';
             ctx.stroke();
         };
 
-        const end = () => {
+        const end = (e) => {
             if(!isDown) return;
             isDown = false;
             if(points.length > 1) {
                 if(!state.strokes[idx]) state.strokes[idx] = [];
-                const cIdx = state.colorState[idx] || 0;
-                state.strokes[idx].push({
-                    points: [...points],
-                    colorIdx: cIdx % 5
-                });
-                state.colorState[idx] = (cIdx + 1);
-                // 仅重绘，不需完全render
-                render(); 
+                const c = state.colorState[idx] || 0;
+                state.strokes[idx].push({ points: [...points], colorIdx: c % 5 });
+                state.colorState[idx] = c + 1;
+                render(); // 重绘以应用渐变
             }
         };
 
@@ -403,328 +472,244 @@
         cvs.addEventListener('mousemove', move);
         cvs.addEventListener('mouseup', end);
         cvs.addEventListener('mouseleave', end);
-        
-        cvs.addEventListener('touchstart', start, {passive: false});
-        cvs.addEventListener('touchmove', move, {passive: false});
+        cvs.addEventListener('touchstart', start, {passive:false});
+        cvs.addEventListener('touchmove', move, {passive:false});
         cvs.addEventListener('touchend', end);
     }
 
-    // --- 绘制笔画 (支持渐变) ---
-    function drawStrokes(cvs, idx, scale = 1) {
-        const ctx = cvs.getContext('2d');
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
-        
-        const strokes = state.strokes[idx] || [];
-        strokes.forEach(stroke => {
-            const pts = stroke.points;
-            if(pts.length < 2) return;
-            
-            const color = COLORS[stroke.colorIdx];
-            const c1 = hexToRgb(color.s);
-            const c2 = hexToRgb(color.e);
-            
-            ctx.lineWidth = 12 * scale;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            const len = pts.length - 1;
-            for(let i=0; i<len; i++) {
-                const t = i / len;
-                const r = Math.round(c1.r + (c2.r - c1.r) * t);
-                const g = Math.round(c1.g + (c2.g - c1.g) * t);
-                const b = Math.round(c1.b + (c2.b - c1.b) * t);
-                
-                ctx.beginPath();
-                ctx.strokeStyle = `rgb(${r},${g},${b})`;
-                ctx.moveTo(pts[i].x * scale, pts[i].y * scale);
-                ctx.lineTo(pts[i+1].x * scale, pts[i+1].y * scale);
-                ctx.stroke();
-            }
-        });
+    // --- 按钮逻辑 ---
+    function addGridPc() {
+        const v = parseInt(document.getElementById('addNum').value)||1;
+        state.total += v; render();
     }
-
-    // --- 逻辑功能 ---
-    function addGrids(isMobile) {
-        const id = isMobile ? 'mobileAddCount' : 'pcAddCount';
-        const val = parseInt(document.getElementById(id).value) || 1;
-        state.total += val;
-        render();
-        spawnFirework(window.innerWidth/2, window.innerHeight/2);
-    }
+    function addGrid() { state.total++; render(); }
     
-    function undo() {
-        const s = state.strokes[state.current];
-        if(s && s.length) {
-            s.pop();
-            if(state.colorState[state.current] > 0) state.colorState[state.current]--;
-            render();
-        }
-    }
-    
-    function clearGrid() {
-        if(confirm('清空当前格子？')) {
+    function clearCurrent() {
+        if(confirm('清除当前格子?')) {
             state.strokes[state.current] = [];
             state.colorState[state.current] = 0;
             render();
         }
     }
-    
-    function resetAll() {
-        if(confirm('清空所有内容？')) {
-            state.strokes = {};
-            state.colorState = {};
-            state.current = 0;
+    function clearAll() {
+        if(confirm('清空所有?')) {
+            state.strokes = {}; state.colorState = {}; state.current = 0; render();
+        }
+    }
+    function undo() {
+        const s = state.strokes[state.current];
+        if(s && s.length) {
+            s.pop();
+            if(state.colorState[state.current]>0) state.colorState[state.current]--;
             render();
         }
     }
-    
-    function nextGrid() {
-        if(state.current < state.total - 1) { state.current++; render(); }
-    }
-    
-    function prevGrid() {
-        if(state.current > 0) { state.current--; render(); }
-    }
+    function prevGrid() { if(state.current>0) {state.current--; render();} }
+    function nextGrid() { if(state.current<state.total-1) {state.current++; render();} }
 
-    function updateStatus() {
-        document.getElementById('curIdx').innerText = state.current + 1;
-        document.getElementById('strokeCount').innerText = (state.strokes[state.current]||[]).length;
+    function updateUI() {
+        document.getElementById('pcCurIdx').innerText = state.current+1;
+        document.getElementById('mobCurIdx').innerText = state.current+1;
         
-        // 更新颜色点
-        const cSeq = document.getElementById('colorSeqDesktop');
-        cSeq.innerHTML = '';
+        // 颜色点更新
+        const cBox = document.getElementById('pcColorDots');
+        cBox.innerHTML = '';
+        const curC = (state.colorState[state.current] || 0) % 5;
         COLORS.forEach((c, i) => {
             const d = document.createElement('div');
-            d.className = 'color-dot';
-            d.style.background = c.s;
-            const nextColorIndex = (state.colorState[state.current] || 0) % 5;
-            if(i === nextColorIndex) d.className += ' active';
-            cSeq.appendChild(d);
+            d.className = `c-dot ${i===curC ? 'active' : ''}`;
+            d.style.backgroundColor = c.s;
+            cBox.appendChild(d);
         });
     }
 
-    function initUI() {
-        document.getElementById('totalGridNum').innerText = state.total;
-        document.getElementById('totalGridNumMobile').innerText = state.total;
-    }
-
-    // --- 特效逻辑 ---
-    function initEffects() {
-        // 雪花
-        const snow = document.getElementById('snowContainer');
+    // --- 特效 ---
+    function initSnow() {
+        const c = document.getElementById('effects-layer');
         for(let i=0; i<30; i++) {
-            const s = document.createElement('div');
-            s.className = 'snowflake'; s.innerText = '❄';
-            s.style.left = Math.random()*100 + '%';
-            s.style.animationDuration = (Math.random()*5+5) + 's';
-            s.style.fontSize = (Math.random()*10+10) + 'px';
-            snow.appendChild(s);
+            const s = document.createElement('div'); s.className='snowflake'; s.innerHTML='❄';
+            s.style.left = Math.random()*100+'%'; 
+            s.style.animationDuration = (Math.random()*5+5)+'s';
+            s.style.fontSize = (Math.random()*15+10)+'px';
+            c.appendChild(s);
         }
-        
-        // 自动烟花
-        setInterval(() => {
-            if(Math.random() > 0.7) spawnFirework(Math.random()*window.innerWidth, Math.random()*window.innerHeight);
-        }, 1500);
     }
-
-    function spawnFirework(x, y) {
-        const c = document.getElementById('effectsLayer');
-        const colors = ['#D42426', '#F8B229', '#146B3A', '#1E90FF'];
-        for(let i=0; i<10; i++) {
-            const p = document.createElement('div');
-            p.className = 'firework';
-            p.style.left = x + 'px'; p.style.top = y + 'px';
-            p.style.background = colors[Math.floor(Math.random()*colors.length)];
-            const angle = Math.random() * Math.PI * 2;
-            const dist = Math.random() * 100 + 50;
-            p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
-            p.style.setProperty('--ty', Math.sin(angle)*dist + 'px');
-            c.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
+    function spawnFirework() {
+        const c = document.getElementById('effects-layer');
+        const x = Math.random()*100 + '%', y = Math.random()*80 + '%';
+        const color = COLORS[Math.floor(Math.random()*5)].s;
+        for(let i=0; i<15; i++) {
+            const p = document.createElement('div'); p.className='firework';
+            p.style.left=x; p.style.top=y; p.style.background=color;
+            const ang = Math.random()*Math.PI*2, dist=100;
+            p.style.setProperty('--tx', Math.cos(ang)*dist+'px');
+            p.style.setProperty('--ty', Math.sin(ang)*dist+'px');
+            c.appendChild(p); setTimeout(()=>p.remove(), 1000);
         }
     }
 
-    // --- 导出逻辑 (带章和冬青) ---
-    function exportImg() {
+    // --- 导出逻辑 (豪华版) ---
+    function openExport() {
         document.getElementById('exportModal').style.display = 'flex';
-        document.getElementById('imgPreview').innerHTML = '生成中...';
+        document.getElementById('exportResult').innerHTML = '生成中...';
     }
 
-    function generateImage() {
-        const name = document.getElementById('exportName').value;
-        const cols = 3;
-        const rows = Math.ceil(state.total / 3);
-        const gap = 10;
-        const size = 150; // 导出高清基准
-        const padding = 40;
-        const headerH = 60;
-        const footerH = 100; // 留出印章空间
+    function doGenerate() {
+        const name = document.getElementById('exportName').value || ' ';
+        // 计算行数
+        let maxIdx = -1;
+        Object.keys(state.strokes).forEach(k => { if(state.strokes[k].length) maxIdx=Math.max(maxIdx, parseInt(k)); });
+        const visualTotal = Math.max(9, Math.ceil((maxIdx+1)/3)*3);
+        const rows = visualTotal/3;
         
+        // 导出参数
+        const dpr = 4;
+        const gridSize = 150;
+        const padding = 50; const gap = 15;
+        const headH = 80; const footH = 100; // 底部留白给印章
+        const W = padding*2 + 3*gridSize + 2*gap;
+        const H = padding*2 + headH + footH + rows*(gridSize+gap);
+
         const cvs = document.createElement('canvas');
-        const W = padding*2 + cols*size + (cols-1)*gap;
-        const H = padding*2 + headerH + footerH + rows*(size+gap);
-        
-        cvs.width = W * 2; cvs.height = H * 2; // 2倍高清
+        cvs.width = W*dpr; cvs.height = H*dpr;
         const ctx = cvs.getContext('2d');
-        ctx.scale(2, 2);
-        
-        // 背景
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, W, H);
+        ctx.scale(dpr, dpr);
+
+        // 白底
+        ctx.fillStyle = '#fff'; ctx.fillRect(0,0,W,H);
         
         // 静态雪花背景
-        ctx.fillStyle = 'rgba(176, 212, 241, 0.4)';
-        for(let i=0; i<50; i++) {
-            ctx.font = Math.random()*20+10 + 'px serif';
+        for(let i=0; i<60; i++) {
+            ctx.fillStyle = 'rgba(200,230,250,0.5)';
+            ctx.font = Math.random()*20+10+'px serif';
             ctx.fillText('❄', Math.random()*W, Math.random()*H);
         }
 
         // 边框
-        ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
-        ctx.strokeRect(10, 10, W-20, H-20);
-        ctx.strokeStyle = '#F8B229'; ctx.lineWidth = 2;
-        ctx.strokeRect(16, 16, W-32, H-32);
+        ctx.strokeStyle = '#D42426'; ctx.lineWidth=4; ctx.strokeRect(10,10,W-20,H-20);
+        ctx.strokeStyle = '#F8B229'; ctx.lineWidth=2; ctx.strokeRect(16,16,W-32,H-32);
 
-        // 标题信息
-        ctx.fillStyle = '#146B3A'; ctx.font = 'bold 24px serif'; ctx.textAlign = 'left';
-        ctx.fillText(`姓名: ${name}`, padding, padding + 30);
-        ctx.fillStyle = '#D42426'; ctx.font = '16px serif'; ctx.textAlign = 'right';
+        // 标题文字
+        ctx.fillStyle = '#146B3A'; ctx.font = 'bold 24px serif'; ctx.textAlign='left';
+        ctx.fillText(`姓名: ${name}`, padding, padding+40);
         const d = new Date();
-        ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, W - padding, padding + 30);
+        ctx.fillStyle = '#D42426'; ctx.textAlign='right';
+        ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, W-padding, padding+40);
 
         // 绘制格子
-        for(let i=0; i<state.total; i++) {
-            const r = Math.floor(i / cols);
-            const c = i % cols;
-            const x = padding + c * (size + gap);
-            const y = padding + headerH + r * (size + gap);
-            
-            // 格子框
-            ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(x, y, size, size);
-            ctx.strokeStyle = '#146B3A'; ctx.lineWidth = 1; ctx.strokeRect(x, y, size, size);
+        for(let i=0; i<visualTotal; i++) {
+            const r = Math.floor(i/3); const c = i%3;
+            const x = padding + c*(gridSize+gap);
+            const y = padding + headH + r*(gridSize+gap);
+
+            // 格子底
+            ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(x,y,gridSize,gridSize);
+            ctx.strokeStyle = '#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
             // 米字线
             ctx.beginPath();
-            ctx.moveTo(x, y+size/2); ctx.lineTo(x+size, y+size/2);
-            ctx.moveTo(x+size/2, y); ctx.lineTo(x+size/2, y+size);
-            ctx.moveTo(x, y); ctx.lineTo(x+size, y+size);
-            ctx.moveTo(x+size, y); ctx.lineTo(x, y+size);
-            ctx.strokeStyle = 'rgba(248, 178, 41, 0.3)'; ctx.lineWidth = 1; ctx.stroke();
-            
-            // 角落装饰 (左上 + 右上)
-            drawHolly(ctx, x+5, y+5, 0); // TL
-            drawHolly(ctx, x+size-5, y+5, 1); // TR
+            ctx.moveTo(x, y+gridSize/2); ctx.lineTo(x+gridSize, y+gridSize/2);
+            ctx.moveTo(x+gridSize/2, y); ctx.lineTo(x+gridSize/2, y+gridSize);
+            ctx.moveTo(x,y); ctx.lineTo(x+gridSize, y+gridSize);
+            ctx.moveTo(x+gridSize,y); ctx.lineTo(x, y+gridSize);
+            ctx.strokeStyle = 'rgba(248,178,41,0.3)'; ctx.stroke();
+
+            // 上方两角装饰 (冬青)
+            drawHolly(ctx, x+5, y+5, 0); 
+            drawHolly(ctx, x+gridSize-5, y+5, 1);
 
             // 笔画
             if(state.strokes[i]) {
-                const sStrokes = state.strokes[i];
-                const scale = size / SIZE;
-                sStrokes.forEach(s => {
-                    const pts = s.points.map(p => ({x: p.x*scale + x, y: p.y*scale + y}));
-                    drawExportStroke(ctx, pts, s.colorIdx, 12 * scale);
+                const scale = gridSize/SIZE;
+                state.strokes[i].forEach(s => {
+                    const mappedPts = s.points.map(p => ({x: p.x*scale+x, y: p.y*scale+y}));
+                    drawStroke(ctx, mappedPts, s.colorIdx, 12*scale); // 复用之前的渐变绘制逻辑，注意上下文是导出ctx
                 });
             }
+            
+            // 序号
+            ctx.fillStyle = '#D42426'; ctx.font='12px sans-serif'; ctx.textAlign='right';
+            ctx.fillText(i+1, x+gridSize-5, y+gridSize-5);
         }
 
         // 印章 (右下角空白处)
-        drawSeal(ctx, W - 60, H - 60);
+        drawSeal(ctx, W-70, H-70);
 
-        const img = document.getElementById('exportImgResult');
-        img.src = cvs.toDataURL();
-        img.style.display = 'block';
+        const img = document.getElementById('exportResult');
+        img.innerHTML = '';
+        const imageObj = new Image();
+        imageObj.src = cvs.toDataURL();
+        imageObj.style.maxWidth = '100%';
+        imageObj.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+        img.appendChild(imageObj);
+        
+        // 提示
+        const tip = document.createElement('p');
+        tip.innerHTML = '长按保存图片 / Натиснете продължително за запазване';
+        tip.style.fontSize='12px'; tip.style.color='#666';
+        img.prepend(tip);
     }
 
-    function drawExportStroke(ctx, pts, cIdx, lw) {
-        if(pts.length<2) return;
-        const c1 = hexToRgb(COLORS[cIdx].s);
-        const c2 = hexToRgb(COLORS[cIdx].e);
-        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        for(let i=0; i<pts.length-1; i++) {
-            const t = i / (pts.length-1);
-            const r = Math.round(c1.r + (c2.r-c1.r)*t);
-            const g = Math.round(c1.g + (c2.g-c1.g)*t);
-            const b = Math.round(c1.b + (c2.b-c1.b)*t);
-            ctx.beginPath();
-            ctx.strokeStyle = `rgb(${r},${g},${b})`;
-            ctx.moveTo(pts[i].x, pts[i].y);
-            ctx.lineTo(pts[i+1].x, pts[i+1].y);
-            ctx.stroke();
-        }
+    function hexToRgb(hex) {
+        const b = parseInt(hex.slice(1), 16);
+        return { r:(b>>16)&255, g:(b>>8)&255, b:b&255 };
     }
 
+    // 绘制冬青 (type: 0左, 1右)
     function drawHolly(ctx, x, y, type) {
         ctx.save(); ctx.translate(x, y);
-        if(type === 1) ctx.scale(-1, 1);
-        // 叶子
-        ctx.fillStyle = '#146B3A';
-        ctx.beginPath(); ctx.ellipse(0, 0, 8, 4, Math.PI/4, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(0, 0, 8, 4, -Math.PI/4, 0, Math.PI*2); ctx.fill();
-        // 果子
-        ctx.fillStyle = '#D42426';
-        ctx.beginPath(); ctx.arc(-2, -2, 3, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(2, -2, 3, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(0, 2, 3, 0, Math.PI*2); ctx.fill();
+        if(type===1) ctx.scale(-1, 1);
+        // 叶
+        ctx.fillStyle='#146B3A';
+        ctx.beginPath(); ctx.ellipse(0,0, 10, 5, Math.PI/4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0,0, 10, 5, -Math.PI/4, 0, Math.PI*2); ctx.fill();
+        // 果
+        ctx.fillStyle='#D42426';
+        ctx.beginPath(); ctx.arc(-3,-3, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(3,-3, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0,2, 3, 0, Math.PI*2); ctx.fill();
         // 铃铛
-        ctx.fillStyle = '#F8B229';
-        ctx.beginPath(); ctx.arc(0, 8, 4, 0, Math.PI, true); ctx.lineTo(-4, 12); ctx.lineTo(4, 12); ctx.fill();
+        ctx.fillStyle='#F8B229';
+        ctx.beginPath(); ctx.arc(0, 8, 4, 0, Math.PI, true); ctx.fill();
         ctx.restore();
     }
 
+    // 绘制印章
     function drawSeal(ctx, x, y) {
-        const r = 40;
+        const r = 45;
         ctx.save(); ctx.translate(x, y);
         
-        // 镂空外圈
-        ctx.strokeStyle = '#D42426'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(0, 0, r-3, 0, Math.PI*2); ctx.stroke();
+        // 红圈
+        ctx.strokeStyle='#D42426'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(0,0, r, 0, Math.PI*2); ctx.stroke();
+        ctx.lineWidth=1; ctx.beginPath(); ctx.arc(0,0, r-4, 0, Math.PI*2); ctx.stroke();
 
-        // 镂空圣诞老人线条
-        ctx.beginPath();
-        ctx.moveTo(-10, -5); ctx.lineTo(0, -20); ctx.lineTo(10, -5); // 帽
-        ctx.moveTo(-10, -5); ctx.quadraticCurveTo(0, 15, 10, -5); // 脸
-        ctx.moveTo(-8, 5); ctx.quadraticCurveTo(0, 20, 8, 5); // 胡子
+        // 镂空老人 (简笔)
+        ctx.beginPath(); ctx.lineWidth=2;
+        ctx.moveTo(-15,-5); ctx.quadraticCurveTo(0,-25, 15,-5); // 帽
+        ctx.moveTo(15,-5); ctx.arc(20,-3, 3, 0, Math.PI*2); // 球
+        ctx.moveTo(-15,-5); ctx.quadraticCurveTo(0, 25, 15,-5); // 脸
+        ctx.moveTo(-12,5); ctx.bezierCurveTo(-20,25, 20,25, 12,5); // 胡子
         ctx.stroke();
-        ctx.beginPath(); ctx.arc(-3, -2, 1, 0, Math.PI*2); ctx.stroke(); // 眼
-        ctx.beginPath(); ctx.arc(3, -2, 1, 0, Math.PI*2); ctx.stroke(); 
-
+        
         // 弧形文字
-        ctx.fillStyle = '#D42426'; ctx.textAlign = 'center'; ctx.textBaseline='middle';
-        ctx.font = 'bold 12px serif';
-        
-        // 上：圣诞快乐
-        const txt1 = "圣诞快乐";
-        for(let i=0; i<txt1.length; i++) {
-            ctx.save(); ctx.rotate(-0.5 + i*0.35);
-            ctx.fillText(txt1[i], 0, -r+10); ctx.restore();
-        }
-        
-        // 下：保加利亚语
-        ctx.font = 'bold 8px sans-serif';
-        const txt2 = "Весела Коледа";
-        const step = 0.15;
-        const start = -(txt2.length * step) / 2;
-        for(let i=0; i<txt2.length; i++) {
-            ctx.save(); ctx.rotate(start + i*step);
-            ctx.fillText(txt2[i], 0, r-8); ctx.restore();
-        }
+        ctx.fillStyle='#D42426'; ctx.font='bold 14px serif'; ctx.textAlign='center';
+        drawArcText(ctx, "圣诞快乐", r-12, -0.8, 0.8);
+        ctx.font='bold 10px sans-serif';
+        drawArcText(ctx, "Весела Коледа", r-12, 2.4, 3.9);
 
         ctx.restore();
     }
 
-    function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
-    function showOverview() {
-        const m = document.getElementById('overviewModal');
-        const l = document.getElementById('overviewList');
-        l.innerHTML = '';
-        m.style.display = 'flex';
-        // 简单渲染预览
-        for(let i=0; i<state.total; i++) {
-            const div = document.createElement('div');
-            div.style.border = '1px solid #146B3A';
-            div.style.background = '#fff';
-            div.innerHTML = `<div style="text-align:center; color:#146B3A;">${i+1}</div>`;
-            l.appendChild(div);
+    function drawArcText(ctx, str, r, start, end) {
+        const step = (end-start)/(str.length-1);
+        for(let i=0; i<str.length; i++) {
+            ctx.save();
+            const ang = start + i*step + Math.PI/2;
+            ctx.translate(Math.cos(ang-Math.PI/2)*r, Math.sin(ang-Math.PI/2)*r);
+            ctx.rotate(ang);
+            ctx.fillText(str[i], 0, 0);
+            ctx.restore();
         }
     }
 </script>
