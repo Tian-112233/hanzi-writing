@@ -32,12 +32,14 @@
             font-family: 'SimSun', 'STSong', serif;
             background-color: var(--color-bg-body);
             color: var(--color-text-main);
-            min-height: 100vh;
-            touch-action: manipulation;
+            /* --- 关键修改：锁定Body高度，禁止整页滚动，只允许局部滚动 --- */
+            height: 100vh;
+            overflow: hidden; 
+            touch-action: none; /* 防止移动端橡皮筋效果影响体验 */
+            
             background-image: radial-gradient(#e6e6e6 1px, transparent 1px), radial-gradient(#e6e6e6 1px, transparent 1px);
             background-position: 0 0, 25px 25px;
             background-size: 50px 50px;
-            overflow-x: hidden;
             width: 100%;
             padding-top: 40px; /* 给彩灯留出空间 */
         }
@@ -48,7 +50,7 @@
             white-space: nowrap;
             overflow: hidden;
             position: absolute;
-            z-index: 1000; /* 最高层级 */
+            z-index: 1000;
             margin: -15px 0 0 0;
             padding: 0;
             pointer-events: none;
@@ -107,7 +109,7 @@
         /* --- 方案B：屋顶积雪 (Snow Caps) --- */
         .snow-cap-container {
             position: absolute;
-            top: -8px; /* 调整积雪位置 */
+            top: -8px;
             left: 0;
             width: 100%;
             height: 25px;
@@ -141,14 +143,32 @@
         }
 
         .container {
-            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 1;
+            max-width: 1600px; 
+            margin: 0 auto; 
+            display: flex; 
+            gap: 15px; 
+            /* --- 关键修改：容器高度100%铺满 --- */
+            height: 100%; 
+            padding: 15px; 
+            overflow: hidden; 
+            position: relative; 
+            z-index: 1;
         }
 
-        /* 侧边栏通用 */
+        /* 侧边栏通用 - 关键修改：固定高度，不随主内容滚动 */
         .sidebar {
-            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px;
-            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main);
-            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto;
+            width: 240px; 
+            background-color: var(--color-bg-container); 
+            border-radius: 12px; 
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); 
+            border: 2px solid var(--color-border-main);
+            flex-shrink: 0; 
+            display: flex; 
+            flex-direction: column; 
+            /* 如果内容太多，侧边栏内部滚动，但侧边栏本身不跑 */
+            height: 100%; 
+            overflow-y: auto; 
         }
         .left-sidebar { order: 1; }
         .right-sidebar { order: 3; }
@@ -157,26 +177,30 @@
             border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold;
         }
 
-        /* 主内容区 - 允许垂直滚动 */
+        /* 主内容区 - 关键修改：只有这个区域滚动 */
         .main-content {
             flex: 1; 
             order: 2; 
             min-width: 0; 
             display: flex; 
             flex-direction: column; 
-            height: 100%;
+            /* 填满中间剩余空间 */
+            height: 100%; 
             background-color: var(--color-bg-container); 
             border-radius: 12px; 
             border: 2px solid var(--color-border-main);
             box-shadow: 0 4px 15px rgba(20, 107, 58, 0.1);
             position: relative;
             
-            /* 关键：让主内容区整体滚动 */
+            /* 关键：设置滚动 */
             overflow-y: auto; 
             overflow-x: hidden;
+            
+            /* 优化滚动体验 */
+            scroll-behavior: smooth;
         }
 
-        /* --- 关键修改：Sticky Header --- */
+        /* Sticky Header */
         header {
             text-align: center; 
             margin-bottom: 0; 
@@ -184,13 +208,12 @@
             border-bottom: 2px solid var(--color-border-main);
             flex-shrink: 0; 
             
-            /* 粘性定位核心代码 */
+            /* 吸顶效果 */
             position: sticky; 
             top: 0;
-            z-index: 900; /* 确保层级高，能盖住滚上来的格子，但低于彩灯 */
-            background-color: var(--color-bg-container); /* 必须有背景色，否则内容会透出来 */
+            z-index: 900; 
+            background-color: var(--color-bg-container); 
             
-            /* 背景纹理延续，避免突兀 */
             background-image: linear-gradient(to right, transparent, rgba(212, 36, 38, 0.05), transparent);
         }
         
@@ -198,7 +221,7 @@
             color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2;
             font-family: 'Microsoft YaHei', sans-serif;
             position: relative;
-            z-index: 30; /* 确保文字在积雪上面 */
+            z-index: 30; 
         }
         .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
 
@@ -207,7 +230,7 @@
             display: flex; 
             flex-direction: column; 
             padding: 10px 15px 15px 15px; 
-            overflow-y: visible; /* 移除内部滚动，让容器撑开 */
+            overflow-y: visible; 
             height: auto;
         }
         .board-header {
@@ -357,16 +380,15 @@
         @media (max-width: 1100px) {
             .sidebar, .desktop-board-container { display: none !important; }
             
-            /* 适配手机端宽度，去掉固定margin，使用flex居中 */
+            /* 适配手机端宽度 */
             .container { 
-                flex-direction: column; height: auto; min-height: 100vh; 
-                padding: 10px 5px; /* 减少左右padding */
-                overflow-y: auto; 
-                width: 100%;
+                flex-direction: column; height: 100%; /* 手机上可以稍微放松，因为主要靠Main Content滚动 */
+                padding: 10px 5px; 
+                overflow: hidden; /* 保持外层不滚 */
             }
             .main-content { 
-                overflow: visible; padding-bottom: 20px; border: none; box-shadow: none; background: transparent; 
-                /* 手机端去掉积雪，避免太乱，或者可以保留，这里保留 */
+                overflow-y: auto; padding-bottom: 20px; border: none; box-shadow: none; background: transparent; 
+                height: 100%;
             }
             /* 手机端调整彩灯大小 */
             .light-rope li { width: 8px; height: 16px; margin: 15px 8px; }
