@@ -381,9 +381,13 @@
 </div>
 
 <script>
+    // 强对比度颜色：起笔深 -> 收笔极浅
     const COLORS = [
-        { s: '#a00000', e: '#ff8a8a' }, { s: '#b8860b', e: '#ffd700' },
-        { s: '#005500', e: '#88ff88' }, { s: '#0022aa', e: '#88bbff' }, { s: '#6600aa', e: '#dd99ff' }
+        { s: '#990000', e: '#FFC0C0' }, // 深红 -> 极淡粉
+        { s: '#AA6600', e: '#FFF0B0' }, // 深金黄 -> 极淡黄
+        { s: '#005500', e: '#B0FFB0' }, // 深绿 -> 极淡绿
+        { s: '#002288', e: '#C0D8FF' }, // 深蓝 -> 极淡蓝
+        { s: '#550088', e: '#E0C0FF' }  // 深紫 -> 极淡紫
     ];
     let totalGrids = 9; let currentGridIdx = 0; let strokesData = {}; let gridColorState = {}; 
 
@@ -407,7 +411,7 @@
         if(c) { c.innerHTML=''; COLORS.forEach((col,i)=>{ const d=document.createElement('div'); d.className='color-dot'; d.style.background=col.s; d.innerText=i+1; d.id=(cid==='colorSeqMobile'?'m-':'')+`c-dot-${i}`; c.appendChild(d); }); }
     }
     
-    // RGB 转换助手
+    // 16进制转RGB辅助函数
     function hexToRgb(hex) {
         const bigint = parseInt(hex.slice(1), 16);
         return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
@@ -479,7 +483,9 @@
             ctx.beginPath();
             if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
             else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
-            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+            ctx.strokeStyle=COLORS[cIdx%5].s; 
+            ctx.lineWidth=BASE_LINE_WIDTH; 
+            ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
         };
         const end=(e)=>{
             if(!isDown)return; isDown=false;
@@ -597,7 +603,8 @@
                 b.innerHTML=getGridBgHTML();
                 if(i<totalGrids){
                     const c=document.createElement('canvas'); 
-                    const prevSize = 100; c.width=prevSize; c.height=prevSize; 
+                    const prevSize = 100;
+                    c.width=prevSize; c.height=prevSize; 
                     const x=c.getContext('2d');
                     const ovLineWidth = prevSize * LINE_RATIO;
                     (strokesData[i]||[]).forEach(s=>{
