@@ -39,7 +39,97 @@
             background-size: 50px 50px;
             overflow-x: hidden;
             width: 100%;
+            padding-top: 40px; /* 给彩灯留出空间 */
         }
+
+        /* --- 方案C：圣诞彩灯 (String Lights) --- */
+        .light-rope {
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            position: absolute;
+            z-index: 1000;
+            margin: -15px 0 0 0;
+            padding: 0;
+            pointer-events: none;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+        .light-rope li {
+            position: relative;
+            animation-fill-mode: both; 
+            animation-iteration-count: infinite;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+            width: 12px;
+            height: 22px;
+            border-radius: 50%;
+            margin: 20px 15px; /* 灯泡间距 */
+            background: #fff;
+            box-shadow: 0px 4px 15px 1px rgba(255,255,255,0.4);
+            animation-name: flash-1;
+            animation-duration: 2s;
+        }
+        /* 电线 */
+        .light-rope li:before {
+            content: "";
+            position: absolute;
+            background: #222;
+            width: 40px;
+            height: 2px;
+            border-radius: 50%;
+            top: -5px;
+            left: -18px;
+            box-shadow: 0px 3px 0px 0px rgba(0,0,0,0.2); /* 增加一点阴影让线更立体 */
+            transform: rotate(10deg); /* 让线看起来是垂下来的 */
+        }
+        .light-rope li:first-child:before { content: none; } /* 去掉第一根多余的线 */
+
+        /* 灯泡颜色循环 */
+        .light-rope li:nth-child(4n+1) { background: #D42426; animation-name: flash-1; animation-duration: 1.5s; } /* 红 */
+        .light-rope li:nth-child(4n+2) { background: #146B3A; animation-name: flash-2; animation-duration: 2.2s; } /* 绿 */
+        .light-rope li:nth-child(4n+3) { background: #F8B229; animation-name: flash-3; animation-duration: 1.8s; } /* 金 */
+        .light-rope li:nth-child(4n+4) { background: #1E90FF; animation-name: flash-1; animation-duration: 2.5s; } /* 蓝 */
+
+        @keyframes flash-1 { 
+            0%, 100% { background: #D42426; box-shadow: 0px 4px 20px 0px #D42426; opacity: 1; } 
+            50% { background: rgba(212,36,38,0.4); box-shadow: 0px 2px 10px 0px rgba(212,36,38,0.2); opacity: 0.6; }
+        }
+        @keyframes flash-2 { 
+            0%, 100% { background: #146B3A; box-shadow: 0px 4px 20px 0px #146B3A; opacity: 1; } 
+            50% { background: rgba(20,107,58,0.4); box-shadow: 0px 2px 10px 0px rgba(20,107,58,0.2); opacity: 0.6; }
+        }
+        @keyframes flash-3 { 
+            0%, 100% { background: #F8B229; box-shadow: 0px 4px 20px 0px #F8B229; opacity: 1; } 
+            50% { background: rgba(248,178,41,0.4); box-shadow: 0px 2px 10px 0px rgba(248,178,41,0.2); opacity: 0.6; }
+        }
+        
+        /* --- 方案B：屋顶积雪 (Snow Caps) --- */
+        .snow-cap-container {
+            position: absolute;
+            top: -10px; /* 稍微向上溢出 */
+            left: 0;
+            width: 100%;
+            height: 25px;
+            z-index: 20;
+            pointer-events: none;
+            overflow: visible;
+        }
+        /* 积雪主体 - 用多个圆角div拼接出不规则感 */
+        .snow-mound {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* 淡淡的阴影增加立体感 */
+        }
+        .mound-1 { top: 0; left: -5%; width: 40%; height: 25px; border-radius: 20px 20px 50% 30%; }
+        .mound-2 { top: -5px; left: 30%; width: 30%; height: 35px; border-radius: 50% 50% 40% 40%; }
+        .mound-3 { top: 2px; left: 55%; width: 35%; height: 22px; border-radius: 30% 30% 50% 20%; }
+        .mound-4 { top: -2px; left: 85%; width: 20%; height: 28px; border-radius: 40% 40% 20% 50%; }
+
 
         /* --- 雪花动画 --- */
         .snow-container {
@@ -77,10 +167,12 @@
             flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
             background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main);
             box-shadow: 0 4px 15px rgba(20, 107, 58, 0.1);
+            position: relative; /* 为积雪定位 */
         }
 
         header {
-            text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main);
+            text-align: center; margin-bottom: 5px; padding: 25px 0 5px 0; /* 增加顶部padding避开积雪 */
+            border-bottom: 2px solid var(--color-border-main);
             flex-shrink: 0; background-image: linear-gradient(to right, transparent, rgba(212, 36, 38, 0.05), transparent);
         }
         h1 {
@@ -248,7 +340,12 @@
             }
             .main-content { 
                 overflow: visible; padding-bottom: 20px; border: none; box-shadow: none; background: transparent; 
+                /* 手机端去掉积雪，避免太乱，或者可以保留，这里保留 */
             }
+            /* 手机端调整彩灯大小 */
+            .light-rope li { width: 8px; height: 16px; margin: 15px 8px; }
+            .light-rope li:before { width: 25px; left: -10px; }
+            
             .mobile-layout { 
                 display: flex; flex-direction: column; width: 100%; align-items: center; 
             }
@@ -321,6 +418,10 @@
 </head>
 <body>
 
+<ul class="light-rope">
+    <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+</ul>
+
 <div class="snow-container" id="snowContainer"></div>
 
 <div class="container">
@@ -342,6 +443,13 @@
     </div>
 
     <div class="main-content">
+        <div class="snow-cap-container">
+            <div class="snow-mound mound-1"></div>
+            <div class="snow-mound mound-2"></div>
+            <div class="snow-mound mound-3"></div>
+            <div class="snow-mound mound-4"></div>
+        </div>
+
         <header><h1>汉字书写练习（圣诞版）<br><span class="title-translation">Дъска за писане на китайски йероглифи (Коледно издание)</span></h1></header>
         <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(255, 255, 255, 0.8); padding:10px; border-radius:8px; border-left:4px solid var(--color-accent-green);">
             <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
@@ -733,7 +841,7 @@
         // 1. 圣诞贺卡背景
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
         
-        // --- 新增：绘制随机雪花 ---
+        // --- 绘制随机雪花 ---
         ctx.save();
         for(let i=0; i<60; i++) {
             const sx = Math.random() * width;
