@@ -6,18 +6,16 @@
     <title>汉字书写练习（圣诞版）</title>
     <style>
         :root {
-            /* 圣诞配色 */
             --color-bg-body: #f8fcfd;
             --color-bg-container: #fffbf0;
-            --color-text-main: #2c3e50;
-            --color-text-secondary: #146B3A;
             --color-accent: #D42426; /* 圣诞红 */
             --color-accent-green: #146B3A; /* 松叶绿 */
             --color-accent-gold: #F8B229; /* 铃铛金 */
             --color-border-main: #146B3A;
-            --color-border-board: #D42426;
             --color-grid-line: rgba(248, 178, 41, 0.4);
             --color-active-bg: #E8F5E9;
+            --color-text-main: #2c3e50;
+            --color-text-secondary: #146B3A;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -31,67 +29,65 @@
             /* 纸纹背景 */
             background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
             background-size: 30px 30px;
-            overflow-x: hidden;
+            overflow-x: hidden; 
             position: relative;
         }
 
-        /* --- 关键修复：特效层必须 pointer-events: none --- */
-        
-        /* 1. 烟花层 (最高层级，可见但可穿透) */
-        .fireworks-container { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            pointer-events: none; /* 关键：允许点击穿透 */
-            z-index: 9999; 
+        /* --- 核心修复：特效层 --- */
+        /* 1. 烟花层 (最高层级，允许点击穿透) */
+        #fireworksContainer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* 关键：不挡鼠标 */
+            z-index: 9999; /* 确保在最上层可见 */
         }
-        .firework-particle { 
-            position: absolute; width: 6px; height: 6px; border-radius: 50%; 
-            box-shadow: 0 0 6px currentColor; 
-            animation: explode 1.2s ease-out forwards; 
+        .firework-particle {
+            position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            box-shadow: 0 0 8px currentColor; /* 发光 */
+            animation: explode 1.2s ease-out forwards;
         }
-        @keyframes explode { 
-            0% { transform: translate(0, 0) scale(1); opacity: 1; } 
-            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; } 
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
         }
 
         /* 2. 雪花层 */
-        .snow-container { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        #snowContainer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; /* 关键 */
-            z-index: 9998; 
+            z-index: 9998;
         }
-        .snowflake { 
-            position: absolute; top: -20px; color: #b0d4f1; 
-            font-size: 1.2em; opacity: 0.6; 
-            animation: fall linear infinite; 
+        .snowflake {
+            position: absolute; top: -20px; color: #b0d4f1;
+            font-size: 1.2em; opacity: 0.6;
+            animation: fall linear infinite;
         }
-        @keyframes fall { 
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; } 
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } 
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
         }
 
-        /* --- 主界面容器 (z-index 较低，但在特效之下) --- */
-        .container { 
-            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; 
-            overflow: hidden; position: relative; z-index: 10; 
+        /* --- 主容器 --- */
+        .container {
+            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px;
+            overflow: hidden; position: relative; z-index: 10;
         }
 
         /* 侧边栏 */
-        .sidebar { 
-            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px; 
-            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main); 
-            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; 
-        }
-        .sidebar h2 { 
-            color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; 
-            border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; 
+        .sidebar {
+            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main);
+            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto;
+            position: relative; z-index: 100; /* 提高层级 */
         }
         .left-sidebar { order: 1; } .right-sidebar { order: 3; }
+        .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
 
         /* 主内容区 */
-        .main-content { 
-            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%; 
-            background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main); 
-            box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15); 
+        .main-content {
+            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
+            background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main);
+            box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15);
+            position: relative; z-index: 50;
         }
 
         header { text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main); flex-shrink: 0; }
@@ -102,9 +98,9 @@
         .board-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px; }
         .board-title { color: var(--color-accent-green); font-size: 1.3rem; font-weight: bold; }
 
+        /* 书写板背景 - 糖果条纹框 */
         .board {
             background-color: #fff;
-            /* 糖果条纹边框 */
             border: 10px solid transparent;
             border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
             border-radius: 12px; padding: 20px; flex: 1;
@@ -116,23 +112,23 @@
         .grid-container {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
             background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
-            box-sizing: border-box; 
+            box-sizing: border-box; cursor: crosshair;
         }
         .grid-container.grid-active {
             box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
         }
 
-        /* 米字格样式 */
+        /* 米字格线 */
         .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .grid-line-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--color-grid-line); transform: translateY(-50%); }
         .grid-line-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: var(--color-grid-line); transform: translateX(-50%); }
         .grid-line-d1 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
         .grid-line-d2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
 
-        .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; touch-action: none; }
+        .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; touch-action: none; }
         .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
 
-        /* UI组件 */
+        /* 控制面板组件 */
         .info-panel-item { background-color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--color-border-main); text-align: center; }
         .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
         .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -143,14 +139,14 @@
         .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
         .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
-        /* 按钮修复：z-index 确保在最上层 */
+        /* 按钮 */
         .button {
-            padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+            padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
+            width: 100%; margin-bottom: 10px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
             font-size: 0.9rem; line-height: 1.2; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            position: relative; z-index: 100; /* 确保可点击 */
+            position: relative; z-index: 200; /* 最高层级，保证可点击 */
         }
         .button:active { transform: translateY(2px); }
         .button-primary { background-color: var(--color-accent); }
@@ -160,19 +156,20 @@
         .button-success { background-color: var(--color-accent-green); }
         .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }
         
-        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; position: relative; z-index: 100; }
+        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; position: relative; z-index: 200; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
 
         /* 弹窗 */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 5000; justify-content: center; align-items: center; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 10000; justify-content: center; align-items: center; }
         .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 5001; }
+        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 10001; }
 
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
         .overview-item { width: 100%; max-width: 120px; }
         .overview-canvas-box { width: 100%; padding-bottom: 100%; position: relative; border: 1px solid var(--color-border-main); background-color: #fff; border-radius: 4px; }
         .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
         
+        /* 手机端布局 */
         .mobile-layout { display: none; }
         
         @media (max-width: 1100px) {
@@ -182,7 +179,6 @@
             .mobile-layout { display: flex; flex-direction: column; width: 100%; }
             .mobile-add-grid-section { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main); }
             .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
-            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
             .mobile-function-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px; }
             .mobile-function-buttons .button:last-child { grid-column: span 2; }
             .mobile-color-section { margin: 0 15px 15px; background: var(--color-active-bg); border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px; }
@@ -198,8 +194,8 @@
 </head>
 <body>
 
-<div class="fireworks-container" id="fireworksContainer"></div>
-<div class="snow-container" id="snowContainer"></div>
+<div id="fireworksContainer"></div>
+<div id="snowContainer"></div>
 
 <div class="container">
     <div class="sidebar left-sidebar">
@@ -330,10 +326,7 @@
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
-    // 基础尺寸定义
-    const BASE_SIZE = 300;
-    const BASE_LINE_WIDTH = 12;
-    const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
+    const BASE_SIZE = 300; const BASE_LINE_WIDTH = 12; const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
 
     window.onload = function() {
         initSnow(); 
@@ -342,7 +335,7 @@
         updateUI(); setupButtons();
     };
 
-    // 烟花逻辑
+    // 烟花 (自动播放)
     function spawnFirework() {
         const c = document.getElementById('fireworksContainer');
         const x = Math.random()*100, y = Math.random()*80;
@@ -357,7 +350,6 @@
             c.appendChild(p); setTimeout(()=>p.remove(),1200);
         }
     }
-    // 随机烟花
     setInterval(() => { if(Math.random()>0.85) spawnFirework(); }, 2500);
 
     // 雪花
@@ -379,7 +371,7 @@
     function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
     function calculateVisualTotal() { let m=-1; Object.keys(strokesData).forEach(i=>{ if(strokesData[i]&&strokesData[i].length>0)m=Math.max(m,parseInt(i)); }); return Math.ceil(Math.max(9,m+1)/3)*3; }
     
-    // 米字格 HTML结构 (仅用于预览)
+    // 米字格 HTML结构
     function getGridBgHTML() {
         return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>`;
     }
@@ -487,12 +479,10 @@
     }
     function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx); }
     
-    // 路径渐变
     function drawGradientStroke(ctx, points, cIdx, lineWidth) {
         if(points.length < 2) return;
         const c1 = hexToRgb(COLORS[cIdx].s);
         const c2 = hexToRgb(COLORS[cIdx].e);
-        
         ctx.lineWidth = lineWidth; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.shadowBlur = 1; ctx.shadowColor = COLORS[cIdx].s;
         
         const totalSegments = points.length - 1;
@@ -547,31 +537,27 @@
         document.getElementById('btnConfirmExport').onclick=doExport;
     }
 
-    // --- 豪华版装饰绘制 (导出用) ---
+    // 冬青果绘制
     function drawHollyCorner(ctx, cx, cy, align) {
         ctx.save(); ctx.translate(cx, cy);
         if(align==1) ctx.scale(-1,1); // TR
         
-        // 绿叶
-        ctx.fillStyle='#146B3A';
+        ctx.fillStyle='#146B3A'; // Leaves
         ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-15,-5,-20,-20); ctx.quadraticCurveTo(-5,-15,0,0); ctx.fill();
         ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-5,-15,-20,-20); ctx.quadraticCurveTo(-15,-5,0,0); ctx.fill();
         
-        // 三红果
-        ctx.fillStyle='#D42426';
+        ctx.fillStyle='#D42426'; // Berries
         ctx.beginPath(); ctx.arc(-5,-5, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(-12,-8, 4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(-8,-12, 4, 0, Math.PI*2); ctx.fill();
         
-        // 双铃铛
-        ctx.fillStyle='#F8B229';
-        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill(); // Left
-        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill(); // Right
-        
+        ctx.fillStyle='#F8B229'; // Bells
+        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill();
         ctx.restore();
     }
 
-    // 绘制静态雪花 (用于导出图片)
+    // 静态雪花
     function drawStaticSnow(ctx, w, h) {
         for(let i=0; i<60; i++) {
             ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.font=`${Math.random()*15+10}px serif`;
@@ -579,53 +565,40 @@
         }
     }
 
-    // 镂空线条圣诞印章 (空白处，真正弧形文字)
+    // 镂空线条圣诞印章 (空白处)
     function drawSantaSeal(ctx, right, bottom) {
-        // 圆心位置：右下角往外偏移
-        const r=45, cx=right-r+15, cy=bottom-r+15; 
+        const r=45, cx=right-r-10, cy=bottom-r-10; 
         ctx.save();
         
-        // 1. 外圈 (红色细线)
         ctx.strokeStyle='#D42426'; ctx.lineWidth=3; 
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
         ctx.beginPath(); ctx.arc(cx, cy, r-4, 0, Math.PI*2); ctx.lineWidth=1; ctx.stroke();
 
-        // 2. 镂空圣诞老人 (红色线条)
-        ctx.lineWidth=2;
-        ctx.beginPath(); 
-        // 帽子
+        ctx.lineWidth=2; ctx.beginPath(); 
         ctx.moveTo(cx-15, cy-8); ctx.lineTo(cx+5, cy-25); ctx.lineTo(cx+20, cy-5); 
-        ctx.moveTo(cx+20, cy-5); ctx.arc(cx+22, cy-3, 3, 0, Math.PI*2); // 帽球
-        // 脸轮廓
+        ctx.moveTo(cx+20, cy-5); ctx.arc(cx+22, cy-3, 3, 0, Math.PI*2); 
         ctx.moveTo(cx-15, cy-5); ctx.quadraticCurveTo(cx, cy+25, cx+15, cy-5); 
-        // 大胡子
         ctx.moveTo(cx-12, cy+5); ctx.bezierCurveTo(cx-20, cy+25, cx+20, cy+25, cx+12, cy+5); 
         ctx.stroke();
         
-        // 眼睛鼻子
         ctx.fillStyle='#D42426';
         ctx.beginPath(); ctx.arc(cx-5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(cx+5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(cx, cy+2, 2, 0, Math.PI*2); ctx.fill();
 
-        // 3. 真正弧形文字
-        ctx.fillStyle='#D42426'; ctx.textAlign='center'; ctx.textBaseline='middle';
-        
-        // 上弧：圣诞快乐
+        ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.font='bold 14px "SimSun", serif';
         drawTextAlongArc(ctx, "圣诞快乐", cx, cy, r-12, -0.8, 0.8);
         
-        // 下弧：保加利亚语 (Весела Коледа)
         ctx.font='bold 9px sans-serif';
         drawTextAlongArc(ctx, "Весела Коледа", cx, cy, r-12, 2.4, 3.9); 
-
         ctx.restore();
     }
 
     function drawTextAlongArc(ctx, str, cx, cy, radius, startAngle, endAngle) {
         const angleStep = (endAngle - startAngle) / (str.length - 1);
         for(let i=0; i<str.length; i++) {
-            const angle = startAngle + i * angleStep + Math.PI / 2; // +90deg to start from top
+            const angle = startAngle + i * angleStep + Math.PI / 2; 
             ctx.save();
             ctx.translate(cx + Math.cos(angle - Math.PI/2) * radius, cy + Math.sin(angle - Math.PI/2) * radius);
             ctx.rotate(angle);
@@ -639,18 +612,16 @@
         const dpr=6, gridSize=120, gap=10, padding=40, hH=60, fH=40;
         const cvs=document.createElement('canvas'); 
         const width = padding*2 + cols*gridSize + (cols-1)*gap;
-        const height = padding*2 + hH + fH + rows*(gridSize+gap);
+        const height = padding*2 + hH + fH + rows*(gridSize+gap) + 120; // 增加底部空间放印章
         cvs.width = width * dpr; cvs.height = height * dpr;
         const ctx=cvs.getContext('2d'); ctx.scale(dpr,dpr); 
         
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
         drawStaticSnow(ctx, width, height);
 
-        // 边框
         ctx.strokeStyle='#D42426'; ctx.lineWidth=4; ctx.strokeRect(10,10,width-20,height-20);
         ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.strokeRect(16,16,width-32,height-32);
 
-        // 头部
         ctx.fillStyle='#146B3A'; ctx.font='bold 24px serif'; ctx.textAlign='left'; ctx.fillText(`姓名: ${name}`, padding, padding+30);
         ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; 
         const now=new Date(); ctx.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, width-padding, padding+30);
@@ -662,15 +633,13 @@
             ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fillRect(x,y,gridSize,gridSize);
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
-            // 米字格 (淡金)
             ctx.beginPath();
             ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(248,178,41,0.25)'; ctx.stroke();
             
-            // 顶部两角装饰 (TL, TR)
-            drawHollyCorner(ctx, x+5, y+5, 0); // TL
-            drawHollyCorner(ctx, x+gridSize-5, y+5, 1); // TR
+            drawHollyCorner(ctx, x+5, y+5, 0); 
+            drawHollyCorner(ctx, x+gridSize-5, y+5, 1); 
 
             if(i<totalGrids){
                 const strokes=strokesData[i]||[];
@@ -682,12 +651,8 @@
             }
         }
         
-        // 最后一个格子压角章
-        const lastRow = Math.floor((vt-1)/cols);
-        const lastCol = (vt-1)%cols;
-        const lastX = padding + lastCol*(gridSize+gap);
-        const lastY = padding + hH + lastRow*(gridSize+gap);
-        drawSantaSeal(ctx, width - padding - 10, height - padding - 10);
+        // 印章盖在页脚空白处
+        drawSantaSeal(ctx, width - 20, height - 20);
 
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
