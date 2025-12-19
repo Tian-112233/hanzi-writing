@@ -21,9 +21,13 @@
             --color-border-main: #146B3A; /* 绿色边框 */
             --color-border-board: #D42426; /* 红色书写板框 */
             
-            --color-grid-line: rgba(20, 107, 58, 0.15); /* 淡淡的绿色网格 */
+            /* --- 修改点：米字格线条改为淡金色 --- */
+            --color-grid-line: rgba(248, 178, 41, 0.25); 
+            
             --color-active-bg: #E8F5E9; /* 浅绿色激活背景 */
-            --color-grid-dot: #F8B229; /* 金色星星点 */
+            
+            /* --- 修改点：角落点改为红色 (冬青果) --- */
+            --color-grid-dot: #D42426; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -144,11 +148,12 @@
         .diagonal-1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
         .diagonal-2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
         
-        /* 星星点装饰 */
+        /* --- 修改点：角落装饰改为红色小圆点 (网页预览用) --- */
         .grid-dot { 
-            position: absolute; width: 8px; height: 8px; 
-            background-color: var(--color-grid-dot); 
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); /* 五角星形状 */
+            position: absolute; width: 10px; height: 10px; 
+            background-color: var(--color-grid-dot);
+            border-radius: 50%; /* 圆形 */
+            box-shadow: inset 2px 2px 3px rgba(255,255,255,0.3); /* 简单高光 */
         }
         .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
         .dot-bl { bottom: 8%; left: 8%; } .dot-br { bottom: 8%; right: 8%; }
@@ -328,7 +333,7 @@
         <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(255, 255, 255, 0.8); padding:10px; border-radius:8px; border-left:4px solid var(--color-accent-green);">
             <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
                 🎄 节日渐变：红→金→绿→蓝→紫 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
-                ⭐ 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
+                🍒 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
                 🖌️ 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
             </div>
         </div>
@@ -484,12 +489,12 @@
     }
     
     function getGridBgHTML() {
-        // 四角变成星星(clip-path在CSS中定义)
+        // 四角变成简单的圆点(CSS控制样式)
         return `<div class="diagonal-1"></div><div class="diagonal-2"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>
                 <div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>
-                <div style="position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(20,107,58,0.15);transform:translateY(-50%)"></div>
-                <div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(20,107,58,0.15);transform:translateX(-50%)"></div>`;
+                <div style="position:absolute;top:50%;left:0;width:100%;height:1px;background:rgba(248, 178, 41, 0.25);transform:translateY(-50%)"></div>
+                <div style="position:absolute;left:50%;top:0;width:1px;height:100%;background:rgba(248, 178, 41, 0.25);transform:translateX(-50%)"></div>`;
     }
 
     function renderDesktopGrids() {
@@ -678,16 +683,19 @@
         document.getElementById('btnConfirmExport').onclick=doExport;
     }
 
-    // 画星星的辅助函数
-    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
-      let rot=Math.PI/2*3; let x=cx; let y=cy; let step=Math.PI/spikes;
-      ctx.beginPath();
-      ctx.moveTo(cx,cy-outerRadius);
-      for(let i=0;i<spikes;i++){
-        x=cx+Math.cos(rot)*outerRadius; y=cy+Math.sin(rot)*outerRadius; ctx.lineTo(x,y); rot+=step;
-        x=cx+Math.cos(rot)*innerRadius; y=cy+Math.sin(rot)*innerRadius; ctx.lineTo(x,y); rot+=step;
-      }
-      ctx.lineTo(cx,cy-outerRadius); ctx.closePath(); ctx.fill();
+    // --- 新增：绘制冬青果簇 (用于导出图片) ---
+    function drawHollyBerries(ctx, cx, cy) {
+        ctx.fillStyle = '#D42426'; // Red
+        const r = 3; // small radius for export
+        // Draw 3 berries in a triangle cluster
+        ctx.beginPath(); ctx.arc(cx, cy-r+1, r, 0, Math.PI*2); ctx.fill(); // Top
+        ctx.beginPath(); ctx.arc(cx-r, cy+r, r, 0, Math.PI*2); ctx.fill(); // Bottom left
+        ctx.beginPath(); ctx.arc(cx+r, cy+r, r, 0, Math.PI*2); ctx.fill(); // Bottom right
+        // Add simple highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.beginPath(); ctx.arc(cx-1, cy-r, 1, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx-r-1, cy+r-1, 1, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+r-1, cy+r-1, 1, 0, Math.PI*2); ctx.fill();
     }
     
     // 绘制静态雪花 (用于导出图片)
@@ -703,47 +711,45 @@
         }
     }
 
-    // 绘制圣诞印章 (含保加利亚语)
+    // --- 修改：绘制圆形圣诞印章 ---
     function drawChristmasSeal(ctx, right, bottom) {
-        const sealSize = 90;
-        const x = right - sealSize;
-        const y = bottom - sealSize - 15; // 留出位置给下面的文字
-        
-        ctx.save();
+        const sealRadius = 45; // 直径 90px
+        const cx = right - sealRadius - 10; 
+        const cy = bottom - sealRadius - 10;
 
-        // 印章主体 (圆角正方形)
-        ctx.strokeStyle = '#D42426';
-        ctx.fillStyle = 'rgba(212, 36, 38, 0.05)'; // 极淡红背景
-        ctx.lineWidth = 3;
-        
-        // 使用简单的路径绘制圆角矩形以兼容旧浏览器
-        const r = 8; 
+        ctx.save();
+        // 1. 绘制圆环主体
         ctx.beginPath();
-        ctx.moveTo(x+r, y);
-        ctx.arcTo(x+sealSize, y, x+sealSize, y+sealSize, r);
-        ctx.arcTo(x+sealSize, y+sealSize, x, y+sealSize, r);
-        ctx.arcTo(x, y+sealSize, x, y, r);
-        ctx.arcTo(x, y, x+sealSize, y, r);
-        ctx.closePath();
+        ctx.arc(cx, cy, sealRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(212, 36, 38, 0.08)'; // 极淡红背景
         ctx.fill();
+        ctx.strokeStyle = '#D42426'; // 红色边框
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        // 中文：2x2 排列
+        // 2. 内装饰环
+        ctx.beginPath();
+        ctx.arc(cx, cy, sealRadius - 5, 0, Math.PI * 2);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // 3. 文字设置
         ctx.fillStyle = '#D42426';
-        ctx.font = 'bold 32px "SimSun", serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const cx = x + sealSize / 2;
-        const cy = y + sealSize / 2;
-        const offset = 18;
-        ctx.fillText('圣', cx - offset, cy - offset); // 左上
-        ctx.fillText('诞', cx + offset, cy - offset); // 右上
-        ctx.fillText('快', cx - offset, cy + offset); // 左下
-        ctx.fillText('乐', cx + offset, cy + offset); // 右下
 
-        // 保加利亚语翻译 (印章下方)
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('Весела Коледа', cx, y + sealSize + 12);
+        // 中文: 圣诞快乐 (田字格排列)
+        ctx.font = 'bold 24px "SimSun", serif';
+        const offset = 14;
+        const textCY = cy - 8; // 稍微上移
+        ctx.fillText('圣', cx - offset, textCY - offset);
+        ctx.fillText('诞', cx + offset, textCY - offset);
+        ctx.fillText('快', cx - offset, textCY + offset);
+        ctx.fillText('乐', cx + offset, textCY + offset);
+
+        // 保加利亚语: Весела Коледа (位于下方圆弧内)
+        ctx.font = 'bold 9px sans-serif';
+        ctx.fillText('Весела Коледа', cx, cy + sealRadius - 15);
 
         ctx.restore();
     }
@@ -767,9 +773,8 @@
         // 1. 圣诞贺卡背景
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
 
-        // --- 新增：绘制静态雪花背景 ---
+        // 绘制静态雪花背景
         drawStaticSnow(ctx, width, height);
-        // ---------------------------
         
         // 2. 双层节日边框
         ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
@@ -796,18 +801,17 @@
             ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(x,y,gridSize,gridSize); 
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
-            // 绘制米字格
+            // --- 修改点：绘制米字格 (淡金色) ---
             ctx.beginPath();
             ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
-            ctx.strokeStyle='rgba(20,107,58,0.15)'; ctx.stroke();
+            ctx.strokeStyle='rgba(248, 178, 41, 0.25)'; ctx.stroke();
             
-            // 绘制星星 (替代圆点)
-            ctx.fillStyle = '#F8B229';
-            drawStar(ctx, x+10, y+10, 5, 2, 1);
-            drawStar(ctx, x+gridSize-10, y+10, 5, 2, 1);
-            drawStar(ctx, x+10, y+gridSize-10, 5, 2, 1);
-            drawStar(ctx, x+gridSize-10, y+gridSize-10, 5, 2, 1);
+            // --- 修改点：绘制冬青果簇 (替代星星) ---
+            drawHollyBerries(ctx, x+10, y+10);
+            drawHollyBerries(ctx, x+gridSize-10, y+10);
+            drawHollyBerries(ctx, x+10, y+gridSize-10);
+            drawHollyBerries(ctx, x+gridSize-10, y+gridSize-10);
 
             if(i<totalGrids){
                 const strokes = strokesData[i]||[];
@@ -820,7 +824,7 @@
             }
         }
 
-        // 5. 绘制圣诞印章
+        // 5. 绘制圆形圣诞印章
         drawChristmasSeal(ctx, width - padding, height - padding);
 
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
