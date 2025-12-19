@@ -295,7 +295,7 @@
                 margin-bottom: 20px; 
             }
             
-            /* 恢复并优化预览条样式，宽度适配 */
+            /* 手机端底部预览条样式 */
             .mobile-preview-bar {
                 margin: 0 0 20px 0;
                 background: var(--color-active-bg);
@@ -304,8 +304,6 @@
                 overflow-x: auto; 
                 white-space: nowrap; 
                 display: flex; gap: 10px;
-                
-                /* 关键：宽度与上方格子一致 */
                 width: 85vw; max-width: 340px;
             }
             .mobile-preview-item {
@@ -457,7 +455,6 @@
 
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
-    // 恢复：移动端预览容器引用
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
     // 基础尺寸
@@ -469,7 +466,6 @@
         initSnow(); // 启动雪花
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); 
-        // 恢复：初始化时渲染移动端预览
         renderMobilePreview();
         setupMobileEvents();
         updateUI(); setupButtons();
@@ -533,7 +529,6 @@
         document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
     }
 
-    // 恢复：渲染手机端底部预览条
     function renderMobilePreview() {
         elMobilePreviewBar.innerHTML='';
         for(let i=0; i<totalGrids; i++){
@@ -560,7 +555,6 @@
         if(idx<0||idx>=totalGrids)return;
         currentGridIdx=idx;
         document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active', i===idx));
-        // 恢复：切换时同步预览条的高亮
         document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{ e.classList.toggle('active', i===idx); if(i===idx) e.scrollIntoView({behavior:"smooth", inline:"center"}); });
         redrawMobileCanvas(); updateUI();
     }
@@ -591,7 +585,6 @@
                 const cIdx=gridColorState[gridIdx]||0;
                 strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[gridIdx]=(cIdx+1);
-                // 恢复：笔画结束时更新预览
                 redrawGrid(gridIdx); renderMobilePreview(); updateUI();
             }
         };
@@ -625,7 +618,6 @@
                 const cIdx=gridColorState[currentGridIdx]||0;
                 strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[currentGridIdx]=(cIdx+1);
-                // 恢复：笔画结束时更新预览
                 redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
             }
         };
@@ -683,7 +675,6 @@
 
     function setupButtons() {
         const add=(m)=>{ const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1; totalGrids+=v; renderDesktopGrids();
-        // 恢复：添加格子时更新预览
         renderMobilePreview(); updateUI(); };
         document.getElementById('btnGenGrid').onclick=()=>add(false); document.getElementById('btnGenGridMobile').onclick=()=>add(true);
         const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
@@ -741,6 +732,20 @@
         const ctx=cvs.getContext('2d'); ctx.scale(dpr, dpr);
         // 1. 圣诞贺卡背景
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
+        
+        // --- 新增：绘制随机雪花 ---
+        ctx.save();
+        for(let i=0; i<60; i++) {
+            const sx = Math.random() * width;
+            const sy = Math.random() * height;
+            const size = Math.random() * 20 + 10; // 10px - 30px
+            ctx.font = `${size}px sans-serif`;
+            ctx.fillStyle = `rgba(220, 238, 251, ${Math.random() * 0.6 + 0.2})`; // 浅蓝色，随机透明度
+            ctx.fillText('❄', sx, sy);
+        }
+        ctx.restore();
+        // -----------------------
+
         // 2. 双层节日边框
         ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
         ctx.strokeRect(10, 10, width-20, height-20);
