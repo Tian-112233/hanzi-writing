@@ -16,7 +16,7 @@
             --color-accent-gold: #F8B229; /* 铃铛金 */
             --color-border-main: #146B3A;
             --color-border-board: #D42426;
-            --color-grid-line: rgba(248, 178, 41, 0.4); /* 加深一点网格线 */
+            --color-grid-line: rgba(248, 178, 41, 0.4);
             --color-active-bg: #E8F5E9;
         }
 
@@ -34,8 +34,10 @@
             position: relative;
         }
 
+        /* --- 装饰层 (Z-Index 调至底层 -1，修复点击问题) --- */
+        
         /* 烟花层 */
-        .fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+        .fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         .firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 6px currentColor; animation: explode 1.2s ease-out forwards; }
         @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; } }
 
@@ -44,22 +46,9 @@
         .snowflake { position: absolute; top: -20px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.2); font-size: 1.2em; opacity: 0.8; animation: fall linear infinite; }
         @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } }
 
-        /* 圣诞老人飞行 (优化剪影) */
-        .santa-fly-container {
-            position: fixed; top: 8%; left: -300px; z-index: 100; pointer-events: none;
-            animation: flySanta 35s linear infinite; opacity: 0.8;
-        }
-        /* 更新：更清晰的驯鹿+雪橇路径 */
-        .santa-svg { width: 260px; height: auto; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2)); }
-        @keyframes flySanta {
-            0% { left: -300px; top: 5%; transform: rotate(5deg); }
-            40% { top: 12%; }
-            100% { left: 110vw; top: 5%; transform: rotate(-5deg); }
-        }
-
-        /* 圣诞树 (左下角) */
+        /* 圣诞树 (左下角装饰，不挡操作) */
         .christmas-scene {
-            position: fixed; bottom: 20px; left: 20px; z-index: 50; pointer-events: none;
+            position: fixed; bottom: 20px; left: 20px; z-index: 5; pointer-events: none;
             display: flex; align-items: flex-end;
         }
         .xmas-tree { font-size: 140px; line-height: 1; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
@@ -67,7 +56,11 @@
         @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px currentColor; } }
         .gift-pile { font-size: 60px; margin-left: -30px; margin-bottom: 5px; }
 
-        .container { max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 10; }
+        /* --- 主容器 (Z-Index 调高，确保按钮可点击) --- */
+        .container { 
+            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; 
+            overflow: hidden; position: relative; z-index: 100; 
+        }
 
         .sidebar { width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main); flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
         .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
@@ -86,7 +79,6 @@
         .board {
             background-color: #fff;
             border: 10px solid transparent;
-            /* 糖果条纹边框 */
             border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
             border-radius: 12px; padding: 20px; flex: 1;
             box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05);
@@ -94,36 +86,26 @@
 
         .desktop-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 700px; margin: 0 auto; align-content: start; }
         
-        /* 修复：格子容器去掉了多余的 border，完全由内部 canvas 和 background 撑起 */
         .grid-container {
             position: relative; width: 100%; aspect-ratio: 1 / 1;
-            background-color: #fff; 
-            border: 1px solid var(--color-border-main); /* 仅外框 */
-            border-radius: 4px;
-            box-sizing: border-box; /* 关键：防止边框撑大 */
+            background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
+            box-sizing: border-box; 
         }
         .grid-container.grid-active {
             box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
         }
 
+        /* 米字格 */
         .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        
-        /* 米字格线条 */
         .grid-line-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--color-grid-line); transform: translateY(-50%); }
         .grid-line-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: var(--color-grid-line); transform: translateX(-50%); }
         .grid-line-d1 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
         .grid-line-d2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
 
-        /* 预览用的简化冬青果点 (网页显示) */
         .grid-dot { position: absolute; width: 8px; height: 8px; background-color: var(--color-accent); border-radius: 50%; z-index: 2; }
         .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
-        /* 底部两个点去掉，只留顶部两个 */
 
-        /* 修复：Canvas 位于最上层，响应事件 */
-        .grid-canvas { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            z-index: 10; cursor: crosshair; touch-action: none; 
-        }
+        .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; touch-action: none; }
         .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
 
         /* UI组件 */
@@ -132,15 +114,18 @@
         .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .color-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .color-dot.current { transform: scale(1.3); border-color: var(--color-accent-gold); z-index: 2; }
+        .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8; }
+        .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9); }
         .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
         .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
         .button {
             padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s;
+            width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
             font-size: 0.9rem; line-height: 1.2; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: relative; z-index: 101; /* 确保按钮在最上层 */
         }
         .button:active { transform: translateY(2px); }
         .button-primary { background-color: var(--color-accent); }
@@ -155,7 +140,7 @@
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 500; justify-content: center; align-items: center; }
         .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
+        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 501; }
 
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
         .overview-item { width: 100%; max-width: 120px; }
@@ -190,17 +175,6 @@
 
 <div class="fireworks-container" id="fireworksContainer"></div>
 <div class="snow-container" id="snowContainer"></div>
-
-<div class="santa-fly-container">
-    <svg class="santa-svg" viewBox="0 0 300 100" fill="#D42426">
-        <path d="M50,60 Q60,50 70,60 L80,50 L75,40 L85,35 L80,30 L90,25 L85,40 L95,50 Q100,55 90,70 L85,80 L75,75 L65,80 Z" />
-        <line x1="90" y1="55" x2="130" y2="55" stroke="#F8B229" stroke-width="2" />
-        <path d="M130,55 L140,75 H190 L200,50 H150 L130,55 Z" />
-        <path d="M135,80 Q160,85 205,75" stroke="#F8B229" stroke-width="3" fill="none" />
-        <circle cx="170" cy="45" r="12" />
-        <path d="M160,45 Q170,25 180,45 Z" /> <text x="20" y="90" font-size="12" fill="#146B3A">★ Merry Christmas ★</text>
-    </svg>
-</div>
 
 <div class="christmas-scene">
     <div class="xmas-tree">🎄
@@ -341,7 +315,7 @@
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
-    // 基础尺寸
+    // 基础尺寸定义
     const BASE_SIZE = 300;
     const BASE_LINE_WIDTH = 12;
     const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
@@ -368,7 +342,7 @@
             c.appendChild(p); setTimeout(()=>p.remove(),1200);
         }
     }
-    // 随机烟花 (频率略降)
+    // 随机烟花
     setInterval(() => { if(Math.random()>0.85) spawnFirework(); }, 2500);
 
     // 雪花
@@ -390,7 +364,7 @@
     function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
     function calculateVisualTotal() { let m=-1; Object.keys(strokesData).forEach(i=>{ if(strokesData[i]&&strokesData[i].length>0)m=Math.max(m,parseInt(i)); }); return Math.ceil(Math.max(9,m+1)/3)*3; }
     
-    // 米字格 HTML 结构
+    // 米字格 HTML结构 (仅用于预览)
     function getGridBgHTML() {
         return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>`;
@@ -429,7 +403,6 @@
 
     function setupCanvasEvents(canvas, gridIdx) {
         let isDown=false; let points=[]; const ctx=canvas.getContext('2d');
-        // 关键修复：修正坐标计算
         const getPos=(e)=>{
             const r=canvas.getBoundingClientRect(); 
             const clientX = e.touches?e.touches[0].clientX:e.clientX;
@@ -527,7 +500,7 @@
         const c1=COLORS[nextC].s, c2=COLORS[(nextC+1)%5].s;
         document.getElementById('curColorBox').style.background=c1; document.getElementById('nextColorBox').style.background=c2;
         document.getElementById('mobileCurColorBox').style.background=c1; document.getElementById('mobileNextColorBox').style.background=c2;
-        const u=(p)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${p}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
+        const upd=(pf)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${pf}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
         upd(''); upd('m-');
     }
 
@@ -563,7 +536,7 @@
     // --- 豪华版装饰绘制 (导出用) ---
     function drawHollyCorner(ctx, cx, cy, align) {
         ctx.save(); ctx.translate(cx, cy);
-        if(align==1) ctx.scale(-1,1); if(align==2) ctx.scale(1,-1); if(align==3) ctx.scale(-1,-1);
+        if(align==1) ctx.scale(-1,1); // TR
         
         // 绿叶
         ctx.fillStyle='#146B3A';
@@ -592,9 +565,10 @@
         }
     }
 
-    // --- 修改：镂空线条圣诞印章 (压角，真正弧形文字) ---
+    // 镂空线条圣诞印章 (压角，真正弧形文字)
     function drawSantaSeal(ctx, right, bottom) {
-        const r=45, cx=right-r, cy=bottom-r; // 压角位置 (印章中心在格子外)
+        // 圆心位置：右下角往外偏移
+        const r=45, cx=right-r+15, cy=bottom-r+15; 
         ctx.save();
         
         // 1. 外圈 (红色细线)
@@ -680,7 +654,7 @@
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(248,178,41,0.25)'; ctx.stroke();
             
-            // 顶部两角装饰
+            // 顶部两角装饰 (TL, TR)
             drawHollyCorner(ctx, x+5, y+5, 0); // TL
             drawHollyCorner(ctx, x+gridSize-5, y+5, 1); // TR
 
@@ -692,10 +666,15 @@
                 });
                 ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
             }
-            
-            // 最后一格压角章
-            if(i === vt-1) drawSantaSeal(ctx, x+gridSize, y+gridSize);
         }
+        
+        // 最后一个格子压角章
+        const lastRow = Math.floor((vt-1)/cols);
+        const lastCol = (vt-1)%cols;
+        const lastX = padding + lastCol*(gridSize+gap);
+        const lastY = padding + hH + lastRow*(gridSize+gap);
+        drawSantaSeal(ctx, lastX+gridSize, lastY+gridSize);
+
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
 </script>
