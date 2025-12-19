@@ -3,658 +3,729 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习（圣诞版）</title>
+    <title>汉字书写练习（圣诞最终修复版）</title>
     <style>
         :root {
-            --color-bg-body: #f8fcfd;
-            --color-bg-container: #fffbf0;
-            --color-accent: #D42426; /* 圣诞红 */
-            --color-accent-green: #146B3A; /* 松叶绿 */
-            --color-accent-gold: #F8B229; /* 铃铛金 */
-            --color-border-main: #146B3A;
-            --color-grid-line: rgba(248, 178, 41, 0.4);
-            --color-active-bg: #E8F5E9;
-            --color-text-main: #2c3e50;
-            --color-text-secondary: #146B3A;
+            --color-bg: #f0f4f8;
+            --color-red: #D42426;
+            --color-green: #146B3A;
+            --color-gold: #F8B229;
+            --color-text: #2c3e50;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'SimSun', 'STSong', serif;
-            background-color: var(--color-bg-body);
-            color: var(--color-text-main);
+            font-family: 'SimSun', serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
             min-height: 100vh;
-            touch-action: manipulation;
-            /* 纸纹背景 */
-            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
-            background-size: 30px 30px;
-            overflow-x: hidden; 
-            position: relative;
+            overflow-x: hidden;
+            /* 防止手机端下拉刷新影响写字 */
+            overscroll-behavior: none; 
         }
 
-        /* --- 核心修复：特效层 --- */
-        /* 1. 烟花层 (最高层级，允许点击穿透) */
-        #fireworksContainer {
+        /* --- 1. 特效层 (z-index: 1) --- 
+           放在最底层，绝对不会挡住按钮 */
+        #effectsLayer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* 关键：不挡鼠标 */
-            z-index: 9999; /* 确保在最上层可见 */
+            z-index: 1; pointer-events: none;
+            overflow: hidden;
         }
-        .firework-particle {
-            position: absolute; width: 6px; height: 6px; border-radius: 50%;
-            box-shadow: 0 0 8px currentColor; /* 发光 */
-            animation: explode 1.2s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; }
-        }
+        .snowflake { position: absolute; top: -20px; color: #b0d4f1; animation: fall linear infinite; }
+        .firework { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: explode 1s ease-out forwards; }
+        @keyframes fall { to { transform: translateY(110vh); } }
+        @keyframes explode { to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 
-        /* 2. 雪花层 */
-        #snowContainer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* 关键 */
-            z-index: 9998;
-        }
-        .snowflake {
-            position: absolute; top: -20px; color: #b0d4f1;
-            font-size: 1.2em; opacity: 0.6;
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
-        }
-
-        /* --- 主容器 --- */
+        /* --- 2. 主界面层 (z-index: 10) --- 
+           放在上层，确保点击有效 */
         .container {
+            position: relative; z-index: 10;
             max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px;
-            overflow: hidden; position: relative; z-index: 10;
         }
 
         /* 侧边栏 */
         .sidebar {
-            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px;
-            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main);
-            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto;
-            position: relative; z-index: 100; /* 提高层级 */
+            width: 240px; background: #fff; border-radius: 12px; padding: 15px;
+            border: 2px solid var(--color-green);
+            display: flex; flex-direction: column; overflow-y: auto;
         }
+        .sidebar h2 { color: var(--color-green); text-align: center; border-bottom: 2px dashed var(--color-gold); padding-bottom: 5px; margin-bottom: 10px; }
         .left-sidebar { order: 1; } .right-sidebar { order: 3; }
-        .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
 
-        /* 主内容区 */
+        /* 中间区域 */
         .main-content {
-            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
-            background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main);
-            box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15);
-            position: relative; z-index: 50;
+            flex: 1; order: 2; display: flex; flex-direction: column; height: 100%;
+            background: rgba(255, 255, 255, 0.85); /* 半透明背景，透出烟花 */
+            border-radius: 12px; border: 3px solid var(--color-red);
+            backdrop-filter: blur(5px);
         }
 
-        header { text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main); flex-shrink: 0; }
-        h1 { color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2; font-family: 'Microsoft YaHei', sans-serif; }
-        .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
+        header { text-align: center; padding: 10px; border-bottom: 2px solid var(--color-green); }
+        h1 { color: var(--color-red); font-size: 1.5rem; text-shadow: 1px 1px 0 #fff; }
+        .sub-title { color: var(--color-green); font-size: 0.9rem; margin-top: 5px; }
 
-        .board-container { flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto; }
-        .board-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px; }
-        .board-title { color: var(--color-accent-green); font-size: 1.3rem; font-weight: bold; }
-
-        /* 书写板背景 - 糖果条纹框 */
-        .board {
-            background-color: #fff;
-            border: 10px solid transparent;
-            border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
-            border-radius: 12px; padding: 20px; flex: 1;
-            box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05);
-        }
-
-        .desktop-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 700px; margin: 0 auto; align-content: start; }
+        .board-container { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
         
-        .grid-container {
-            position: relative; width: 100%; aspect-ratio: 1 / 1;
-            background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
-            box-sizing: border-box; cursor: crosshair;
-        }
-        .grid-container.grid-active {
-            box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
+        /* 桌面格子布局 */
+        .desktop-grid-wrapper { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; 
+            width: 100%; max-width: 600px; 
         }
 
+        /* 格子样式 */
+        .grid-box {
+            position: relative; width: 100%; aspect-ratio: 1;
+            background: #fff; border: 1px solid var(--color-green); border-radius: 4px;
+            cursor: crosshair;
+        }
+        .grid-box.active {
+            box-shadow: 0 0 0 3px var(--color-gold); border-color: var(--color-gold);
+        }
+        
         /* 米字格线 */
-        .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .grid-line-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--color-grid-line); transform: translateY(-50%); }
-        .grid-line-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: var(--color-grid-line); transform: translateX(-50%); }
-        .grid-line-d1 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
-        .grid-line-d2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
+        .line { position: absolute; background: rgba(248, 178, 41, 0.4); pointer-events: none; }
+        .line-h { top: 50%; left: 0; width: 100%; height: 1px; }
+        .line-v { left: 50%; top: 0; width: 1px; height: 100%; }
+        .line-d1 { top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent 49.5%, rgba(248, 178, 41, 0.4) 50%, transparent 50.5%); }
+        .line-d2 { top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent 49.5%, rgba(248, 178, 41, 0.4) 50%, transparent 50.5%); }
 
-        .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; touch-action: none; }
-        .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
-
-        /* 控制面板组件 */
-        .info-panel-item { background-color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--color-border-main); text-align: center; }
-        .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
-        .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .color-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: bold; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .color-dot.current { transform: scale(1.3); border-color: var(--color-accent-gold); z-index: 2; }
-        .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8; }
-        .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9); }
-        .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
-        .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
-
-        /* 按钮 */
-        .button {
-            padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 100%; margin-bottom: 10px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
-            font-size: 0.9rem; line-height: 1.2; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            position: relative; z-index: 200; /* 最高层级，保证可点击 */
+        /* 画布 - 必须 touch-action: none 防止滚动 */
+        canvas.drawing-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20; touch-action: none;
         }
-        .button:active { transform: translateY(2px); }
-        .button-primary { background-color: var(--color-accent); }
-        .button-utility { background-color: #8b4513; }
-        .button-secondary { background-color: #c0392b; }
-        .button-clear-all { background-color: #d35400; }
-        .button-success { background-color: var(--color-accent-green); }
-        .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }
-        
-        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; position: relative; z-index: 200; }
-        .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
+
+        /* 装饰角标 */
+        .corner-deco { position: absolute; font-size: 16px; z-index: 5; pointer-events: none; }
+        .tl { top: 2px; left: 2px; } .tr { top: 2px; right: 2px; }
+
+        /* UI 元素 */
+        .status-box { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; text-align: center; }
+        .color-row { display: flex; justify-content: center; gap: 5px; margin-top: 5px; }
+        .color-dot { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ccc; }
+        .color-dot.active { transform: scale(1.3); border: 2px solid var(--color-gold); }
+
+        .btn {
+            display: block; width: 100%; padding: 10px; margin-bottom: 8px;
+            border: none; border-radius: 6px; font-weight: bold; color: #fff; cursor: pointer;
+            font-size: 14px; position: relative; z-index: 100; /* 确保按钮可点 */
+        }
+        .btn:active { transform: translateY(2px); }
+        .btn-red { background: var(--color-red); }
+        .btn-green { background: var(--color-green); }
+        .btn-gold { background: var(--color-gold); color: #8b4513; }
+        .btn-blue { background: #3498db; }
+
+        .input-group { display: flex; justify-content: center; gap: 5px; margin-bottom: 10px; }
+        .input-group input { width: 50px; text-align: center; border: 1px solid var(--color-green); border-radius: 4px; }
 
         /* 弹窗 */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 10000; justify-content: center; align-items: center; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 10001; }
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 600px;
+            max-height: 90vh; overflow-y: auto; text-align: center; border: 4px solid var(--color-red);
+        }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--color-red); }
 
-        .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
-        .overview-item { width: 100%; max-width: 120px; }
-        .overview-canvas-box { width: 100%; padding-bottom: 100%; position: relative; border: 1px solid var(--color-border-main); background-color: #fff; border-radius: 4px; }
-        .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
-        
         /* 手机端布局 */
-        .mobile-layout { display: none; }
+        .mobile-view { display: none; width: 100%; flex-direction: column; }
+        .mobile-preview { display: flex; overflow-x: auto; gap: 10px; padding: 10px; background: #fff; border-bottom: 1px solid #ccc; margin-bottom: 10px; }
+        .mobile-preview-item { flex-shrink: 0; width: 60px; height: 60px; border: 1px solid #ccc; position: relative; }
+        .mobile-preview-item.active { border-color: var(--color-red); box-shadow: 0 0 0 2px var(--color-red); }
         
-        @media (max-width: 1100px) {
+        .mobile-canvas-area { width: 300px; height: 300px; margin: 0 auto 15px; position: relative; border: 4px solid var(--color-red); background: #fff; }
+        
+        @media (max-width: 1000px) {
             .sidebar, .desktop-board-container { display: none !important; }
-            .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
-            .main-content { overflow: visible; padding-bottom: 20px; }
-            .mobile-layout { display: flex; flex-direction: column; width: 100%; }
-            .mobile-add-grid-section { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main); }
-            .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
-            .mobile-function-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px; }
-            .mobile-function-buttons .button:last-child { grid-column: span 2; }
-            .mobile-color-section { margin: 0 15px 15px; background: var(--color-active-bg); border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px; }
-            .mobile-board-area { display: flex; flex-direction: column; align-items: center; }
-            .mobile-current-grid { width: 280px; height: 280px; position: relative; border: 6px solid var(--color-border-board); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; border-radius: 4px; }
-            .mobile-nav { display: flex; justify-content: space-between; width: 280px; margin-bottom: 20px; }
-            .mobile-preview-bar { margin: 0 15px; background: var(--color-active-bg); border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px; overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; }
-            .mobile-preview-item { display: inline-block; width: 60px; height: 60px; border: 1px solid var(--color-border-main); background: #fff; flex-shrink: 0; position: relative; border-radius: 4px; }
-            .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
-            .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
+            .container { flex-direction: column; padding: 5px; height: auto; min-height: 100vh; }
+            .main-content { padding-bottom: 20px; }
+            .mobile-view { display: flex; }
+            .mobile-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 15px; }
+            .mobile-controls .btn:last-child { grid-column: span 2; }
         }
     </style>
 </head>
 <body>
 
-<div id="fireworksContainer"></div>
-<div id="snowContainer"></div>
+<div id="effectsLayer"></div>
 
 <div class="container">
     <div class="sidebar left-sidebar">
-        <h2>状态面板 | Статус</h2>
-        <div class="info-panel-item">
-            <div class="info-label">颜色顺序 | Цветова последователност</div>
-            <div class="color-sequence" id="colorSeqDesktop"></div>
-            <div class="color-display-row" style="margin-top:15px;">
-                <div class="color-box-wrapper"><div class="info-label">当前 | Текущ</div><div id="curColorBox" class="small-color-box"></div></div>
-                <div class="color-box-wrapper"><div class="info-label">下一笔 | Следващ</div><div id="nextColorBox" class="small-color-box"></div></div>
-            </div>
+        <h2>状态 | Status</h2>
+        <div class="status-box">
+            <div>颜色顺序</div>
+            <div class="color-row" id="colorSeqDesktop"></div>
         </div>
-        <div class="info-panel-item">
-            <div class="info-label">当前位置 | Позиция</div>
-            <div style="font-size:1.1rem; font-weight:bold; color:var(--color-accent); margin-bottom:5px;">格子 <span id="curGridNum">1</span></div>
-            <div style="font-size:0.9rem; color:var(--color-text-secondary);">笔画数: <span id="curStrokeNum">0</span></div>
+        <div class="status-box">
+            <div>当前: <span id="curIdx">1</span></div>
+            <div>笔画: <span id="strokeCount">0</span></div>
         </div>
     </div>
 
     <div class="main-content">
-        <header><h1>汉字书写练习（圣诞版）<br><span class="title-translation">Дъска за писане на китайски йероглифи (Коледно издание)</span></h1></header>
-        <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(255, 255, 255, 0.8); padding:10px; border-radius:8px; border-left:4px solid var(--color-accent-green);">
-            <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
-                🎄 节日渐变：红→金→绿→蓝→紫 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
-                🍒 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
-                🖌️ 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
-            </div>
-        </div>
+        <header>
+            <h1>汉字书写练习（圣诞版）</h1>
+            <span class="sub-title">Дъска за писане на китайски йероглифи</span>
+        </header>
+
         <div class="desktop-board-container board-container">
-            <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
-            <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
+            <div class="desktop-grid-wrapper" id="desktopGridWrapper"></div>
         </div>
-        
-        <div class="mobile-layout">
-            <div class="board-header"><div class="board-title">书写板</div></div>
-            <div class="mobile-add-grid-section">
-                 <div class="add-grid-control">
-                     <span style="font-size:0.9rem; color:var(--color-text-secondary);">添加格子 | Добави:</span>
-                     <input type="number" id="gridCountMobile" value="9" min="1" max="50">
-                     <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0; padding:6px 12px;">+</button>
-                 </div>
-                 <div class="total-info" style="margin-left:10px; font-size:0.85rem;">总数: <span id="totalGridNumMobile">9</span></div>
-            </div>
-            <div class="mobile-function-buttons">
-                <button id="btnUndoMobile" class="button button-utility">撤销上一笔<span>Отмени</span></button>
-                <button id="btnClearMobile" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
-                <button id="btnClearAllMobile" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
-                <button id="btnExportMobile" class="button button-success">导出图片<span>Експорт</span></button>
-                <button id="btnOverviewMobile" class="button button-warning">整体预览<span>Преглед</span></button>
-            </div>
-            <div class="mobile-color-section">
-                <div class="info-label" style="text-align:center; margin-bottom:5px;">颜色顺序 | Цветова последователност</div>
-                <div class="color-sequence" id="colorSeqMobile" style="margin-bottom:10px;"></div>
-                <div class="color-display-row">
-                    <div class="color-box-wrapper"><div class="info-label">当前 | Текущ</div><div id="mobileCurColorBox" class="small-color-box"></div></div>
-                    <div style="font-size:1.2rem; color:var(--color-accent-gold);">➔</div>
-                    <div class="color-box-wrapper"><div class="info-label">下一笔 | Следващ</div><div id="mobileNextColorBox" class="small-color-box"></div></div>
+
+        <div class="mobile-view">
+            <div class="mobile-preview" id="mobilePreviewBar"></div>
+            
+            <div class="mobile-canvas-area" id="mobileCanvasContainer">
                 </div>
+
+            <div class="input-group" style="margin-top:10px;">
+                <span style="line-height:30px;">添加格子:</span>
+                <input type="number" id="mobileAddCount" value="9">
+                <button class="btn btn-red" style="width:auto;" onclick="addGrids(true)">+</button>
             </div>
-            <div class="mobile-board-area">
-                <div style="margin-bottom:5px; font-weight:bold; color:var(--color-accent);">格子 <span id="mobileCurGridNum">1</span> (笔画: <span id="mobileCurStroke">0</span>)</div>
-                <div class="mobile-current-grid" id="mobileGridTarget">
-                    <div class="grid-background"><div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div></div>
-                    <canvas class="grid-canvas" id="mobileCanvas"></canvas>
-                </div>
-                <div class="mobile-nav">
-                    <button class="button button-primary" id="btnPrevMobile" style="width:48%;">上一格 | Предишна</button>
-                    <button class="button button-primary" id="btnNextMobile" style="width:48%;">下一格 | Следваща</button>
-                </div>
+
+            <div class="mobile-controls">
+                <button class="btn btn-green" onclick="prevGrid()">上一格</button>
+                <button class="btn btn-green" onclick="nextGrid()">下一格</button>
+                <button class="btn btn-gold" onclick="undo()">撤销</button>
+                <button class="btn btn-red" onclick="clearGrid()">清空当前</button>
+                <button class="btn btn-blue" onclick="exportImg()">导出图片</button>
+                <button class="btn btn-gold" onclick="showOverview()">整体预览</button>
             </div>
-            <div style="margin:0 15px 5px; font-weight:bold; color:var(--color-text-secondary); font-size:0.9rem;">快速预览 | Бърз преглед</div>
-            <div class="mobile-preview-bar" id="mobilePreviewBar"></div>
         </div>
     </div>
 
     <div class="sidebar right-sidebar">
-        <h2>工具 | Инструменти</h2>
-        <div class="info-panel-item" style="margin-bottom: 20px;">
-            <div class="info-label">添加格子 | Добави</div>
-            <div class="add-grid-control">
-                <input type="number" id="gridCount" value="9" min="1" max="50">
-                <button id="btnGenGrid" class="button button-primary" style="width:auto; margin:0;">+</button>
-            </div>
-            <div style="font-size:0.8rem; color:var(--color-text-secondary);">总数 | Общо: <span id="totalGridNum">9</span></div>
+        <h2>工具 | Tools</h2>
+        <div class="input-group">
+            <input type="number" id="pcAddCount" value="9">
+            <button class="btn btn-red" style="width:auto;" onclick="addGrids(false)">添加格子</button>
         </div>
-        <button id="btnUndo" class="button button-utility">撤销上一笔<span>Отмени</span></button>
-        <button id="btnClear" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
-        <button id="btnClearAll" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
-        <button id="btnExport" class="button button-success">导出图片<span>Експорт</span></button>
-        <button id="btnOverview" class="button button-warning">整体预览<span>Преглед</span></button>
+        <button class="btn btn-gold" onclick="undo()">撤销上一笔</button>
+        <button class="btn btn-red" onclick="clearGrid()">清空所选</button>
+        <button class="btn btn-red" onclick="resetAll()">清空所有</button>
+        <button class="btn btn-blue" onclick="exportImg()">导出图片</button>
+        <button class="btn btn-gold" onclick="showOverview()">整体预览</button>
     </div>
 </div>
 
 <div class="modal" id="exportModal">
     <div class="modal-content">
-        <button class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">&times;</button>
-        <h3 style="color:var(--color-accent); margin-bottom:15px;">导出图片 | Експортиране</h3>
-        <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center;">
-        <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | Генерирай</button>
-        <div id="exportPreviewArea" style="margin-top:15px; display:none;">
-            <p style="font-size:0.9rem; color:#666; margin-bottom:10px; font-weight:bold;">
-                长按或右键保存图片<br>
-                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително или десен бутон за запазване</span>
-            </p>
-            <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px;">
-        </div>
+        <span class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">&times;</span>
+        <h3 style="color:#D42426; margin-bottom:10px;">导出图片</h3>
+        <input type="text" id="exportName" placeholder="输入姓名" style="padding:8px; border:1px solid #ccc; border-radius:4px; margin-bottom:10px;">
+        <button class="btn btn-green" onclick="generateImage()" style="width:50%; margin:0 auto;">生成贺卡</button>
+        <div id="imgPreview" style="margin-top:15px;"></div>
     </div>
 </div>
+
 <div class="modal" id="overviewModal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-            <h3 style="color:var(--color-accent);">整体预览 | Преглед</h3>
-            <button class="close-btn" style="position:static;" onclick="document.getElementById('overviewModal').style.display='none'">&times;</button>
-        </div>
-        <div id="overviewList" class="overview-grid-wrapper"></div>
-        <div style="margin-top:10px; color:var(--color-text-secondary); font-size:0.9rem;">显示布局 | оформление: <span id="ovLayout">3x3</span></div>
+        <span class="close-btn" onclick="document.getElementById('overviewModal').style.display='none'">&times;</span>
+        <h3>整体预览</h3>
+        <div id="overviewList" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;"></div>
     </div>
 </div>
 
 <script>
+    // --- 配置 ---
     const COLORS = [
-        { s: '#D42426', e: '#FFCCCC' }, { s: '#F8B229', e: '#FFF8E0' },
-        { s: '#146B3A', e: '#D0F0D0' }, { s: '#1E90FF', e: '#D0E8FF' }, { s: '#800080', e: '#E6CCFF' }
+        { s: '#D42426', e: '#FFCCCC' }, // 红
+        { s: '#F8B229', e: '#FFF8E0' }, // 金
+        { s: '#146B3A', e: '#D0F0D0' }, // 绿
+        { s: '#1E90FF', e: '#D0E8FF' }, // 蓝
+        { s: '#800080', e: '#E6CCFF' }  // 紫
     ];
-    let totalGrids = 9; let currentGridIdx = 0; let strokesData = {}; let gridColorState = {}; 
-
-    const elDesktopWrapper = document.getElementById('desktopGridWrapper');
-    const elMobileCanvas = document.getElementById('mobileCanvas');
-    const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
-    const BASE_SIZE = 300; const BASE_LINE_WIDTH = 12; const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
-
-    window.onload = function() {
-        initSnow(); 
-        initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
-        renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
-        updateUI(); setupButtons();
+    let state = {
+        total: 9,
+        current: 0,
+        strokes: {}, // { 0: [{points:[], colorIdx:0}] }
+        colorState: {} // { 0: 2 }
     };
 
-    // 烟花 (自动播放)
-    function spawnFirework() {
-        const c = document.getElementById('fireworksContainer');
-        const x = Math.random()*100, y = Math.random()*80;
-        const colors = ['#D42426','#F8B229','#146B3A','#1E90FF'];
-        for(let i=0;i<20;i++){
-            const p = document.createElement('div');
-            p.className='firework-particle'; p.style.left=x+'vw'; p.style.top=y+'vh';
-            p.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
-            const angle=Math.random()*Math.PI*2, vel=Math.random()*100+50;
-            p.style.setProperty('--tx', Math.cos(angle)*vel+'px');
-            p.style.setProperty('--ty', Math.sin(angle)*vel+'px');
-            c.appendChild(p); setTimeout(()=>p.remove(),1200);
-        }
-    }
-    setInterval(() => { if(Math.random()>0.85) spawnFirework(); }, 2500);
+    const SIZE = 300; // 画布逻辑大小
 
-    // 雪花
-    function initSnow() {
-        const c = document.getElementById('snowContainer');
-        for(let i=0; i<30; i++) {
-            const d=document.createElement('div'); d.className='snowflake'; d.innerHTML='❄';
-            d.style.left=Math.random()*100+'vw'; d.style.animationDuration=Math.random()*3+5+'s'; 
-            d.style.animationDelay=Math.random()*5+'s'; d.style.opacity=Math.random()*0.5+0.3;
-            d.style.fontSize=Math.random()*10+10+'px'; c.appendChild(d);
-        }
+    // --- 初始化 ---
+    window.onload = () => {
+        initEffects();
+        initUI();
+        render();
+    };
+
+    // --- 核心渲染逻辑 ---
+    function render() {
+        renderDesktop();
+        renderMobile();
+        updateStatus();
     }
 
-    function initColorUI(cid) {
-        const c = document.getElementById(cid);
-        if(c) { c.innerHTML=''; COLORS.forEach((col,i)=>{ const d=document.createElement('div'); d.className='color-dot'; d.style.background=col.s; d.innerText=i+1; d.id=(cid==='colorSeqMobile'?'m-':'')+`c-dot-${i}`; c.appendChild(d); }); }
-    }
-    
-    function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
-    function calculateVisualTotal() { let m=-1; Object.keys(strokesData).forEach(i=>{ if(strokesData[i]&&strokesData[i].length>0)m=Math.max(m,parseInt(i)); }); return Math.ceil(Math.max(9,m+1)/3)*3; }
-    
-    // 米字格 HTML结构
-    function getGridBgHTML() {
-        return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>`;
-    }
-
-    function renderDesktopGrids() {
-        elDesktopWrapper.innerHTML='';
-        for(let i=0; i<totalGrids; i++){
-            const div=document.createElement('div'); div.className=`grid-container ${i===currentGridIdx?'grid-active':''}`; div.onclick=()=>switchGrid(i);
-            div.innerHTML=`<div class="grid-background">${getGridBgHTML()}</div><div class="grid-number-label">${i+1}</div>`;
-            const cvs=document.createElement('canvas'); cvs.className='grid-canvas'; cvs.width=BASE_SIZE; cvs.height=BASE_SIZE; cvs.id=`d-canvas-${i}`;
-            setupCanvasEvents(cvs, i); div.appendChild(cvs); elDesktopWrapper.appendChild(div);
-            redrawCanvas(cvs, i);
-        }
-        document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
-    }
-
-    function renderMobilePreview() {
-        elMobilePreviewBar.innerHTML='';
-        for(let i=0; i<totalGrids; i++){
-            const div=document.createElement('div'); div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`; div.onclick=()=>switchGrid(i);
-            div.innerHTML=`<div style="position:absolute;top:0;left:0;width:100%;height:100%">${getGridBgHTML()}</div>`;
-            const cvs=document.createElement('canvas'); cvs.width=100; cvs.height=100;
-            const ctx=cvs.getContext('2d'); (strokesData[i]||[]).forEach(s=>{ const sc=100/300; drawGradientStroke(ctx,s.points.map(p=>({x:p.x*sc,y:p.y*sc})),s.colorIdx,100*LINE_RATIO); });
-            div.appendChild(cvs); div.innerHTML+=`<div class="grid-number-label">${i+1}</div>`;
-            elMobilePreviewBar.appendChild(div);
+    function renderDesktop() {
+        const wrap = document.getElementById('desktopGridWrapper');
+        wrap.innerHTML = '';
+        for(let i=0; i<state.total; i++) {
+            const div = document.createElement('div');
+            div.className = `grid-box ${i === state.current ? 'active' : ''}`;
+            div.onclick = () => { state.current = i; render(); };
+            
+            // 背景结构
+            div.innerHTML = `
+                <div class="line line-h"></div><div class="line line-v"></div>
+                <div class="line line-d1"></div><div class="line line-d2"></div>
+                <div class="corner-deco tl">🍒</div><div class="corner-deco tr">🍒</div>
+                <div style="position:absolute; bottom:2px; right:5px; font-size:12px; color:#146B3A; font-weight:bold;">${i+1}</div>
+            `;
+            
+            // 画布
+            const cvs = document.createElement('canvas');
+            cvs.className = 'drawing-layer';
+            cvs.width = SIZE; cvs.height = SIZE;
+            setupCanvas(cvs, i);
+            drawStrokes(cvs, i);
+            
+            div.appendChild(cvs);
+            wrap.appendChild(div);
         }
     }
 
-    function switchGrid(idx) {
-        if(idx<0||idx>=totalGrids)return; currentGridIdx=idx;
-        document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active',i===idx));
-        document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{e.classList.toggle('active',i===idx);if(i===idx)e.scrollIntoView({behavior:"smooth",inline:"center"});});
-        redrawMobileCanvas(); updateUI();
+    function renderMobile() {
+        const container = document.getElementById('mobileCanvasContainer');
+        container.innerHTML = '';
+        
+        // 当前大格子
+        const div = document.createElement('div');
+        div.style.position = 'relative'; div.style.width='100%'; div.style.height='100%';
+        div.innerHTML = `
+            <div class="line line-h"></div><div class="line line-v"></div>
+            <div class="line line-d1"></div><div class="line line-d2"></div>
+            <div class="corner-deco tl">🍒</div><div class="corner-deco tr">🍒</div>
+        `;
+        const cvs = document.createElement('canvas');
+        cvs.className = 'drawing-layer';
+        cvs.width = SIZE; cvs.height = SIZE;
+        setupCanvas(cvs, state.current);
+        drawStrokes(cvs, state.current);
+        
+        div.appendChild(cvs);
+        container.appendChild(div);
+
+        // 预览条
+        const bar = document.getElementById('mobilePreviewBar');
+        bar.innerHTML = '';
+        for(let i=0; i<state.total; i++) {
+            const item = document.createElement('div');
+            item.className = `mobile-preview-item ${i===state.current?'active':''}`;
+            item.onclick = () => { state.current = i; render(); };
+            
+            const pCvs = document.createElement('canvas');
+            pCvs.width = 60; pCvs.height = 60;
+            pCvs.style.width='100%'; pCvs.style.height='100%';
+            drawStrokes(pCvs, i, 60/SIZE); // 缩放绘制
+            
+            item.appendChild(pCvs);
+            // 序号
+            const num = document.createElement('div');
+            num.innerText = i+1;
+            num.style.position='absolute'; num.style.bottom='0'; num.style.right='2px'; num.style.fontSize='10px';
+            item.appendChild(num);
+            
+            bar.appendChild(item);
+        }
     }
 
-    function setupCanvasEvents(canvas, gridIdx) {
-        let isDown=false; let points=[]; const ctx=canvas.getContext('2d');
-        const getPos=(e)=>{
-            const r=canvas.getBoundingClientRect(); 
-            const clientX = e.touches?e.touches[0].clientX:e.clientX;
-            const clientY = e.touches?e.touches[0].clientY:e.clientY;
+    // --- 画布事件处理 (修复偏移和滚动) ---
+    function setupCanvas(cvs, idx) {
+        const ctx = cvs.getContext('2d');
+        let isDown = false;
+        let points = [];
+
+        // 统一坐标获取
+        const getPoint = (e) => {
+            const rect = cvs.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return {
-                x:(clientX - r.left) * (BASE_SIZE / r.width),
-                y:(clientY - r.top) * (BASE_SIZE / r.height)
+                x: (clientX - rect.left) * (cvs.width / rect.width),
+                y: (clientY - rect.top) * (cvs.height / rect.height)
             };
         };
-        const start=(e)=>{ e.preventDefault(); if(gridIdx!==currentGridIdx)switchGrid(gridIdx); isDown=true; points=[getPos(e)]; spawnFirework(); };
-        const move=(e)=>{
-            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
-            const cIdx=gridColorState[gridIdx]||0;
-            ctx.beginPath();
-            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
-            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
-            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+
+        const start = (e) => {
+            if(e.cancelable) e.preventDefault(); // 阻止滚动
+            isDown = true;
+            points = [getPoint(e)];
+            spawnFirework(e.touches ? e.touches[0].clientX : e.clientX, e.touches ? e.touches[0].clientY : e.clientY);
         };
-        const end=(e)=>{
-            if(!isDown)return; isDown=false;
-            if(points.length>1) {
-                if(!strokesData[gridIdx]) strokesData[gridIdx]=[];
-                const cIdx=gridColorState[gridIdx]||0;
-                strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
-                gridColorState[gridIdx]=(cIdx+1);
-                redrawGrid(gridIdx); renderMobilePreview(); updateUI();
+
+        const move = (e) => {
+            if(!isDown) return;
+            if(e.cancelable) e.preventDefault();
+            const p = getPoint(e);
+            points.push(p);
+            
+            // 实时绘制
+            const cIdx = state.colorState[idx] || 0;
+            ctx.beginPath();
+            if(points.length > 1) {
+                ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
+                ctx.lineTo(p.x, p.y);
+            } else {
+                ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = COLORS[cIdx % 5].s;
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        };
+
+        const end = () => {
+            if(!isDown) return;
+            isDown = false;
+            if(points.length > 1) {
+                if(!state.strokes[idx]) state.strokes[idx] = [];
+                const cIdx = state.colorState[idx] || 0;
+                state.strokes[idx].push({
+                    points: [...points],
+                    colorIdx: cIdx % 5
+                });
+                state.colorState[idx] = (cIdx + 1);
+                // 仅重绘，不需完全render
+                render(); 
             }
         };
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-        canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
+
+        cvs.addEventListener('mousedown', start);
+        cvs.addEventListener('mousemove', move);
+        cvs.addEventListener('mouseup', end);
+        cvs.addEventListener('mouseleave', end);
+        
+        cvs.addEventListener('touchstart', start, {passive: false});
+        cvs.addEventListener('touchmove', move, {passive: false});
+        cvs.addEventListener('touchend', end);
     }
 
-    function setupMobileEvents() {
-        elMobileCanvas.width=BASE_SIZE; elMobileCanvas.height=BASE_SIZE;
-        let isDown=false; let points=[]; const ctx=elMobileCanvas.getContext('2d');
-        const getPos=(e)=>{
-            const r=elMobileCanvas.getBoundingClientRect(); 
-            const clientX = e.touches?e.touches[0].clientX:e.clientX;
-            const clientY = e.touches?e.touches[0].clientY:e.clientY;
-            return {x:(clientX-r.left)*(BASE_SIZE/r.width), y:(clientY-r.top)*(BASE_SIZE/r.height)};
-        };
-        const start=(e)=>{ e.preventDefault(); isDown=true; points=[getPos(e)]; spawnFirework(); };
-        const move=(e)=>{
-            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
-            const cIdx=gridColorState[currentGridIdx]||0;
-            ctx.beginPath();
-            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
-            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
-            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
-        };
-        const end=(e)=>{
-            if(!isDown)return; isDown=false;
-            if(points.length>1) {
-                if(!strokesData[currentGridIdx]) strokesData[currentGridIdx]=[];
-                const cIdx=gridColorState[currentGridIdx]||0;
-                strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
-                gridColorState[currentGridIdx]=(cIdx+1);
-                redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
+    // --- 绘制笔画 (支持渐变) ---
+    function drawStrokes(cvs, idx, scale = 1) {
+        const ctx = cvs.getContext('2d');
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        
+        const strokes = state.strokes[idx] || [];
+        strokes.forEach(stroke => {
+            const pts = stroke.points;
+            if(pts.length < 2) return;
+            
+            const color = COLORS[stroke.colorIdx];
+            const c1 = hexToRgb(color.s);
+            const c2 = hexToRgb(color.e);
+            
+            ctx.lineWidth = 12 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            const len = pts.length - 1;
+            for(let i=0; i<len; i++) {
+                const t = i / len;
+                const r = Math.round(c1.r + (c2.r - c1.r) * t);
+                const g = Math.round(c1.g + (c2.g - c1.g) * t);
+                const b = Math.round(c1.b + (c2.b - c1.b) * t);
+                
+                ctx.beginPath();
+                ctx.strokeStyle = `rgb(${r},${g},${b})`;
+                ctx.moveTo(pts[i].x * scale, pts[i].y * scale);
+                ctx.lineTo(pts[i+1].x * scale, pts[i+1].y * scale);
+                ctx.stroke();
             }
-        };
-        elMobileCanvas.addEventListener('touchstart', start, {passive:false}); elMobileCanvas.addEventListener('touchmove', move, {passive:false}); elMobileCanvas.addEventListener('touchend', end);
+        });
     }
 
-    function redrawGrid(idx) { const d=document.getElementById(`d-canvas-${idx}`); if(d) redrawCanvas(d, idx); if(idx===currentGridIdx) redrawMobileCanvas(); }
-    function redrawCanvas(canvas, idx) {
-        const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height);
-        (strokesData[idx]||[]).forEach(s=>drawGradientStroke(ctx, s.points, s.colorIdx, BASE_LINE_WIDTH));
+    // --- 逻辑功能 ---
+    function addGrids(isMobile) {
+        const id = isMobile ? 'mobileAddCount' : 'pcAddCount';
+        const val = parseInt(document.getElementById(id).value) || 1;
+        state.total += val;
+        render();
+        spawnFirework(window.innerWidth/2, window.innerHeight/2);
     }
-    function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx); }
     
-    function drawGradientStroke(ctx, points, cIdx, lineWidth) {
-        if(points.length < 2) return;
+    function undo() {
+        const s = state.strokes[state.current];
+        if(s && s.length) {
+            s.pop();
+            if(state.colorState[state.current] > 0) state.colorState[state.current]--;
+            render();
+        }
+    }
+    
+    function clearGrid() {
+        if(confirm('清空当前格子？')) {
+            state.strokes[state.current] = [];
+            state.colorState[state.current] = 0;
+            render();
+        }
+    }
+    
+    function resetAll() {
+        if(confirm('清空所有内容？')) {
+            state.strokes = {};
+            state.colorState = {};
+            state.current = 0;
+            render();
+        }
+    }
+    
+    function nextGrid() {
+        if(state.current < state.total - 1) { state.current++; render(); }
+    }
+    
+    function prevGrid() {
+        if(state.current > 0) { state.current--; render(); }
+    }
+
+    function updateStatus() {
+        document.getElementById('curIdx').innerText = state.current + 1;
+        document.getElementById('strokeCount').innerText = (state.strokes[state.current]||[]).length;
+        
+        // 更新颜色点
+        const cSeq = document.getElementById('colorSeqDesktop');
+        cSeq.innerHTML = '';
+        COLORS.forEach((c, i) => {
+            const d = document.createElement('div');
+            d.className = 'color-dot';
+            d.style.background = c.s;
+            const nextColorIndex = (state.colorState[state.current] || 0) % 5;
+            if(i === nextColorIndex) d.className += ' active';
+            cSeq.appendChild(d);
+        });
+    }
+
+    function initUI() {
+        document.getElementById('totalGridNum').innerText = state.total;
+        document.getElementById('totalGridNumMobile').innerText = state.total;
+    }
+
+    // --- 特效逻辑 ---
+    function initEffects() {
+        // 雪花
+        const snow = document.getElementById('snowContainer');
+        for(let i=0; i<30; i++) {
+            const s = document.createElement('div');
+            s.className = 'snowflake'; s.innerText = '❄';
+            s.style.left = Math.random()*100 + '%';
+            s.style.animationDuration = (Math.random()*5+5) + 's';
+            s.style.fontSize = (Math.random()*10+10) + 'px';
+            snow.appendChild(s);
+        }
+        
+        // 自动烟花
+        setInterval(() => {
+            if(Math.random() > 0.7) spawnFirework(Math.random()*window.innerWidth, Math.random()*window.innerHeight);
+        }, 1500);
+    }
+
+    function spawnFirework(x, y) {
+        const c = document.getElementById('effectsLayer');
+        const colors = ['#D42426', '#F8B229', '#146B3A', '#1E90FF'];
+        for(let i=0; i<10; i++) {
+            const p = document.createElement('div');
+            p.className = 'firework';
+            p.style.left = x + 'px'; p.style.top = y + 'px';
+            p.style.background = colors[Math.floor(Math.random()*colors.length)];
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.random() * 100 + 50;
+            p.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
+            p.style.setProperty('--ty', Math.sin(angle)*dist + 'px');
+            c.appendChild(p);
+            setTimeout(() => p.remove(), 1000);
+        }
+    }
+
+    // --- 导出逻辑 (带章和冬青) ---
+    function exportImg() {
+        document.getElementById('exportModal').style.display = 'flex';
+        document.getElementById('imgPreview').innerHTML = '生成中...';
+    }
+
+    function generateImage() {
+        const name = document.getElementById('exportName').value;
+        const cols = 3;
+        const rows = Math.ceil(state.total / 3);
+        const gap = 10;
+        const size = 150; // 导出高清基准
+        const padding = 40;
+        const headerH = 60;
+        const footerH = 100; // 留出印章空间
+        
+        const cvs = document.createElement('canvas');
+        const W = padding*2 + cols*size + (cols-1)*gap;
+        const H = padding*2 + headerH + footerH + rows*(size+gap);
+        
+        cvs.width = W * 2; cvs.height = H * 2; // 2倍高清
+        const ctx = cvs.getContext('2d');
+        ctx.scale(2, 2);
+        
+        // 背景
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, W, H);
+        
+        // 静态雪花背景
+        ctx.fillStyle = 'rgba(176, 212, 241, 0.4)';
+        for(let i=0; i<50; i++) {
+            ctx.font = Math.random()*20+10 + 'px serif';
+            ctx.fillText('❄', Math.random()*W, Math.random()*H);
+        }
+
+        // 边框
+        ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
+        ctx.strokeRect(10, 10, W-20, H-20);
+        ctx.strokeStyle = '#F8B229'; ctx.lineWidth = 2;
+        ctx.strokeRect(16, 16, W-32, H-32);
+
+        // 标题信息
+        ctx.fillStyle = '#146B3A'; ctx.font = 'bold 24px serif'; ctx.textAlign = 'left';
+        ctx.fillText(`姓名: ${name}`, padding, padding + 30);
+        ctx.fillStyle = '#D42426'; ctx.font = '16px serif'; ctx.textAlign = 'right';
+        const d = new Date();
+        ctx.fillText(`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`, W - padding, padding + 30);
+
+        // 绘制格子
+        for(let i=0; i<state.total; i++) {
+            const r = Math.floor(i / cols);
+            const c = i % cols;
+            const x = padding + c * (size + gap);
+            const y = padding + headerH + r * (size + gap);
+            
+            // 格子框
+            ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(x, y, size, size);
+            ctx.strokeStyle = '#146B3A'; ctx.lineWidth = 1; ctx.strokeRect(x, y, size, size);
+            
+            // 米字线
+            ctx.beginPath();
+            ctx.moveTo(x, y+size/2); ctx.lineTo(x+size, y+size/2);
+            ctx.moveTo(x+size/2, y); ctx.lineTo(x+size/2, y+size);
+            ctx.moveTo(x, y); ctx.lineTo(x+size, y+size);
+            ctx.moveTo(x+size, y); ctx.lineTo(x, y+size);
+            ctx.strokeStyle = 'rgba(248, 178, 41, 0.3)'; ctx.lineWidth = 1; ctx.stroke();
+            
+            // 角落装饰 (左上 + 右上)
+            drawHolly(ctx, x+5, y+5, 0); // TL
+            drawHolly(ctx, x+size-5, y+5, 1); // TR
+
+            // 笔画
+            if(state.strokes[i]) {
+                const sStrokes = state.strokes[i];
+                const scale = size / SIZE;
+                sStrokes.forEach(s => {
+                    const pts = s.points.map(p => ({x: p.x*scale + x, y: p.y*scale + y}));
+                    drawExportStroke(ctx, pts, s.colorIdx, 12 * scale);
+                });
+            }
+        }
+
+        // 印章 (右下角空白处)
+        drawSeal(ctx, W - 60, H - 60);
+
+        const img = document.getElementById('exportImgResult');
+        img.src = cvs.toDataURL();
+        img.style.display = 'block';
+    }
+
+    function drawExportStroke(ctx, pts, cIdx, lw) {
+        if(pts.length<2) return;
         const c1 = hexToRgb(COLORS[cIdx].s);
         const c2 = hexToRgb(COLORS[cIdx].e);
-        ctx.lineWidth = lineWidth; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.shadowBlur = 1; ctx.shadowColor = COLORS[cIdx].s;
-        
-        const totalSegments = points.length - 1;
-        for(let i=0; i<totalSegments; i++) {
-            const t = i / totalSegments; 
-            const r = Math.round(c1.r + (c2.r - c1.r) * t);
-            const g = Math.round(c1.g + (c2.g - c1.g) * t);
-            const b = Math.round(c1.b + (c2.b - c1.b) * t);
-            ctx.beginPath(); ctx.moveTo(points[i].x, points[i].y); ctx.lineTo(points[i+1].x, points[i+1].y);
-            ctx.strokeStyle = `rgb(${r},${g},${b})`; ctx.stroke();
-        }
-        ctx.shadowBlur = 0;
-    }
-
-    function updateUI() {
-        const idx=currentGridIdx, count=(strokesData[idx]||[]).length, nextC=(gridColorState[idx]||0)%5;
-        document.getElementById('curGridNum').innerText=idx+1; document.getElementById('curStrokeNum').innerText=count;
-        document.getElementById('mobileCurGridNum').innerText=idx+1; document.getElementById('mobileCurStroke').innerText=count;
-        const c1=COLORS[nextC].s, c2=COLORS[(nextC+1)%5].s;
-        document.getElementById('curColorBox').style.background=c1; document.getElementById('nextColorBox').style.background=c2;
-        document.getElementById('mobileCurColorBox').style.background=c1; document.getElementById('mobileNextColorBox').style.background=c2;
-        const u=(p)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${p}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
-        upd(''); upd('m-');
-    }
-
-    function setupButtons() {
-        const add=(m)=>{const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1;totalGrids+=v;renderDesktopGrids();renderMobilePreview();updateUI();spawnFirework();};
-        document.getElementById('btnGenGrid').onclick=()=>add(false);document.getElementById('btnGenGridMobile').onclick=()=>add(true);
-        const undo=()=>{const s=strokesData[currentGridIdx];if(s&&s.length){s.pop();if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--;redrawGrid(currentGridIdx);renderMobilePreview();updateUI();}};
-        document.getElementById('btnUndo').onclick=undo;document.getElementById('btnUndoMobile').onclick=undo;
-        const cls=()=>{if(confirm('清空所选格子?')){strokesData[currentGridIdx]=[];gridColorState[currentGridIdx]=0;redrawGrid(currentGridIdx);renderMobilePreview();updateUI();spawnFirework();}};
-        document.getElementById('btnClear').onclick=cls;document.getElementById('btnClearMobile').onclick=cls;
-        const cla=()=>{if(confirm('清空所有?')){strokesData={};gridColorState={};currentGridIdx=0;renderDesktopGrids();renderMobilePreview();updateUI();switchGrid(0);spawnFirework();}};
-        document.getElementById('btnClearAll').onclick=cla;document.getElementById('btnClearAllMobile').onclick=cla;
-        document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1);document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
-        const ex=()=>{document.getElementById('exportModal').style.display='flex';document.getElementById('exportPreviewArea').style.display='none';};
-        document.getElementById('btnExport').onclick=ex;document.getElementById('btnExportMobile').onclick=ex;
-        const ov=()=>{
-            const m=document.getElementById('overviewModal'),l=document.getElementById('overviewList');l.innerHTML='';
-            const vt=calculateVisualTotal();document.getElementById('ovLayout').innerText=`${vt/3}行 x 3列`;
-            for(let i=0;i<vt;i++){
-                const d=document.createElement('div');d.className='overview-item';const b=document.createElement('div');b.className='overview-canvas-box';b.innerHTML=getGridBgHTML();
-                if(i<totalGrids){
-                    const c=document.createElement('canvas');c.width=100;c.height=100;const x=c.getContext('2d');
-                    (strokesData[i]||[]).forEach(s=>{const sc=100/300;drawGradientStroke(x,s.points.map(p=>({x:p.x*sc,y:p.y*sc})),s.colorIdx,100*LINE_RATIO);});
-                    b.appendChild(c);d.innerHTML=`<div style="margin-top:5px;font-weight:bold;color:#146B3A">${i+1}</div>`;
-                } else {b.style.opacity='0.5';d.innerHTML='<div style="margin-top:5px;color:#ccc">-</div>';}
-                d.insertBefore(b,d.firstChild);l.appendChild(d);
-            } m.style.display='flex';
-        };
-        document.getElementById('btnOverview').onclick=ov;document.getElementById('btnOverviewMobile').onclick=ov;
-        document.getElementById('btnConfirmExport').onclick=doExport;
-    }
-
-    // 冬青果绘制
-    function drawHollyCorner(ctx, cx, cy, align) {
-        ctx.save(); ctx.translate(cx, cy);
-        if(align==1) ctx.scale(-1,1); // TR
-        
-        ctx.fillStyle='#146B3A'; // Leaves
-        ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-15,-5,-20,-20); ctx.quadraticCurveTo(-5,-15,0,0); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(0,0); ctx.quadraticCurveTo(-5,-15,-20,-20); ctx.quadraticCurveTo(-15,-5,0,0); ctx.fill();
-        
-        ctx.fillStyle='#D42426'; // Berries
-        ctx.beginPath(); ctx.arc(-5,-5, 4, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(-12,-8, 4, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(-8,-12, 4, 0, Math.PI*2); ctx.fill();
-        
-        ctx.fillStyle='#F8B229'; // Bells
-        ctx.beginPath(); ctx.moveTo(-5, 5); ctx.bezierCurveTo(-15, 15, -20, 20, -10, 25); ctx.bezierCurveTo(0, 20, -5, 15, -5, 5); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(5, -5); ctx.bezierCurveTo(15, -15, 20, -20, 25, -10); ctx.bezierCurveTo(20, 0, 15, -5, 5, -5); ctx.fill();
-        ctx.restore();
-    }
-
-    // 静态雪花
-    function drawStaticSnow(ctx, w, h) {
-        for(let i=0; i<60; i++) {
-            ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.font=`${Math.random()*15+10}px serif`;
-            ctx.fillText('❄', Math.random()*w, Math.random()*h);
-        }
-    }
-
-    // 镂空线条圣诞印章 (空白处)
-    function drawSantaSeal(ctx, right, bottom) {
-        const r=45, cx=right-r-10, cy=bottom-r-10; 
-        ctx.save();
-        
-        ctx.strokeStyle='#D42426'; ctx.lineWidth=3; 
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(cx, cy, r-4, 0, Math.PI*2); ctx.lineWidth=1; ctx.stroke();
-
-        ctx.lineWidth=2; ctx.beginPath(); 
-        ctx.moveTo(cx-15, cy-8); ctx.lineTo(cx+5, cy-25); ctx.lineTo(cx+20, cy-5); 
-        ctx.moveTo(cx+20, cy-5); ctx.arc(cx+22, cy-3, 3, 0, Math.PI*2); 
-        ctx.moveTo(cx-15, cy-5); ctx.quadraticCurveTo(cx, cy+25, cx+15, cy-5); 
-        ctx.moveTo(cx-12, cy+5); ctx.bezierCurveTo(cx-20, cy+25, cx+20, cy+25, cx+12, cy+5); 
-        ctx.stroke();
-        
-        ctx.fillStyle='#D42426';
-        ctx.beginPath(); ctx.arc(cx-5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx+5, cy-2, 1.5, 0, Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx, cy+2, 2, 0, Math.PI*2); ctx.fill();
-
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.font='bold 14px "SimSun", serif';
-        drawTextAlongArc(ctx, "圣诞快乐", cx, cy, r-12, -0.8, 0.8);
-        
-        ctx.font='bold 9px sans-serif';
-        drawTextAlongArc(ctx, "Весела Коледа", cx, cy, r-12, 2.4, 3.9); 
-        ctx.restore();
-    }
-
-    function drawTextAlongArc(ctx, str, cx, cy, radius, startAngle, endAngle) {
-        const angleStep = (endAngle - startAngle) / (str.length - 1);
-        for(let i=0; i<str.length; i++) {
-            const angle = startAngle + i * angleStep + Math.PI / 2; 
-            ctx.save();
-            ctx.translate(cx + Math.cos(angle - Math.PI/2) * radius, cy + Math.sin(angle - Math.PI/2) * radius);
-            ctx.rotate(angle);
-            ctx.fillText(str[i], 0, 0);
-            ctx.restore();
-        }
-    }
-
-    function doExport() {
-        const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
-        const dpr=6, gridSize=120, gap=10, padding=40, hH=60, fH=40;
-        const cvs=document.createElement('canvas'); 
-        const width = padding*2 + cols*gridSize + (cols-1)*gap;
-        const height = padding*2 + hH + fH + rows*(gridSize+gap) + 120; // 增加底部空间放印章
-        cvs.width = width * dpr; cvs.height = height * dpr;
-        const ctx=cvs.getContext('2d'); ctx.scale(dpr,dpr); 
-        
-        ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
-        drawStaticSnow(ctx, width, height);
-
-        ctx.strokeStyle='#D42426'; ctx.lineWidth=4; ctx.strokeRect(10,10,width-20,height-20);
-        ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.strokeRect(16,16,width-32,height-32);
-
-        ctx.fillStyle='#146B3A'; ctx.font='bold 24px serif'; ctx.textAlign='left'; ctx.fillText(`姓名: ${name}`, padding, padding+30);
-        ctx.fillStyle='#D42426'; ctx.font='16px serif'; ctx.textAlign='right'; 
-        const now=new Date(); ctx.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, width-padding, padding+30);
-        
-        ctx.beginPath(); ctx.moveTo(padding, padding+45); ctx.lineTo(width-padding, padding+45); ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.stroke();
-
-        for(let i=0;i<vt;i++){
-            const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
-            ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.fillRect(x,y,gridSize,gridSize);
-            ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
-            
+        ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for(let i=0; i<pts.length-1; i++) {
+            const t = i / (pts.length-1);
+            const r = Math.round(c1.r + (c2.r-c1.r)*t);
+            const g = Math.round(c1.g + (c2.g-c1.g)*t);
+            const b = Math.round(c1.b + (c2.b-c1.b)*t);
             ctx.beginPath();
-            ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
-            ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
-            ctx.strokeStyle='rgba(248,178,41,0.25)'; ctx.stroke();
-            
-            drawHollyCorner(ctx, x+5, y+5, 0); 
-            drawHollyCorner(ctx, x+gridSize-5, y+5, 1); 
+            ctx.strokeStyle = `rgb(${r},${g},${b})`;
+            ctx.moveTo(pts[i].x, pts[i].y);
+            ctx.lineTo(pts[i+1].x, pts[i+1].y);
+            ctx.stroke();
+        }
+    }
 
-            if(i<totalGrids){
-                const strokes=strokesData[i]||[];
-                strokes.forEach(s=>{
-                    const sc=gridSize/300, sp=s.points.map(p=>({x:p.x*sc+x,y:p.y*sc+y}));
-                    drawGradientStroke(ctx, sp, s.colorIdx, gridSize*LINE_RATIO);
-                });
-                ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
-            }
+    function drawHolly(ctx, x, y, type) {
+        ctx.save(); ctx.translate(x, y);
+        if(type === 1) ctx.scale(-1, 1);
+        // 叶子
+        ctx.fillStyle = '#146B3A';
+        ctx.beginPath(); ctx.ellipse(0, 0, 8, 4, Math.PI/4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 0, 8, 4, -Math.PI/4, 0, Math.PI*2); ctx.fill();
+        // 果子
+        ctx.fillStyle = '#D42426';
+        ctx.beginPath(); ctx.arc(-2, -2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(2, -2, 3, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 2, 3, 0, Math.PI*2); ctx.fill();
+        // 铃铛
+        ctx.fillStyle = '#F8B229';
+        ctx.beginPath(); ctx.arc(0, 8, 4, 0, Math.PI, true); ctx.lineTo(-4, 12); ctx.lineTo(4, 12); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawSeal(ctx, x, y) {
+        const r = 40;
+        ctx.save(); ctx.translate(x, y);
+        
+        // 镂空外圈
+        ctx.strokeStyle = '#D42426'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, r-3, 0, Math.PI*2); ctx.stroke();
+
+        // 镂空圣诞老人线条
+        ctx.beginPath();
+        ctx.moveTo(-10, -5); ctx.lineTo(0, -20); ctx.lineTo(10, -5); // 帽
+        ctx.moveTo(-10, -5); ctx.quadraticCurveTo(0, 15, 10, -5); // 脸
+        ctx.moveTo(-8, 5); ctx.quadraticCurveTo(0, 20, 8, 5); // 胡子
+        ctx.stroke();
+        ctx.beginPath(); ctx.arc(-3, -2, 1, 0, Math.PI*2); ctx.stroke(); // 眼
+        ctx.beginPath(); ctx.arc(3, -2, 1, 0, Math.PI*2); ctx.stroke(); 
+
+        // 弧形文字
+        ctx.fillStyle = '#D42426'; ctx.textAlign = 'center'; ctx.textBaseline='middle';
+        ctx.font = 'bold 12px serif';
+        
+        // 上：圣诞快乐
+        const txt1 = "圣诞快乐";
+        for(let i=0; i<txt1.length; i++) {
+            ctx.save(); ctx.rotate(-0.5 + i*0.35);
+            ctx.fillText(txt1[i], 0, -r+10); ctx.restore();
         }
         
-        // 印章盖在页脚空白处
-        drawSantaSeal(ctx, width - 20, height - 20);
+        // 下：保加利亚语
+        ctx.font = 'bold 8px sans-serif';
+        const txt2 = "Весела Коледа";
+        const step = 0.15;
+        const start = -(txt2.length * step) / 2;
+        for(let i=0; i<txt2.length; i++) {
+            ctx.save(); ctx.rotate(start + i*step);
+            ctx.fillText(txt2[i], 0, r-8); ctx.restore();
+        }
 
-        document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
+        ctx.restore();
+    }
+
+    function hexToRgb(hex) { const b=parseInt(hex.slice(1),16); return {r:(b>>16)&255,g:(b>>8)&255,b:b&255}; }
+    function showOverview() {
+        const m = document.getElementById('overviewModal');
+        const l = document.getElementById('overviewList');
+        l.innerHTML = '';
+        m.style.display = 'flex';
+        // 简单渲染预览
+        for(let i=0; i<state.total; i++) {
+            const div = document.createElement('div');
+            div.style.border = '1px solid #146B3A';
+            div.style.background = '#fff';
+            div.innerHTML = `<div style="text-align:center; color:#146B3A;">${i+1}</div>`;
+            l.appendChild(div);
+        }
     }
 </script>
 </body>
