@@ -28,45 +28,71 @@
             color: var(--color-text-main);
             min-height: 100vh;
             touch-action: manipulation;
+            /* 纸纹背景 */
             background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
             background-size: 30px 30px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* --- 装饰层 (Z-Index 调至底层 -1，修复点击问题) --- */
+        /* --- 关键修复：特效层必须 pointer-events: none --- */
         
-        /* 烟花层 */
-        .fireworks-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 6px currentColor; animation: explode 1.2s ease-out forwards; }
-        @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; } }
-
-        /* 雪花层 */
-        .snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .snowflake { position: absolute; top: -20px; color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.2); font-size: 1.2em; opacity: 0.8; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } }
-
-        /* 圣诞树 (左下角装饰，不挡操作) */
-        .christmas-scene {
-            position: fixed; bottom: 20px; left: 20px; z-index: 5; pointer-events: none;
-            display: flex; align-items: flex-end;
+        /* 1. 烟花层 (最高层级，可见但可穿透) */
+        .fireworks-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; /* 关键：允许点击穿透 */
+            z-index: 9999; 
         }
-        .xmas-tree { font-size: 140px; line-height: 1; position: relative; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-        .tree-light { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: twinkle 1s infinite alternate; }
-        @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px currentColor; } }
-        .gift-pile { font-size: 60px; margin-left: -30px; margin-bottom: 5px; }
+        .firework-particle { 
+            position: absolute; width: 6px; height: 6px; border-radius: 50%; 
+            box-shadow: 0 0 6px currentColor; 
+            animation: explode 1.2s ease-out forwards; 
+        }
+        @keyframes explode { 
+            0% { transform: translate(0, 0) scale(1); opacity: 1; } 
+            100% { transform: translate(var(--tx), var(--ty)) scale(0.1); opacity: 0; } 
+        }
 
-        /* --- 主容器 (Z-Index 调高，确保按钮可点击) --- */
+        /* 2. 雪花层 */
+        .snow-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; /* 关键 */
+            z-index: 9998; 
+        }
+        .snowflake { 
+            position: absolute; top: -20px; color: #b0d4f1; 
+            font-size: 1.2em; opacity: 0.6; 
+            animation: fall linear infinite; 
+        }
+        @keyframes fall { 
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; } 
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0.2; } 
+        }
+
+        /* --- 主界面容器 (z-index 较低，但在特效之下) --- */
         .container { 
             max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; 
-            overflow: hidden; position: relative; z-index: 100; 
+            overflow: hidden; position: relative; z-index: 10; 
         }
 
-        .sidebar { width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main); flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
-        .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
+        /* 侧边栏 */
+        .sidebar { 
+            width: 240px; background-color: var(--color-bg-container); border-radius: 12px; padding: 15px; 
+            box-shadow: 0 4px 15px rgba(20, 107, 58, 0.15); border: 2px solid var(--color-border-main); 
+            flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; 
+        }
+        .sidebar h2 { 
+            color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; 
+            border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; 
+        }
         .left-sidebar { order: 1; } .right-sidebar { order: 3; }
 
-        .main-content { flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%; background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main); box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15); }
+        /* 主内容区 */
+        .main-content { 
+            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%; 
+            background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main); 
+            box-shadow: 0 8px 25px rgba(20, 107, 58, 0.15); 
+        }
 
         header { text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main); flex-shrink: 0; }
         h1 { color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2; font-family: 'Microsoft YaHei', sans-serif; }
@@ -78,6 +104,7 @@
 
         .board {
             background-color: #fff;
+            /* 糖果条纹边框 */
             border: 10px solid transparent;
             border-image: repeating-linear-gradient(45deg, #D42426, #D42426 15px, #fff 15px, #fff 25px) 10;
             border-radius: 12px; padding: 20px; flex: 1;
@@ -95,15 +122,12 @@
             box-shadow: 0 0 0 3px var(--color-accent-gold); border-color: var(--color-accent-gold); z-index: 2;
         }
 
-        /* 米字格 */
+        /* 米字格样式 */
         .grid-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
         .grid-line-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: var(--color-grid-line); transform: translateY(-50%); }
         .grid-line-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: var(--color-grid-line); transform: translateX(-50%); }
         .grid-line-d1 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
         .grid-line-d2 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--color-grid-line) 50%, transparent calc(50% + 0.5px)); }
-
-        .grid-dot { position: absolute; width: 8px; height: 8px; background-color: var(--color-accent); border-radius: 50%; z-index: 2; }
-        .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
 
         .grid-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; touch-action: none; }
         .grid-number-label { position: absolute; bottom: 2px; right: 5px; font-size: 12px; color: var(--color-accent-green); z-index: 5; pointer-events: none; font-weight: bold; }
@@ -119,13 +143,14 @@
         .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
         .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
+        /* 按钮修复：z-index 确保在最上层 */
         .button {
             padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             width: 100%; margin-bottom: 8px; color: #fff; transition: transform 0.1s, box-shadow 0.1s;
             font-size: 0.9rem; line-height: 1.2; text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            position: relative; z-index: 101; /* 确保按钮在最上层 */
+            position: relative; z-index: 100; /* 确保可点击 */
         }
         .button:active { transform: translateY(2px); }
         .button-primary { background-color: var(--color-accent); }
@@ -135,12 +160,13 @@
         .button-success { background-color: var(--color-accent-green); }
         .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }
         
-        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
+        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; position: relative; z-index: 100; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 500; justify-content: center; align-items: center; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 501; }
+        /* 弹窗 */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20, 107, 58, 0.4); backdrop-filter: blur(5px); display: none; z-index: 5000; justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); z-index: 5001; }
 
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
         .overview-item { width: 100%; max-width: 120px; }
@@ -167,7 +193,6 @@
             .mobile-preview-item { display: inline-block; width: 60px; height: 60px; border: 1px solid var(--color-border-main); background: #fff; flex-shrink: 0; position: relative; border-radius: 4px; }
             .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
             .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
-            .christmas-scene { display: none; }
         }
     </style>
 </head>
@@ -175,16 +200,6 @@
 
 <div class="fireworks-container" id="fireworksContainer"></div>
 <div class="snow-container" id="snowContainer"></div>
-
-<div class="christmas-scene">
-    <div class="xmas-tree">🎄
-        <div class="tree-light" style="top:30%; left:45%; background:red; animation-delay:0s"></div>
-        <div class="tree-light" style="top:50%; left:35%; background:gold; animation-delay:0.5s"></div>
-        <div class="tree-light" style="top:60%; left:60%; background:blue; animation-delay:1s"></div>
-        <div class="tree-light" style="top:75%; left:40%; background:purple; animation-delay:0.2s"></div>
-    </div>
-    <div class="gift-pile">🎁</div>
-</div>
 
 <div class="container">
     <div class="sidebar left-sidebar">
@@ -327,7 +342,7 @@
         updateUI(); setupButtons();
     };
 
-    // 烟花
+    // 烟花逻辑
     function spawnFirework() {
         const c = document.getElementById('fireworksContainer');
         const x = Math.random()*100, y = Math.random()*80;
@@ -366,8 +381,7 @@
     
     // 米字格 HTML结构 (仅用于预览)
     function getGridBgHTML() {
-        return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>
-                <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>`;
+        return `<div class="grid-line-d1"></div><div class="grid-line-d2"></div><div class="grid-line-h"></div><div class="grid-line-v"></div>`;
     }
 
     function renderDesktopGrids() {
@@ -500,7 +514,7 @@
         const c1=COLORS[nextC].s, c2=COLORS[(nextC+1)%5].s;
         document.getElementById('curColorBox').style.background=c1; document.getElementById('nextColorBox').style.background=c2;
         document.getElementById('mobileCurColorBox').style.background=c1; document.getElementById('mobileNextColorBox').style.background=c2;
-        const upd=(pf)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${pf}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
+        const u=(p)=>COLORS.forEach((_,x)=>{const e=document.getElementById(`${p}c-dot-${x}`);if(e){e.className='color-dot';if(x===nc)e.classList.add('current');else if(x===(nc+1)%5)e.classList.add('next');}});
         upd(''); upd('m-');
     }
 
@@ -565,7 +579,7 @@
         }
     }
 
-    // 镂空线条圣诞印章 (压角，真正弧形文字)
+    // 镂空线条圣诞印章 (空白处，真正弧形文字)
     function drawSantaSeal(ctx, right, bottom) {
         // 圆心位置：右下角往外偏移
         const r=45, cx=right-r+15, cy=bottom-r+15; 
@@ -673,7 +687,7 @@
         const lastCol = (vt-1)%cols;
         const lastX = padding + lastCol*(gridSize+gap);
         const lastY = padding + hH + lastRow*(gridSize+gap);
-        drawSantaSeal(ctx, lastX+gridSize, lastY+gridSize);
+        drawSantaSeal(ctx, width - padding - 10, height - padding - 10);
 
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
