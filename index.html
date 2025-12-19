@@ -7,23 +7,23 @@
     <style>
         :root {
             /* --- 圣诞配色方案 --- */
-            --color-bg-body: #fdfcf8; /* 雪白色背景 */
-            --color-bg-container: #fffbf0; /* 暖白 */
-            --color-bg-board: #fff; /* 纯白书写纸 */
+            --color-bg-body: #fdfcf8;
+            --color-bg-container: #fffbf0;
+            --color-bg-board: #fff;
             
-            --color-text-main: #2c3e50; /* 深蓝灰文字 */
-            --color-text-secondary: #5a6e65; /* 松绿色文字 */
+            --color-text-main: #2c3e50;
+            --color-text-secondary: #5a6e65;
             
-            --color-accent: #D42426; /* 圣诞红 (重点色) */
-            --color-accent-green: #146B3A; /* 松叶绿 (辅助色) */
-            --color-accent-gold: #F8B229; /* 铃铛金 (装饰色) */
+            --color-accent: #D42426; /* 圣诞红 */
+            --color-accent-green: #146B3A;
+            --color-accent-gold: #F8B229;
             
-            --color-border-main: #146B3A; /* 绿色边框 */
-            --color-border-board: #D42426; /* 红色书写板框 */
+            --color-border-main: #146B3A;
+            --color-border-board: #D42426;
             
-            --color-grid-line: rgba(20, 107, 58, 0.15); /* 淡淡的绿色网格 */
-            --color-active-bg: #E8F5E9; /* 浅绿色激活背景 */
-            --color-grid-dot: #F8B229; /* 金色点 */
+            --color-grid-line: rgba(20, 107, 58, 0.15);
+            --color-active-bg: #E8F5E9;
+            --color-grid-dot: #D42426; /* 改回红色点 */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,11 +34,11 @@
             color: var(--color-text-main);
             min-height: 100vh;
             touch-action: manipulation;
-            /* 背景纹理：淡淡的雪花 */
             background-image: radial-gradient(#e6e6e6 1px, transparent 1px), radial-gradient(#e6e6e6 1px, transparent 1px);
             background-position: 0 0, 25px 25px;
             background-size: 50px 50px;
             overflow-x: hidden;
+            width: 100%;
         }
 
         /* --- 雪花动画 --- */
@@ -100,7 +100,7 @@
         .board {
             background-color: var(--color-bg-board); border: 8px solid var(--color-border-board);
             border-radius: 12px; padding: 20px; flex: 1;
-            box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05); /* 内发光 */
+            box-shadow: inset 0 0 20px rgba(212, 36, 38, 0.05);
         }
 
         /* 桌面网格布局 */
@@ -114,8 +114,6 @@
             position: relative; width: 100%; aspect-ratio: 1 / 1; 
             background-color: #fff; border: 1px solid var(--color-border-main); border-radius: 4px;
         }
-        
-        /* 激活格子高亮 - 金色光环 */
         .grid-container.grid-active {
             box-shadow: 0 0 0 3px var(--color-accent-gold), 0 0 10px var(--color-accent-gold);
             border-color: var(--color-accent-gold); z-index: 2;
@@ -134,24 +132,17 @@
         .diagonal-1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
         .diagonal-2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
         
-        /* 修改：铃铛装饰 (替换原有的星星点) */
+        /* 修改：恢复为红色圆点 */
         .grid-dot { 
             position: absolute;
-            font-size: 14px;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* 移除原来的 clip-path 和背景色 */
+            width: 6px; height: 6px; 
+            background-color: var(--color-grid-dot); 
+            border-radius: 50%;
         }
-        .grid-dot::before {
-            content: '🔔'; /* 铃铛 Emoji */
-        }
-        
-        .dot-tl { top: 8%; left: 8%; } 
-        .dot-tr { top: 8%; right: 8%; }
-        .dot-bl { bottom: 8%; left: 8%; } 
-        .dot-br { bottom: 8%; right: 8%; }
+        .dot-tl { top: 10%; left: 10%; } 
+        .dot-tr { top: 10%; right: 10%; }
+        .dot-bl { bottom: 10%; left: 10%; } 
+        .dot-br { bottom: 10%; right: 10%; }
 
         /* 画布 */
         .grid-canvas {
@@ -191,7 +182,7 @@
         .color-box-wrapper { display: flex; flex-direction: column; align-items: center; }
         .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
-        /* 按钮通用样式 - 圣诞风格 */
+        /* 按钮通用样式 */
         .button {
             padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
@@ -204,12 +195,12 @@
         .button span { font-size: 0.75rem; opacity: 0.9; font-weight: normal; margin-top: 2px; }
         .button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        .button-primary { background-color: var(--color-accent); } /* 红色按钮 */
-        .button-utility { background-color: #8b4513; } /* 棕色按钮 */
-        .button-secondary { background-color: #c0392b; } /* 深红 */
-        .button-clear-all { background-color: #d35400; } /* 橙红 */
-        .button-success { background-color: var(--color-accent-green); }   /* 绿色按钮 */
-        .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }   /* 金色按钮 */
+        .button-primary { background-color: var(--color-accent); } 
+        .button-utility { background-color: #8b4513; } 
+        .button-secondary { background-color: #c0392b; } 
+        .button-clear-all { background-color: #d35400; } 
+        .button-success { background-color: var(--color-accent-green); }   
+        .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }   
         
         .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
@@ -229,7 +220,7 @@
 
         /* 整体预览列表 */
         .overview-grid-wrapper {
-            display: grid; grid-template-columns: repeat(3, 1fr); /* 强制3列 */
+            display: grid; grid-template-columns: repeat(3, 1fr); 
             gap: 15px; padding: 10px; justify-items: center;
         }
         .overview-item {
@@ -241,57 +232,73 @@
         }
         .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
         
-        /* 手机端独有样式 */
+        /* 手机端布局优化 */
         .mobile-layout { display: none; }
         
         /* --- 强制手机布局断点 1100px --- */
         @media (max-width: 1100px) {
             .sidebar, .desktop-board-container { display: none !important; }
-            .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
-            .main-content { overflow: visible; padding-bottom: 20px; }
-            .mobile-layout { display: flex; flex-direction: column; width: 100%; }
+            
+            /* 适配手机端宽度，去掉固定margin，使用flex居中 */
+            .container { 
+                flex-direction: column; height: auto; min-height: 100vh; 
+                padding: 10px 5px; /* 减少左右padding */
+                overflow-y: auto; 
+                width: 100%;
+            }
+            .main-content { 
+                overflow: visible; padding-bottom: 20px; border: none; box-shadow: none; background: transparent; 
+            }
+            .mobile-layout { 
+                display: flex; flex-direction: column; width: 100%; align-items: center; 
+            }
 
+            /* 头部控制区 */
             .mobile-add-grid-section {
                 display: flex; justify-content: center; align-items: center; gap: 10px;
-                margin-bottom: 15px; padding: 10px; 
+                margin-bottom: 10px; padding: 10px; width: 95%; max-width: 500px;
                 background-color: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main);
             }
             .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
             .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
 
             .mobile-function-buttons {
-                display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px;
+                display: grid; grid-template-columns: 1fr 1fr; gap: 8px; 
+                width: 95%; max-width: 500px; margin-bottom: 15px;
             }
             .mobile-function-buttons .button:last-child { grid-column: span 2; }
 
             .mobile-color-section {
-                margin: 0 15px 15px; background-color: var(--color-active-bg);
+                width: 95%; max-width: 500px; margin-bottom: 15px;
+                background-color: var(--color-active-bg);
                 border: 1px solid var(--color-border-main); border-radius: 8px; padding: 10px;
             }
 
             .mobile-board-area {
-                display: flex; flex-direction: column; align-items: center;
+                display: flex; flex-direction: column; align-items: center; width: 100%;
             }
+            
+            /* 关键修改：手机端格子自适应宽度 */
             .mobile-current-grid { 
-                width: 280px; height: 280px; position: relative; 
+                width: 85vw; /* 屏幕宽度的85% */
+                height: 85vw; /* 保持正方形 */
+                max-width: 340px; max-height: 340px; /* 限制最大尺寸 */
+                position: relative; 
                 border: 6px solid var(--color-border-board); background: #fff;
                 box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; border-radius: 4px;
             }
 
-            .mobile-nav { display: flex; justify-content: space-between; width: 280px; margin-bottom: 20px; }
+            /* 导航按钮宽度与格子一致 */
+            .mobile-nav { 
+                display: flex; justify-content: space-between; 
+                width: 85vw; max-width: 340px;
+                margin-bottom: 20px; 
+            }
             
-            .mobile-preview-bar {
-                margin: 0 15px; background: var(--color-active-bg);
-                border: 1px solid var(--color-border-main); border-radius: 8px;
-                padding: 10px; overflow-x: auto; white-space: nowrap; display: flex; gap: 10px;
+            /* 隐藏底部预览栏 */
+            .mobile-preview-bar, .mobile-preview-title {
+                display: none !important;
             }
-            .mobile-preview-item {
-                display: inline-block; width: 60px; height: 60px;
-                border: 1px solid var(--color-border-main); background: #fff;
-                flex-shrink: 0; position: relative; border-radius: 4px;
-            }
-            .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
-            .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
         }
     </style>
 </head>
@@ -330,6 +337,7 @@
             <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
             <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
         </div>
+        
         <div class="mobile-layout">
             <div class="board-header"><div class="board-title">书写板</div></div>
             <div class="mobile-add-grid-section">
@@ -367,9 +375,7 @@
                     <button class="button button-primary" id="btnNextMobile" style="width:48%;">下一格 | Следваща</button>
                 </div>
             </div>
-            <div style="margin:0 15px 5px; font-weight:bold; color:var(--color-text-secondary); font-size:0.9rem;">快速预览 | Бърз преглед</div>
-            <div class="mobile-preview-bar" id="mobilePreviewBar"></div>
-        </div>
+            </div>
     </div>
 
     <div class="sidebar right-sidebar">
@@ -429,7 +435,6 @@
 
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
-    const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
     // 基础尺寸
     const BASE_SIZE = 300;
@@ -439,7 +444,9 @@
     window.onload = function() {
         initSnow(); // 启动雪花
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
-        renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
+        renderDesktopGrids(); 
+        // 手机端预览条已移除，无需渲染
+        setupMobileEvents();
         updateUI(); setupButtons();
     };
 
@@ -479,7 +486,7 @@
     }
     
     function getGridBgHTML() {
-        // 四角变成铃铛(CSS中定义content)
+        // 回归红色圆点 (CSS控制)
         return `<div class="diagonal-1"></div><div class="diagonal-2"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>
                 <div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>
@@ -501,33 +508,10 @@
         document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
     }
 
-    function renderMobilePreview() {
-        elMobilePreviewBar.innerHTML='';
-        for(let i=0; i<totalGrids; i++){
-            const div=document.createElement('div'); div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`; div.onclick=()=>switchGrid(i);
-            const bg=document.createElement('div'); bg.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;"; bg.innerHTML=getGridBgHTML();
-            const cvs=document.createElement('canvas'); 
-            const previewSize = 100; cvs.width=previewSize; cvs.height=previewSize;
-            
-            const ctx=cvs.getContext('2d'); 
-            const s=strokesData[i]||[]; 
-            const scale=previewSize/BASE_SIZE;
-            const previewLineWidth = previewSize * LINE_RATIO;
-
-            s.forEach(st => {
-                const sp = st.points.map(p => ({x:p.x*scale, y:p.y*scale}));
-                drawGradientStroke(ctx, sp, st.colorIdx, previewLineWidth);
-            });
-            const lbl=document.createElement('div'); lbl.className='mobile-preview-label'; lbl.innerText=i+1;
-            div.appendChild(bg); div.appendChild(cvs); div.appendChild(lbl); elMobilePreviewBar.appendChild(div);
-        }
-    }
-
     function switchGrid(idx) {
         if(idx<0||idx>=totalGrids)return;
         currentGridIdx=idx;
         document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active', i===idx));
-        document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{ e.classList.toggle('active', i===idx); if(i===idx) e.scrollIntoView({behavior:"smooth", inline:"center"}); });
         redrawMobileCanvas(); updateUI();
     }
 
@@ -557,7 +541,7 @@
                 const cIdx=gridColorState[gridIdx]||0;
                 strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[gridIdx]=(cIdx+1);
-                redrawGrid(gridIdx); renderMobilePreview(); updateUI();
+                redrawGrid(gridIdx); updateUI();
             }
         };
         canvas.addEventListener('mousedown', start);
@@ -590,7 +574,7 @@
                 const cIdx=gridColorState[currentGridIdx]||0;
                 strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
                 gridColorState[currentGridIdx]=(cIdx+1);
-                redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
+                redrawGrid(currentGridIdx); updateUI();
             }
         };
         elMobileCanvas.addEventListener('touchstart', start, {passive:false});
@@ -647,13 +631,13 @@
 
     function setupButtons() {
         const add=(m)=>{ const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1; totalGrids+=v; renderDesktopGrids();
-        renderMobilePreview(); updateUI(); };
+        updateUI(); };
         document.getElementById('btnGenGrid').onclick=()=>add(false); document.getElementById('btnGenGridMobile').onclick=()=>add(true);
-        const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
+        const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); updateUI();} };
         document.getElementById('btnUndo').onclick=undo; document.getElementById('btnUndoMobile').onclick=undo;
-        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
+        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); updateUI();} };
         document.getElementById('btnClear').onclick=cls; document.getElementById('btnClearMobile').onclick=cls;
-        const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); renderMobilePreview(); updateUI();
+        const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); updateUI();
         switchGrid(0);} };
         document.getElementById('btnClearAll').onclick=cla; document.getElementById('btnClearAllMobile').onclick=cla;
         document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1); document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
@@ -711,7 +695,7 @@
         ctx.strokeRect(16, 16, width-32, height-32);
         // 3. 头部信息
         ctx.fillStyle='#146B3A'; ctx.font='bold 20px serif'; ctx.textAlign='left';
-        // 修改：改为“姓名”
+        
         ctx.fillText(name?`姓名: ${name}`:'Merry Christmas!', padding, padding + 25);
         
         ctx.fillStyle='#D42426'; ctx.font='14px serif'; ctx.textAlign='right'; 
@@ -736,16 +720,16 @@
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(20,107,58,0.15)'; ctx.stroke();
             
-            // 修改：绘制铃铛 Emoji (替代圆点)
-            ctx.fillStyle = '#F8B229'; // 并不影响 emoji 颜色，但保持一致性
-            ctx.font = '14px sans-serif'; 
-            ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'middle';
+            // 修改：绘制红色圆点 (替代铃铛)
+            ctx.fillStyle = '#D42426'; // 红色
+            const dotR = 2; // 圆点半径
+            const off = 10;
+            const drawDot = (dx, dy) => { ctx.beginPath(); ctx.arc(dx, dy, dotR, 0, Math.PI*2); ctx.fill(); };
             
-            ctx.fillText('🔔', x+10, y+10);
-            ctx.fillText('🔔', x+gridSize-10, y+10);
-            ctx.fillText('🔔', x+10, y+gridSize-10);
-            ctx.fillText('🔔', x+gridSize-10, y+gridSize-10);
+            drawDot(x+off, y+off);
+            drawDot(x+gridSize-off, y+off);
+            drawDot(x+off, y+gridSize-off);
+            drawDot(x+gridSize-off, y+gridSize-off);
 
             if(i<totalGrids){
                 const strokes = strokesData[i]||[];
