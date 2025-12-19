@@ -361,8 +361,11 @@
         <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center;">
         <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | Генерирай</button>
         <div id="exportPreviewArea" style="margin-top:15px; display:none;">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">
+                长按或右键保存图片<br>
+                <span style="font-size:0.8rem; font-style:italic;">Натиснете продължително или десен бутон за запазване</span>
+            </p>
             <img id="exportImgResult" style="max-width:100%; border:1px solid var(--color-border-main); border-radius:4px;">
-            <p style="font-size:0.9rem; color:#666; margin-top:10px;">长按或右键保存图片<br><span style="font-size:0.8rem; font-style:italic;">Натиснете продължително или десен бутон за запазване</span></p>
         </div>
     </div>
 </div>
@@ -388,7 +391,7 @@
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
     
-    // 屏幕上格子默认大小 300px，线条 12px，比例 0.04
+    // 基础尺寸定义
     const BASE_SIZE = 300;
     const BASE_LINE_WIDTH = 12;
     const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; // 0.04
@@ -486,7 +489,7 @@
             }
         };
         canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-        canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
+        canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
     }
 
     function setupMobileEvents() {
@@ -525,14 +528,26 @@
     }
     function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx); }
     
-    // 绘图核心：加入 shadowBlur 来实现平滑抗锯齿
     function drawGradientStroke(ctx, points, cIdx, lineWidth) {
-        if(points.length<2) return;
+        if(points.length < 2) return;
         const color = COLORS[cIdx];
-        const grad = ctx.createLinearGradient(points[0].x, points[0].y, points[points.length-1].x, points[points.length-1].y);
+        const startP = points[0];
+        let endP = points[points.length - 1];
+
+        // 修复闭合回路渐变问题
+        const dist = Math.hypot(endP.x - startP.x, endP.y - startP.y);
+        if (dist < 20) { 
+            let maxDist = 0;
+            for (let p of points) {
+                const d = Math.hypot(p.x - startP.x, p.y - startP.y);
+                if (d > maxDist) { maxDist = d; endP = p; }
+            }
+        }
+
+        const grad = ctx.createLinearGradient(startP.x, startP.y, endP.x, endP.y);
         grad.addColorStop(0, color.s); grad.addColorStop(1, color.e);
         
-        ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
+        ctx.beginPath(); ctx.moveTo(startP.x, startP.y);
         for(let i=1; i<points.length; i++) ctx.lineTo(points[i].x, points[i].y);
         
         ctx.strokeStyle = grad; 
@@ -540,13 +555,11 @@
         ctx.lineCap = 'round'; 
         ctx.lineJoin = 'round';
         
-        // 【关键修复】添加微量阴影来实现抗锯齿羽化
-        ctx.shadowBlur = 1; // 轻微羽化
-        ctx.shadowColor = color.s; 
+        // 关键修复：使用阴影羽化消除锯齿
+        ctx.shadowBlur = 1; 
+        ctx.shadowColor = color.s;
         
         ctx.stroke();
-        
-        // 重置阴影，以免影响其他绘制
         ctx.shadowBlur = 0;
     }
 
@@ -582,14 +595,10 @@
                 b.innerHTML=getGridBgHTML();
                 if(i<totalGrids){
                     const c=document.createElement('canvas'); 
-                    // 预览弹窗中的尺寸
                     const prevSize = 100;
                     c.width=prevSize; c.height=prevSize; 
                     const x=c.getContext('2d');
-                    
-                    // 计算预览弹窗中的粗细：100 * 0.04 = 4px
                     const ovLineWidth = prevSize * LINE_RATIO;
-                    
                     (strokesData[i]||[]).forEach(s=>{
                         const sc = prevSize / BASE_SIZE;
                         const sp = s.points.map(p=>({x:p.x*sc, y:p.y*sc}));
@@ -607,32 +616,27 @@
     function doExport() {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
         
-        // 【关键升级】导出分辨率设为 6倍 超高清
+        // 6倍超高清抗锯齿
         const dpr = 6;
         
         const gridSize = 120;
         const gap=10, padding=30, hH=50, fH=40;
-        
-        // 计算导出时的线条粗细：保持 0.04 比例
-        // 120 * 0.04 = 4.8px
         const exportLineWidth = gridSize * LINE_RATIO; 
 
         const cvs=document.createElement('canvas');
         const width = padding*2 + cols*gridSize + (cols-1)*gap;
         const height = padding*2 + hH + fH + rows*(gridSize+gap);
         
-        // 设置超高清物理像素
         cvs.width = width * dpr;
         cvs.height = height * dpr;
         
         const ctx=cvs.getContext('2d'); 
-        ctx.scale(dpr, dpr); // 缩放坐标系，保证绘制逻辑不变
+        ctx.scale(dpr, dpr); 
         
         ctx.fillStyle='#fff5e6'; ctx.fillRect(0,0,width,height);
         ctx.fillStyle='#8b4513'; ctx.font='bold 20px serif'; ctx.textAlign='left'; ctx.fillText(name?`姓名: ${name}`:'汉字练习', padding, padding+25);
         ctx.fillStyle='#7a5c3c'; ctx.font='14px serif'; ctx.textAlign='right'; 
         
-        // 强制格式：YYYY/M/D (例如 2025/5/15)
         const now = new Date();
         const dateStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
         ctx.fillText(dateStr, width-padding, padding+25);
@@ -643,7 +647,6 @@
             const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
             ctx.fillStyle='#fffaf5'; ctx.fillRect(x,y,gridSize,gridSize); ctx.strokeStyle='#d4b483'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
-            // 强制画出米字格
             ctx.beginPath();
             ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
             ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
@@ -651,11 +654,9 @@
             
             if(i<totalGrids){
                 const strokes = strokesData[i]||[];
-                // 缩放比例 120 / 300
                 const sc = gridSize / BASE_SIZE;
                 strokes.forEach(s=>{
                     const sp = s.points.map(p=>({x:p.x*sc+x, y:p.y*sc+y}));
-                    // 使用动态计算的粗细
                     drawGradientStroke(ctx, sp, s.colorIdx, exportLineWidth);
                 });
                 ctx.fillStyle='#7a5c3c'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
