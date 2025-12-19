@@ -307,6 +307,7 @@
 <div class="container">
     <div class="sidebar left-sidebar">
         <h2>状态面板 | Статус</h2>
+        
         <div class="info-panel-item">
             <div class="info-label">颜色顺序 | Цветова последователност</div>
             <div class="color-sequence" id="colorSeqDesktop"></div>
@@ -644,7 +645,7 @@
         document.getElementById('btnGenGrid').onclick=()=>add(false); document.getElementById('btnGenGridMobile').onclick=()=>add(true);
         const undo=()=>{ const s=strokesData[currentGridIdx]; if(s&&s.length){s.pop(); if(gridColorState[currentGridIdx]>0)gridColorState[currentGridIdx]--; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
         document.getElementById('btnUndo').onclick=undo; document.getElementById('btnUndoMobile').onclick=undo;
-        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();} };
+        const cls=()=>{ if(confirm('清空所选格子?')) {strokesData[currentGridIdx]=[]; gridColorState[currentGridIdx]=0; redrawGrid(currentGridIdx); renderMobilePreview(); updateUI(); switchGrid(0);} };
         document.getElementById('btnClear').onclick=cls; document.getElementById('btnClearMobile').onclick=cls;
         const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); renderMobilePreview(); updateUI(); switchGrid(0);} };
         document.getElementById('btnClearAll').onclick=cla; document.getElementById('btnClearAllMobile').onclick=cla;
@@ -688,6 +689,64 @@
       }
       ctx.lineTo(cx,cy-outerRadius); ctx.closePath(); ctx.fill();
     }
+    
+    // 绘制静态雪花 (用于导出图片)
+    function drawStaticSnow(ctx, w, h) {
+        const snowCount = 80; // 雪花数量
+        ctx.fillStyle = 'rgba(220, 238, 251, 0.6)'; // 淡淡的蓝白色，半透明
+        for(let i=0; i<snowCount; i++) {
+            const x = Math.random() * w;
+            const y = Math.random() * h;
+            const size = Math.random() * 15 + 10; // 10px - 25px 大小
+            ctx.font = `${size}px sans-serif`;
+            ctx.fillText('❄', x, y);
+        }
+    }
+
+    // 绘制圣诞印章 (含保加利亚语)
+    function drawChristmasSeal(ctx, right, bottom) {
+        const sealSize = 90;
+        const x = right - sealSize;
+        const y = bottom - sealSize - 15; // 留出位置给下面的文字
+        
+        ctx.save();
+
+        // 印章主体 (圆角正方形)
+        ctx.strokeStyle = '#D42426';
+        ctx.fillStyle = 'rgba(212, 36, 38, 0.05)'; // 极淡红背景
+        ctx.lineWidth = 3;
+        
+        // 使用简单的路径绘制圆角矩形以兼容旧浏览器
+        const r = 8; 
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.arcTo(x+sealSize, y, x+sealSize, y+sealSize, r);
+        ctx.arcTo(x+sealSize, y+sealSize, x, y+sealSize, r);
+        ctx.arcTo(x, y+sealSize, x, y, r);
+        ctx.arcTo(x, y, x+sealSize, y, r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // 中文：2x2 排列
+        ctx.fillStyle = '#D42426';
+        ctx.font = 'bold 32px "SimSun", serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const cx = x + sealSize / 2;
+        const cy = y + sealSize / 2;
+        const offset = 18;
+        ctx.fillText('圣', cx - offset, cy - offset); // 左上
+        ctx.fillText('诞', cx + offset, cy - offset); // 右上
+        ctx.fillText('快', cx - offset, cy + offset); // 左下
+        ctx.fillText('乐', cx + offset, cy + offset); // 右下
+
+        // 保加利亚语翻译 (印章下方)
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('Весела Коледа', cx, y + sealSize + 12);
+
+        ctx.restore();
+    }
 
     function doExport() {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
@@ -707,6 +766,10 @@
         
         // 1. 圣诞贺卡背景
         ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
+
+        // --- 新增：绘制静态雪花背景 ---
+        drawStaticSnow(ctx, width, height);
+        // ---------------------------
         
         // 2. 双层节日边框
         ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
@@ -729,7 +792,8 @@
         // 4. 绘制格子
         for(let i=0; i<vt; i++){
             const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
-            ctx.fillStyle='#fff'; ctx.fillRect(x,y,gridSize,gridSize); 
+            // 格子背景设为半透明，让雪花透出来一点
+            ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(x,y,gridSize,gridSize); 
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
             // 绘制米字格
@@ -755,6 +819,10 @@
                 ctx.fillStyle='#D42426'; ctx.font='10px serif'; ctx.textAlign='right'; ctx.fillText(i+1, x+gridSize-3, y+gridSize-3);
             }
         }
+
+        // 5. 绘制圣诞印章
+        drawChristmasSeal(ctx, width - padding, height - padding);
+
         document.getElementById('exportImgResult').src=cvs.toDataURL(); document.getElementById('exportPreviewArea').style.display='block';
     }
 </script>
