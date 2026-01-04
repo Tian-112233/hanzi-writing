@@ -44,7 +44,7 @@
             padding-top: 50px; /* 为彩灯留出空间 */
         }
 
-        /* --- 全新设计：精致典雅小彩灯 --- */
+        /* --- 极简悬挂小彩灯 (无黑块、悬挂式) --- */
         .light-rope-container {
             position: fixed;
             top: -10px;
@@ -53,13 +53,13 @@
             z-index: 9998;
             pointer-events: none;
             overflow: hidden;
-            height: 60px; /* 限制高度 */
+            height: 60px;
         }
 
         .light-rope {
             display: flex;
-            justify-content: space-evenly; /* 均匀分布 */
-            width: 120%; /* 比屏幕宽一点，确保两端自然 */
+            justify-content: space-evenly;
+            width: 120%; /* 略宽于屏幕，使得两端自然延伸 */
             margin-left: -10%;
             padding: 0;
             list-style: none;
@@ -67,67 +67,48 @@
 
         .light-rope li {
             position: relative;
-            margin: 0 15px; /* 灯泡间距 */
+            margin: 0 15px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }
         
-        /* 模拟电线 (优雅的垂坠弧线) */
+        /* 电线 (细深绿线) */
         .light-rope li:before {
             content: "";
             position: absolute;
-            top: 0px;
+            top: 0;
             left: -50%;
             width: 200%;
-            height: 30px;
-            border-top: 2px solid #2a2a2a; /* 深色细电线 */
+            height: 35px;
+            border-top: 2px solid #0f4d2a; /* 深松绿电线 */
             border-radius: 50%;
             z-index: -1;
         }
 
-        /* 灯泡底座 (Socket) */
-        .bulb-socket {
-            width: 8px;
-            height: 8px;
-            background: #2a2a2a;
-            margin: 0 auto;
-            border-radius: 2px;
-            position: relative;
-            top: 14px; /* 调整垂直位置 */
-        }
-
-        /* 灯泡主体 (Bulb) - 小巧精致型 */
+        /* 灯泡主体 (直接悬挂，去掉了黑方块) */
         .bulb {
-            width: 12px;
-            height: 18px;
-            border-radius: 50%; /* 椭圆形 */
-            background: #ccc;
-            margin: -2px auto 0; /*紧贴底座*/
+            width: 10px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff; /* 默认色 */
             position: relative;
+            top: 14px; /* 挂在电线弧度最低点附近 */
             z-index: 1;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-            animation-duration: 2s;
-            animation-iteration-count: infinite;
-            animation-timing-function: ease-in-out;
-            opacity: 0.6;
+            opacity: 0.8;
+            /* 模拟一个小小的金属帽，但不显眼 */
+            border-top: 2px solid #555; 
         }
 
-        /* 颜色定义 - 更晶莹剔透 */
-        .bulb.red { background: #ff3333; animation-name: glow-red; }
-        .bulb.green { background: #00e676; animation-name: glow-green; animation-delay: 0.3s; }
-        .bulb.gold { background: #ffd700; animation-name: glow-gold; animation-delay: 0.6s; }
+        /* 颜色与发光动画 */
+        .bulb.red { background: #ff3333; animation: flash-red 2s infinite ease-in-out; }
+        .bulb.green { background: #00e676; animation: flash-green 3s infinite ease-in-out; }
+        .bulb.gold { background: #ffd700; animation: flash-gold 2.5s infinite ease-in-out; }
 
-        /* 精致的呼吸闪烁动画 */
-        @keyframes glow-red { 
-            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #ff3333; } 
-            50% { opacity: 1; box-shadow: 0 0 20px #ff0000, 0 0 30px #ff3333 inset; } 
-        }
-        @keyframes glow-green { 
-            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #00e676; } 
-            50% { opacity: 1; box-shadow: 0 0 20px #00c853, 0 0 30px #00e676 inset; } 
-        }
-        @keyframes glow-gold { 
-            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #ffd700; } 
-            50% { opacity: 1; box-shadow: 0 0 20px #ffab00, 0 0 30px #ffd700 inset; } 
-        }
+        @keyframes flash-red { 0%,100% { box-shadow: 0 0 5px #ff3333; opacity:0.6; } 50% { box-shadow: 0 0 15px #ff0000; opacity:1; } }
+        @keyframes flash-green { 0%,100% { box-shadow: 0 0 5px #00e676; opacity:0.6; } 50% { box-shadow: 0 0 15px #00c853; opacity:1; } }
+        @keyframes flash-gold { 0%,100% { box-shadow: 0 0 5px #ffd700; opacity:0.6; } 50% { box-shadow: 0 0 15px #ffab00; opacity:1; } }
+
 
         /* --- 下雪动画 --- */
         .snow-container {
@@ -177,8 +158,34 @@
         }
         .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
 
+        /* --- 说明区域 (支持折叠) --- */
+        .instructions-section {
+            margin: 0 15px 10px; 
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 10px; 
+            border-radius: 8px; 
+            border-left: 4px solid var(--color-accent-green);
+            overflow: hidden;
+            /* 过渡动画效果 */
+            transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+            max-height: 200px; /* 初始最大高度，足够显示内容 */
+            opacity: 1;
+        }
+        /* 折叠状态的类 */
+        .instructions-section.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            border: none;
+        }
+
         .board-container {
             flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto;
+            /* 确保滚动更加平滑 */
+            scroll-behavior: smooth;
         }
         .board-header {
             text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px;
@@ -418,14 +425,16 @@
 
     <div class="main-content">
         <header><h1>汉字书写练习（圣诞版）<br><span class="title-translation">Дъска за писане на китайски йероглифи (Коледно издание)</span></h1></header>
-        <div class="instructions-section" style="margin: 0 15px 10px; background:rgba(255, 255, 255, 0.8); padding:10px; border-radius:8px; border-left:4px solid var(--color-accent-green);">
+        
+        <div class="instructions-section" id="instSection">
             <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
                 🎄 节日渐变：红→金→绿→蓝→紫 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
                 ⭐ 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
                 🖌️ 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
             </div>
         </div>
-        <div class="desktop-board-container board-container">
+
+        <div class="desktop-board-container board-container" id="boardScrollContainer">
             <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
             <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
         </div>
@@ -536,29 +545,42 @@
     const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
 
     window.onload = function() {
-        initLights(); // 初始化精致小彩灯
+        initLights(); // 初始化彩灯
         initSnow(); // 启动雪花
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
+        setupAutoCollapse(); // 初始化自动折叠
     };
 
-    // 初始化精致小彩灯
+    // 初始化自动折叠逻辑
+    function setupAutoCollapse() {
+        const boardContainer = document.getElementById('boardScrollContainer');
+        const inst = document.getElementById('instSection');
+        if(!boardContainer || !inst) return;
+
+        boardContainer.addEventListener('scroll', () => {
+            if (boardContainer.scrollTop > 20) {
+                // 向下滑动超过20px，折叠
+                inst.classList.add('collapsed');
+            } else {
+                // 回到顶部，展开
+                inst.classList.remove('collapsed');
+            }
+        });
+    }
+
+    // 初始化极简悬挂小彩灯
     function initLights() {
         const rope = document.getElementById('lightRope');
         const colors = ['red', 'green', 'gold'];
-        // 生成足够多的小灯泡，显得丰富
         for(let i=0; i<20; i++) {
             const li = document.createElement('li');
-            const socket = document.createElement('div');
-            socket.className = 'bulb-socket';
+            // 没有 socket，直接挂灯泡
             const bulb = document.createElement('div');
-            // 循环分配红绿金颜色
             bulb.className = `bulb ${colors[i % 3]}`;
-            // 随机延迟动画，让闪烁更自然
             bulb.style.animationDelay = `${Math.random() * 2}s`;
-            socket.appendChild(bulb);
-            li.appendChild(socket);
+            li.appendChild(bulb);
             rope.appendChild(li);
         }
     }
@@ -598,7 +620,6 @@
     }
     
     function getGridBgHTML() {
-        // 四角变成星星(clip-path在CSS中定义)
         return `<div class="diagonal-1"></div><div class="diagonal-2"></div>
                 <div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div>
                 <div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div>
@@ -868,7 +889,8 @@
 
         // 4. 头部信息
         ctx.fillStyle='#146B3A'; ctx.font='bold 20px serif'; ctx.textAlign='left'; 
-        ctx.fillText(name?`To: ${name}`:'Merry Christmas!', padding, padding + 25);
+        // 关键修改：To -> 姓名
+        ctx.fillText(name?`姓名: ${name}`:'Merry Christmas!', padding, padding + 25);
         
         ctx.fillStyle='#D42426'; ctx.font='14px serif'; ctx.textAlign='right'; 
         const now = new Date();
