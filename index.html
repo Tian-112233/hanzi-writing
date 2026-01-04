@@ -44,7 +44,7 @@
             padding-top: 50px; /* 为彩灯留出空间 */
         }
 
-        /* --- 素雅版悬挂小彩灯 --- */
+        /* --- 提亮版素雅彩灯 --- */
         .light-rope-container {
             position: fixed;
             top: -10px;
@@ -73,7 +73,7 @@
             justify-content: center;
         }
         
-        /* 电线 (颜色调淡一些，匹配素雅风格) */
+        /* 电线 (墨绿色细线) */
         .light-rope li:before {
             content: "";
             position: absolute;
@@ -81,7 +81,7 @@
             left: -50%;
             width: 200%;
             height: 35px;
-            border-top: 2px solid #3c5243; /* 墨绿色电线 */
+            border-top: 2px solid #2e4033;
             border-radius: 50%;
             z-index: -1;
         }
@@ -95,34 +95,34 @@
             position: relative;
             top: 14px;
             z-index: 1;
-            /* 金属帽颜色也调淡 */
-            border-top: 2px solid #888; 
-            opacity: 0.7; /* 默认半透明，更柔和 */
+            /* 金属帽 */
+            border-top: 2px solid #666; 
+            opacity: 0.9; /* 提高不透明度，看起来更亮 */
         }
 
-        /* --- 莫兰迪/素雅配色 & 柔和光晕 --- */
+        /* --- 颜色定义：暖亮素雅系 --- */
         
-        /* 1. 干枯玫瑰红 (Muted Rose) */
-        .bulb.red { background: #cf7e7e; animation: flash-red 3s infinite ease-in-out; }
+        /* 暖珊瑚红 */
+        .bulb.red { background: #ff8a80; animation: flash-red 3s infinite ease-in-out; }
         
-        /* 2. 鼠尾草绿 (Sage Green) */
-        .bulb.green { background: #8aa89a; animation: flash-green 4s infinite ease-in-out; }
+        /* 清新薄荷绿 */
+        .bulb.green { background: #a5d6a7; animation: flash-green 4s infinite ease-in-out; }
         
-        /* 3. 香槟金 (Champagne) */
-        .bulb.gold { background: #dfcf9b; animation: flash-gold 3.5s infinite ease-in-out; }
+        /* 奶油亮金色 */
+        .bulb.gold { background: #fff59d; animation: flash-gold 3.5s infinite ease-in-out; }
 
-        /* 动画：仅改变不透明度和微弱的同色光晕，不使用刺眼的box-shadow */
+        /* 动画：加强了光晕(box-shadow)，制造"亮起"的感觉 */
         @keyframes flash-red { 
-            0%, 100% { opacity: 0.5; box-shadow: none; } 
-            50% { opacity: 1; box-shadow: 0 0 10px rgba(207, 126, 126, 0.6); } 
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 5px rgba(255, 138, 128, 0.5); } 
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 138, 128, 0.9); } 
         }
         @keyframes flash-green { 
-            0%, 100% { opacity: 0.5; box-shadow: none; } 
-            50% { opacity: 1; box-shadow: 0 0 10px rgba(138, 168, 154, 0.6); } 
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 5px rgba(165, 214, 167, 0.5); } 
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(165, 214, 167, 0.9); } 
         }
         @keyframes flash-gold { 
-            0%, 100% { opacity: 0.5; box-shadow: none; } 
-            50% { opacity: 1; box-shadow: 0 0 10px rgba(223, 207, 155, 0.6); } 
+            0%, 100% { opacity: 0.6; box-shadow: 0 0 5px rgba(255, 245, 157, 0.5); } 
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(255, 245, 157, 0.9); } 
         }
 
 
