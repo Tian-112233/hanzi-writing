@@ -41,81 +41,93 @@
             /* 背景固定 */
             background-attachment: fixed; 
             overflow-x: hidden;
-            padding-top: 60px; /* 增加顶部空间，防止遮挡 */
+            padding-top: 50px; /* 为彩灯留出空间 */
         }
 
-        /* --- 全新设计：稀疏复古大彩灯 --- */
+        /* --- 全新设计：精致典雅小彩灯 --- */
+        .light-rope-container {
+            position: fixed;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            z-index: 9998;
+            pointer-events: none;
+            overflow: hidden;
+            height: 60px; /* 限制高度 */
+        }
+
         .light-rope {
             display: flex;
-            justify-content: space-between; /* 均匀分布 */
-            width: 100%;
-            position: fixed;
-            z-index: 9998;
-            top: -15px; /* 稍微向上藏一点电线 */
-            left: 0;
-            pointer-events: none;
-            padding: 0 30px; /* 两侧留白 */
-            margin: 0;
+            justify-content: space-evenly; /* 均匀分布 */
+            width: 120%; /* 比屏幕宽一点，确保两端自然 */
+            margin-left: -10%;
+            padding: 0;
             list-style: none;
         }
 
-        /* 模拟电线 (弧线效果) */
         .light-rope li {
             position: relative;
-            flex: 1;
-            display: flex;
-            justify-content: center;
+            margin: 0 15px; /* 灯泡间距 */
         }
         
-        /* 电线 */
+        /* 模拟电线 (优雅的垂坠弧线) */
         .light-rope li:before {
             content: "";
             position: absolute;
-            top: -5px;
+            top: 0px;
             left: -50%;
             width: 200%;
-            height: 40px;
-            border-bottom: 2px solid #444; /* 深灰色电线 */
+            height: 30px;
+            border-top: 2px solid #2a2a2a; /* 深色细电线 */
             border-radius: 50%;
             z-index: -1;
         }
 
-        /* 灯泡主体 */
-        .bulb {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #ccc;
+        /* 灯泡底座 (Socket) */
+        .bulb-socket {
+            width: 8px;
+            height: 8px;
+            background: #2a2a2a;
+            margin: 0 auto;
+            border-radius: 2px;
             position: relative;
-            top: 25px; /* 下垂距离 */
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            animation-duration: 3s;
-            animation-iteration-count: infinite;
-            animation-name: bulb-glow;
+            top: 14px; /* 调整垂直位置 */
         }
 
-        /* 灯头 (连接处) */
-        .bulb:after {
-            content: "";
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* 灯泡主体 (Bulb) - 小巧精致型 */
+        .bulb {
             width: 12px;
-            height: 10px;
-            background: #444;
-            border-radius: 3px;
+            height: 18px;
+            border-radius: 50%; /* 椭圆形 */
+            background: #ccc;
+            margin: -2px auto 0; /*紧贴底座*/
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            animation-duration: 2s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+            opacity: 0.6;
         }
 
-        /* 颜色定义 */
-        .bulb.red { background: #ff4d4d; box-shadow: 0 2px 15px rgba(255, 77, 77, 0.4); animation-name: flash-red; animation-delay: 0s; }
-        .bulb.green { background: #2ecc71; box-shadow: 0 2px 15px rgba(46, 204, 113, 0.4); animation-name: flash-green; animation-delay: 1s; }
-        .bulb.gold { background: #f1c40f; box-shadow: 0 2px 15px rgba(241, 196, 15, 0.4); animation-name: flash-gold; animation-delay: 2s; }
+        /* 颜色定义 - 更晶莹剔透 */
+        .bulb.red { background: #ff3333; animation-name: glow-red; }
+        .bulb.green { background: #00e676; animation-name: glow-green; animation-delay: 0.3s; }
+        .bulb.gold { background: #ffd700; animation-name: glow-gold; animation-delay: 0.6s; }
 
-        /* 柔和呼吸灯动画 (不再刺眼) */
-        @keyframes flash-red { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(255, 77, 77, 0.8); } }
-        @keyframes flash-green { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(46, 204, 113, 0.8); } }
-        @keyframes flash-gold { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(241, 196, 15, 0.8); } }
+        /* 精致的呼吸闪烁动画 */
+        @keyframes glow-red { 
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #ff3333; } 
+            50% { opacity: 1; box-shadow: 0 0 20px #ff0000, 0 0 30px #ff3333 inset; } 
+        }
+        @keyframes glow-green { 
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #00e676; } 
+            50% { opacity: 1; box-shadow: 0 0 20px #00c853, 0 0 30px #00e676 inset; } 
+        }
+        @keyframes glow-gold { 
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 5px #ffd700; } 
+            50% { opacity: 1; box-shadow: 0 0 20px #ffab00, 0 0 30px #ffd700 inset; } 
+        }
 
         /* --- 下雪动画 --- */
         .snow-container {
@@ -379,20 +391,10 @@
 </head>
 <body>
 
-<ul class="light-rope">
-  <li><div class="bulb red"></div></li>
-  <li><div class="bulb green"></div></li>
-  <li><div class="bulb gold"></div></li>
-  <li><div class="bulb red"></div></li>
-  <li><div class="bulb green"></div></li>
-  <li><div class="bulb gold"></div></li>
-  <li><div class="bulb red"></div></li>
-  <li><div class="bulb green"></div></li>
-  <li><div class="bulb gold"></div></li>
-  <li><div class="bulb red"></div></li>
-  <li><div class="bulb green"></div></li>
-  <li><div class="bulb gold"></div></li>
-</ul>
+<div class="light-rope-container">
+    <ul class="light-rope" id="lightRope">
+       </ul>
+</div>
 
 <div class="snow-container" id="snowContainer"></div>
 
@@ -534,11 +536,32 @@
     const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
 
     window.onload = function() {
+        initLights(); // 初始化精致小彩灯
         initSnow(); // 启动雪花
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
     };
+
+    // 初始化精致小彩灯
+    function initLights() {
+        const rope = document.getElementById('lightRope');
+        const colors = ['red', 'green', 'gold'];
+        // 生成足够多的小灯泡，显得丰富
+        for(let i=0; i<20; i++) {
+            const li = document.createElement('li');
+            const socket = document.createElement('div');
+            socket.className = 'bulb-socket';
+            const bulb = document.createElement('div');
+            // 循环分配红绿金颜色
+            bulb.className = `bulb ${colors[i % 3]}`;
+            // 随机延迟动画，让闪烁更自然
+            bulb.style.animationDelay = `${Math.random() * 2}s`;
+            socket.appendChild(bulb);
+            li.appendChild(socket);
+            rope.appendChild(li);
+        }
+    }
 
     // 初始化雪花
     function initSnow() {
