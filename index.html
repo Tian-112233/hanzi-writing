@@ -24,11 +24,6 @@
             --color-grid-line: rgba(20, 107, 58, 0.15); /* 淡淡的绿色网格 */
             --color-active-bg: #E8F5E9; /* 浅绿色激活背景 */
             --color-grid-dot: #F8B229; /* 金色星星点 */
-
-            /* 彩灯颜色定义 */
-            --light-red: #d42426;
-            --light-green: #146B3A;
-            --light-gold: #F8B229;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -46,78 +41,81 @@
             /* 背景固定 */
             background-attachment: fixed; 
             overflow-x: hidden;
-            padding-top: 45px; /* 为彩灯留出空间 */
+            padding-top: 60px; /* 增加顶部空间，防止遮挡 */
         }
 
-        /* --- 顶部固定彩灯 (复古红绿黄版) --- */
+        /* --- 全新设计：稀疏复古大彩灯 --- */
         .light-rope {
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
+            display: flex;
+            justify-content: space-between; /* 均匀分布 */
+            width: 100%;
             position: fixed;
             z-index: 9998;
-            margin: -15px 0 0 0;
-            padding: 0;
-            pointer-events: none;
-            width: 100%;
-            top: 0;
+            top: -15px; /* 稍微向上藏一点电线 */
             left: 0;
-            display: flex;
-            justify-content: space-evenly;
+            pointer-events: none;
+            padding: 0 30px; /* 两侧留白 */
+            margin: 0;
+            list-style: none;
         }
+
+        /* 模拟电线 (弧线效果) */
         .light-rope li {
             position: relative;
-            list-style: none;
-            margin: 20px 10px;
-            padding: 0;
-            display: block;
-            width: 14px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--light-red);
-            box-shadow: 0px 4px 12px 2px rgba(212, 36, 38, 0.5);
-            animation-name: flash-red;
-            animation-duration: 2s;
-            animation-iteration-count: infinite;
-            animation-fill-mode: both;
-        }
-        /* 绿色灯泡 */
-        .light-rope li:nth-child(3n+2) {
-            background: var(--light-green);
-            box-shadow: 0px 4px 12px 2px rgba(20, 107, 58, 0.5);
-            animation-name: flash-green;
-            animation-duration: 2.5s;
-        }
-        /* 金色灯泡 */
-        .light-rope li:nth-child(3n+3) {
-            background: var(--light-gold);
-            box-shadow: 0px 4px 12px 2px rgba(248, 178, 41, 0.5);
-            animation-name: flash-gold;
-            animation-duration: 1.8s;
-        }
-        /* 灯座和电线 */
-        .light-rope li:before {
-            content: ""; position: absolute; background: #333; width: 10px; height: 8px;
-            border-radius: 2px; top: -4px; left: 2px;
-        }
-        .light-rope li:after {
-            content: ""; top: -12px; left: -50%; position: absolute; width: 200%; height: 16px;
-            border-bottom: solid #333 2px; border-radius: 50%; pointer-events: none;
+            flex: 1;
+            display: flex;
+            justify-content: center;
         }
         
-        /* 柔和闪烁动画 */
-        @keyframes flash-red { 
-            0%, 100% { background: var(--light-red); box-shadow: 0px 4px 12px 2px rgba(212, 36, 38, 0.5); opacity: 1; } 
-            50% { background: #ff6b6b; box-shadow: 0px 6px 18px 4px rgba(212, 36, 38, 0.8); opacity: 1; } 
+        /* 电线 */
+        .light-rope li:before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: -50%;
+            width: 200%;
+            height: 40px;
+            border-bottom: 2px solid #444; /* 深灰色电线 */
+            border-radius: 50%;
+            z-index: -1;
         }
-        @keyframes flash-green { 
-            0%, 100% { background: var(--light-green); box-shadow: 0px 4px 12px 2px rgba(20, 107, 58, 0.5); opacity: 0.8; } 
-            50% { background: #2ecc71; box-shadow: 0px 6px 18px 4px rgba(20, 107, 58, 0.8); opacity: 1; } 
+
+        /* 灯泡主体 */
+        .bulb {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ccc;
+            position: relative;
+            top: 25px; /* 下垂距离 */
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            animation-duration: 3s;
+            animation-iteration-count: infinite;
+            animation-name: bulb-glow;
         }
-        @keyframes flash-gold { 
-            0%, 100% { background: var(--light-gold); box-shadow: 0px 4px 12px 2px rgba(248, 178, 41, 0.5); opacity: 0.9; } 
-            50% { background: #f1c40f; box-shadow: 0px 6px 18px 4px rgba(248, 178, 41, 0.8); opacity: 1; } 
+
+        /* 灯头 (连接处) */
+        .bulb:after {
+            content: "";
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 10px;
+            background: #444;
+            border-radius: 3px;
         }
+
+        /* 颜色定义 */
+        .bulb.red { background: #ff4d4d; box-shadow: 0 2px 15px rgba(255, 77, 77, 0.4); animation-name: flash-red; animation-delay: 0s; }
+        .bulb.green { background: #2ecc71; box-shadow: 0 2px 15px rgba(46, 204, 113, 0.4); animation-name: flash-green; animation-delay: 1s; }
+        .bulb.gold { background: #f1c40f; box-shadow: 0 2px 15px rgba(241, 196, 15, 0.4); animation-name: flash-gold; animation-delay: 2s; }
+
+        /* 柔和呼吸灯动画 (不再刺眼) */
+        @keyframes flash-red { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(255, 77, 77, 0.8); } }
+        @keyframes flash-green { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(46, 204, 113, 0.8); } }
+        @keyframes flash-gold { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); box-shadow: 0 5px 25px rgba(241, 196, 15, 0.8); } }
 
         /* --- 下雪动画 --- */
         .snow-container {
@@ -382,10 +380,18 @@
 <body>
 
 <ul class="light-rope">
-  <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-  <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-  <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-  <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+  <li><div class="bulb red"></div></li>
+  <li><div class="bulb green"></div></li>
+  <li><div class="bulb gold"></div></li>
+  <li><div class="bulb red"></div></li>
+  <li><div class="bulb green"></div></li>
+  <li><div class="bulb gold"></div></li>
+  <li><div class="bulb red"></div></li>
+  <li><div class="bulb green"></div></li>
+  <li><div class="bulb gold"></div></li>
+  <li><div class="bulb red"></div></li>
+  <li><div class="bulb green"></div></li>
+  <li><div class="bulb gold"></div></li>
 </ul>
 
 <div class="snow-container" id="snowContainer"></div>
@@ -808,36 +814,27 @@
         
         cvs.width = width * dpr; cvs.height = height * dpr;
         const ctx=cvs.getContext('2d'); ctx.scale(dpr, dpr); 
-
-        // --- 内部辅助函数：绘制六角雪花 ---
-        function drawSnowflakePath(ctx, x, y, size) {
-            ctx.beginPath();
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.strokeStyle = '#e0e0e0'; // 淡淡的雪花灰
-            ctx.lineWidth = 2;
-            for (let i = 0; i < 3; i++) {
-                ctx.moveTo(0, -size);
-                ctx.lineTo(0, size);
-                ctx.rotate(Math.PI / 3); // 旋转60度
-            }
-            ctx.stroke();
-            ctx.restore();
-        }
         
         // 1. 背景色
         ctx.fillStyle='#fdfcf8'; ctx.fillRect(0,0,width,height);
 
-        // 2. 绘制背景真实雪花纹理 (修复为雪花形状)
-        const bgStep = 60; // 雪花间距
-        for(let py=30; py<height; py+=bgStep) {
-            for(let px=30; px<width; px+=bgStep) {
-                // 错位排列
-                 const offsetX = (Math.floor(py / bgStep) % 2 === 0) ? 0 : bgStep / 2;
-                 // 随机大小
-                 const size = 4 + Math.random() * 4;
-                 drawSnowflakePath(ctx, px + offsetX, py, size);
-            }
+        // 2. 绘制背景真实雪花 (使用 Unicode 字符 '❄')
+        const snowCount = 40; // 随机雪花数量
+        ctx.font = "24px sans-serif"; // 雪花大小
+        ctx.fillStyle = "rgba(220, 238, 251, 0.8)"; // 雪花颜色
+
+        for(let i = 0; i < snowCount; i++) {
+             // 随机位置
+             const sx = Math.random() * width;
+             const sy = Math.random() * height;
+             // 随机大小微调
+             const scale = 0.5 + Math.random(); 
+             
+             ctx.save();
+             ctx.translate(sx, sy);
+             ctx.scale(scale, scale);
+             ctx.fillText('❄', 0, 0);
+             ctx.restore();
         }
         
         // 3. 双层节日边框
