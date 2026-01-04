@@ -44,7 +44,7 @@
             padding-top: 50px; /* 为彩灯留出空间 */
         }
 
-        /* --- 极简悬挂小彩灯 (无黑块、悬挂式) --- */
+        /* --- 素雅版悬挂小彩灯 --- */
         .light-rope-container {
             position: fixed;
             top: -10px;
@@ -59,7 +59,7 @@
         .light-rope {
             display: flex;
             justify-content: space-evenly;
-            width: 120%; /* 略宽于屏幕，使得两端自然延伸 */
+            width: 120%;
             margin-left: -10%;
             padding: 0;
             list-style: none;
@@ -73,7 +73,7 @@
             justify-content: center;
         }
         
-        /* 电线 (细深绿线) */
+        /* 电线 (颜色调淡一些，匹配素雅风格) */
         .light-rope li:before {
             content: "";
             position: absolute;
@@ -81,33 +81,49 @@
             left: -50%;
             width: 200%;
             height: 35px;
-            border-top: 2px solid #0f4d2a; /* 深松绿电线 */
+            border-top: 2px solid #3c5243; /* 墨绿色电线 */
             border-radius: 50%;
             z-index: -1;
         }
 
-        /* 灯泡主体 (直接悬挂，去掉了黑方块) */
+        /* 灯泡主体 */
         .bulb {
             width: 10px;
             height: 16px;
             border-radius: 50%;
-            background: #fff; /* 默认色 */
+            background: #fff;
             position: relative;
-            top: 14px; /* 挂在电线弧度最低点附近 */
+            top: 14px;
             z-index: 1;
-            opacity: 0.8;
-            /* 模拟一个小小的金属帽，但不显眼 */
-            border-top: 2px solid #555; 
+            /* 金属帽颜色也调淡 */
+            border-top: 2px solid #888; 
+            opacity: 0.7; /* 默认半透明，更柔和 */
         }
 
-        /* 颜色与发光动画 */
-        .bulb.red { background: #ff3333; animation: flash-red 2s infinite ease-in-out; }
-        .bulb.green { background: #00e676; animation: flash-green 3s infinite ease-in-out; }
-        .bulb.gold { background: #ffd700; animation: flash-gold 2.5s infinite ease-in-out; }
+        /* --- 莫兰迪/素雅配色 & 柔和光晕 --- */
+        
+        /* 1. 干枯玫瑰红 (Muted Rose) */
+        .bulb.red { background: #cf7e7e; animation: flash-red 3s infinite ease-in-out; }
+        
+        /* 2. 鼠尾草绿 (Sage Green) */
+        .bulb.green { background: #8aa89a; animation: flash-green 4s infinite ease-in-out; }
+        
+        /* 3. 香槟金 (Champagne) */
+        .bulb.gold { background: #dfcf9b; animation: flash-gold 3.5s infinite ease-in-out; }
 
-        @keyframes flash-red { 0%,100% { box-shadow: 0 0 5px #ff3333; opacity:0.6; } 50% { box-shadow: 0 0 15px #ff0000; opacity:1; } }
-        @keyframes flash-green { 0%,100% { box-shadow: 0 0 5px #00e676; opacity:0.6; } 50% { box-shadow: 0 0 15px #00c853; opacity:1; } }
-        @keyframes flash-gold { 0%,100% { box-shadow: 0 0 5px #ffd700; opacity:0.6; } 50% { box-shadow: 0 0 15px #ffab00; opacity:1; } }
+        /* 动画：仅改变不透明度和微弱的同色光晕，不使用刺眼的box-shadow */
+        @keyframes flash-red { 
+            0%, 100% { opacity: 0.5; box-shadow: none; } 
+            50% { opacity: 1; box-shadow: 0 0 10px rgba(207, 126, 126, 0.6); } 
+        }
+        @keyframes flash-green { 
+            0%, 100% { opacity: 0.5; box-shadow: none; } 
+            50% { opacity: 1; box-shadow: 0 0 10px rgba(138, 168, 154, 0.6); } 
+        }
+        @keyframes flash-gold { 
+            0%, 100% { opacity: 0.5; box-shadow: none; } 
+            50% { opacity: 1; box-shadow: 0 0 10px rgba(223, 207, 155, 0.6); } 
+        }
 
 
         /* --- 下雪动画 --- */
@@ -166,12 +182,10 @@
             border-radius: 8px; 
             border-left: 4px solid var(--color-accent-green);
             overflow: hidden;
-            /* 过渡动画效果 */
             transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.4s ease, margin 0.4s ease;
-            max-height: 200px; /* 初始最大高度，足够显示内容 */
+            max-height: 200px; 
             opacity: 1;
         }
-        /* 折叠状态的类 */
         .instructions-section.collapsed {
             max-height: 0;
             padding-top: 0;
@@ -184,7 +198,6 @@
 
         .board-container {
             flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto;
-            /* 确保滚动更加平滑 */
             scroll-behavior: smooth;
         }
         .board-header {
@@ -570,13 +583,12 @@
         });
     }
 
-    // 初始化极简悬挂小彩灯
+    // 初始化素雅小彩灯
     function initLights() {
         const rope = document.getElementById('lightRope');
         const colors = ['red', 'green', 'gold'];
         for(let i=0; i<20; i++) {
             const li = document.createElement('li');
-            // 没有 socket，直接挂灯泡
             const bulb = document.createElement('div');
             bulb.className = `bulb ${colors[i % 3]}`;
             bulb.style.animationDelay = `${Math.random() * 2}s`;
