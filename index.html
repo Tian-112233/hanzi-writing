@@ -127,7 +127,6 @@
         .snowflake {
             position: absolute;
             top: -50px; 
-            /* 不再使用文字，而是使用背景图 */
             background-size: contain;
             background-repeat: no-repeat;
             opacity: 0.9;
@@ -187,17 +186,17 @@
         .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px;
             font-family: serif; }
 
-        /* --- 说明区域 --- */
+        /* --- 说明区域 (简化版，无折叠逻辑) --- */
         .instructions-section {
             margin: 0 15px 10px;
             background: rgba(255, 255, 255, 0.8); 
             padding: 10px; 
             border-radius: 8px; 
             border-left: 4px solid var(--color-accent-green);
-            overflow: hidden;
-            /* 移除了之前的折叠动画样式 */
+            flex-shrink: 0; /* 防止被挤压 */
         }
 
+        /* 滚动容器 */
         .board-container {
             flex: 1;
             display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto;
@@ -503,7 +502,8 @@
         <header><h1>汉字书写练习（圣诞版）<br><span class="title-translation">Дъска за писане на китайски йероглифи (Коледно издание)</span></h1></header>
         
         <div class="desktop-board-container board-container" id="boardScrollContainer">
-            <div class="instructions-section" id="instSection" style="margin-top: 0;">
+            
+            <div class="instructions-section" id="instSection">
                 <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
                     🎄 节日渐变：红→金→绿→蓝→紫 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
                     ⭐ 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
@@ -641,8 +641,6 @@
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
-        
-        // 修改点4：移除了 setupAutoCollapse(); 的调用，不再有折叠功能
     };
 
     // 初始化素雅小彩灯
