@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习（圣诞版）</title>
+    <title>汉字书写练习（圣诞修复版）</title>
     <style>
         :root {
             /* --- 圣诞配色方案 --- */
@@ -216,8 +216,8 @@
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
-    <div>正在生成高清图片...<br><span style="font-size:1rem; opacity:0.9; margin-top:5px; display:inline-block;">Генериране на изображение...</span></div>
-    <div style="font-size:0.85rem; margin-top:15px; font-weight:normal; opacity:0.8;">(处理大量笔画可能需要几秒钟)<br>(Обработката може да отнеме няколко секунди)</div>
+    <div>正在生成手机适配版...<br><span style="font-size:1rem; opacity:0.9; margin-top:5px; display:inline-block;">Генериране на изображение...</span></div>
+    <div style="font-size:0.85rem; margin-top:15px; font-weight:normal; opacity:0.8;">(为了防止手机崩溃，可能会自动调整清晰度)</div>
 </div>
 
 <div class="light-rope-container">
@@ -335,12 +335,12 @@
         <h3 style="color:var(--color-accent); margin-bottom:15px;">导出图片 | Експортиране</h3>
         <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center;">
         <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | Генерирай</button>
-        <div id="exportPreviewArea" style="margin-top:15px; display:none;">
-            <p style="font-size:1rem; color:#D42426; margin-bottom:10px; font-weight:bold; background:#fffbf0; padding:8px; border-radius:4px; border:1px dashed #D42426;">
-                请长按图片或右键即可保存<br>
-                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително изображението или десен бутон, за да запазите</span>
+        <div id="exportPreviewArea" style="margin-top:15px; display:none; padding-bottom:30px;">
+            <p style="font-size:1rem; color:#D42426; margin-bottom:15px; font-weight:bold; background:#fffbf0; padding:10px; border-radius:4px; border:2px dashed #D42426; animation: flash-red 3s infinite;">
+                ⬇️ 请长按下方图片保存 ⬇️<br>
+                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително, за да запазите</span>
             </p>
-            <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px; display:block; margin:0 auto;">
+            <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px; display:block; margin:0 auto; box-shadow:0 5px 15px rgba(0,0,0,0.3); pointer-events: auto; position:relative; z-index:100;">
         </div>
     </div>
 </div>
@@ -705,55 +705,57 @@
         ctx.restore();
     }
 
-    // --- 导出逻辑 (智能防崩溃 + 异步加载) ---
+    // --- 终极导出修复逻辑 (Anti-Crash Version) ---
     function startExportProcess() {
-        // 1. 显示 Loading 遮罩
+        // 1. 显示 Loading
         elLoadingOverlay.style.display = 'flex';
-        
-        // 2. 利用 setTimeout 将繁重的画图任务放到下一个时间片执行，确保 Loading 动画能渲染出来
+        // 2. 强制延时，把绘图推入下一个宏任务，避免UI阻塞
         setTimeout(() => {
             try {
                 doExport();
             } catch (e) {
-                alert('导出失败，请重试或减少格子数量。错误: ' + e.message);
-                elLoadingOverlay.style.display = 'none';
+                alert('内存不足，正在尝试低清模式...');
+                // 如果第一次失败，尝试极低清模式
+                try {
+                    doExport(true); 
+                } catch(e2) {
+                    alert('导出失败，请尝试减少格子数量。');
+                    elLoadingOverlay.style.display = 'none';
+                }
             }
-        }, 50); // 50ms 延迟足够让浏览器渲染出 loading 界面
+        }, 100);
     }
 
-    function doExport() {
+    function doExport(forceLowRes = false) {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
-        
-        // --- 智能安全缩放计算 (Smart Scaling) ---
-        // 目的：防止图片尺寸（像素）超过手机显卡限制 (通常 4096px 或 8192px)
-        const baseHeight = 40 + 60 + 40 + rows * (120 + 10); // 基础高度 (DPR=1)
-        let safeDPR = 2.5; // 默认高清倍率
-        
-        // 如果是手机端，或者基础高度本身就很大
-        if (window.innerWidth < 800 || baseHeight > 2000) {
-            // 计算如果用 2.5倍 是否会爆显存 (4096px 是安全线)
-            if (baseHeight * 2.5 > 4096) {
-                safeDPR = 4096 / baseHeight; // 自动降低倍率以适应 4096px 限制
-                if(safeDPR < 1.5) safeDPR = 1.5; // 最低保底 1.5倍，不能太模糊
-            } else {
-                safeDPR = 2; // 手机端默认 2倍 足够
-            }
-        }
-        
-        const dpr = safeDPR;
-        
         const gridSize = 120;
         const gap=10, padding=40, hH=60, fH=40;
-        const exportLineWidth = gridSize * LINE_RATIO;
-        const cvs=document.createElement('canvas');
         const width = padding*2 + cols*gridSize + (cols-1)*gap;
         const height = padding*2 + hH + fH + rows*(gridSize+gap);
+
+        // --- 核心：动态像素限制 (Pixel Cap) ---
+        // 手机浏览器 Canvas 安全线通常在 4096px 或 1600万像素左右。
+        // 我们设定一个“安全像素总量”为 700万 (约 2000x3500)
+        const SAFE_PIXELS = forceLowRes ? 2000000 : 7000000; 
+        let dpr = window.devicePixelRatio || 2;
+        
+        // 强制计算：如果总像素超过安全线，暴力降低 DPR
+        while ((width * dpr) * (height * dpr) > SAFE_PIXELS) {
+            dpr -= 0.1;
+        }
+        // 保底 DPR，太模糊也没意义
+        if (dpr < 1) dpr = 1;
+
+        const exportLineWidth = gridSize * LINE_RATIO;
+        const cvs=document.createElement('canvas');
         cvs.width = width * dpr; cvs.height = height * dpr;
         const ctx=cvs.getContext('2d'); ctx.scale(dpr, dpr);
         
+        // 白色背景 (避免透明 PNG 变黑)
         ctx.fillStyle='#fdfcf8'; ctx.fillRect(0,0,width,height);
         
-        const snowCount = 50;
+        // 绘制雪花
+        const snowCount = forceLowRes ? 10 : 50; // 低配减少雪花
         for(let i = 0; i < snowCount; i++) {
              const sx = Math.random() * width;
              const sy = Math.random() * height;
@@ -761,32 +763,33 @@
              drawCrystallineFlake(ctx, sx, sy, size);
         }
         
-        ctx.strokeStyle = '#D42426';
-        ctx.lineWidth = 4;
+        // 边框
+        ctx.strokeStyle = '#D42426'; ctx.lineWidth = 4;
         ctx.strokeRect(10, 10, width-20, height-20);
         ctx.strokeStyle = '#F8B229'; ctx.lineWidth = 2;
         ctx.strokeRect(16, 16, width-32, height-32);
         
+        // 文字
         ctx.fillStyle='#146B3A'; ctx.font='bold 20px serif'; ctx.textAlign='left';
         ctx.fillText(name?`姓名: ${name}`:'Merry Christmas!', padding, padding + 25);
-        
         ctx.fillStyle='#D42426'; ctx.font='14px serif'; ctx.textAlign='right'; 
         const now = new Date();
         ctx.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, width-padding, padding + 25);
         
         ctx.beginPath(); ctx.moveTo(padding, padding+40); ctx.lineTo(width-padding, padding+40); 
-        ctx.strokeStyle='#F8B229';
-        ctx.lineWidth=2; ctx.stroke();
+        ctx.strokeStyle='#F8B229'; ctx.lineWidth=2; ctx.stroke();
         
+        // 绘制格子内容
         for(let i=0; i<vt; i++){
             const r=Math.floor(i/cols), c=i%cols, x=padding+c*(gridSize+gap), y=padding+hH+r*(gridSize+gap);
             ctx.fillStyle='#fff'; ctx.fillRect(x,y,gridSize,gridSize); 
             ctx.strokeStyle='#146B3A'; ctx.lineWidth=1; ctx.strokeRect(x,y,gridSize,gridSize);
             
             ctx.beginPath();
-            ctx.moveTo(x,y+gridSize/2);
-            ctx.lineTo(x+gridSize,y+gridSize/2); ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
-            ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
+            ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); 
+            ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
+            ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); 
+            ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
             ctx.strokeStyle='rgba(20,107,58,0.15)'; ctx.stroke();
             
             ctx.fillStyle = '#F8B229';
@@ -806,17 +809,30 @@
             }
         }
         
-        // 关键修复：使用 Blob URL + JPEG 解决夸克保存问题
-        cvs.toBlob(function(blob) {
-            const url = URL.createObjectURL(blob);
-            const img = document.getElementById('exportImgResult');
-            if (img.src && img.src.startsWith('blob:')) {
-                URL.revokeObjectURL(img.src);
-            }
-            img.src = url;
-            elLoadingOverlay.style.display = 'none'; // 隐藏遮罩
-            document.getElementById('exportPreviewArea').style.display='block';
-        }, 'image/jpeg', 0.9);
+        // --- 双重保存策略 ---
+        const img = document.getElementById('exportImgResult');
+        
+        // 策略A: 尝试 Blob (优先，内存好)
+        try {
+            cvs.toBlob(function(blob) {
+                if(!blob) throw new Error("Blob creation failed");
+                const url = URL.createObjectURL(blob);
+                if (img.src && img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+                img.src = url;
+                finishExport();
+            }, 'image/jpeg', 0.85); // 使用 JPEG，0.85 质量
+        } catch(e) {
+            console.warn("Blob failed, switching to DataURL", e);
+            // 策略B: 降级为 Base64 (兼容性好，但慢)
+            const dataUrl = cvs.toDataURL('image/jpeg', 0.7);
+            img.src = dataUrl;
+            finishExport();
+        }
+    }
+
+    function finishExport() {
+        elLoadingOverlay.style.display = 'none';
+        document.getElementById('exportPreviewArea').style.display='block';
     }
 </script>
 </body>
