@@ -34,11 +34,9 @@
             color: var(--color-text-main);
             min-height: 100vh;
             touch-action: manipulation;
-            /* 背景纹理：淡淡的圆点雪花 */
             background-image: radial-gradient(#e6e6e6 1px, transparent 1px), radial-gradient(#e6e6e6 1px, transparent 1px);
             background-position: 0 0, 25px 25px;
             background-size: 50px 50px;
-            /* 背景固定 */
             background-attachment: fixed;
             overflow-x: hidden;
             padding-top: 50px; /* 为彩灯留出空间 */
@@ -48,9 +46,7 @@
         .light-rope-container { position: fixed; top: -10px; left: 0; width: 100%; z-index: 9998; pointer-events: none; overflow: hidden; height: 60px; }
         .light-rope { display: flex; justify-content: space-evenly; width: 120%; margin-left: -10%; padding: 0; list-style: none; }
         .light-rope li { position: relative; margin: 0 15px; flex: 1; display: flex; justify-content: center; }
-        /* 电线 */
         .light-rope li:before { content: ""; position: absolute; top: 0; left: -50%; width: 200%; height: 35px; border-top: 2px solid #2e4033; border-radius: 50%; z-index: -1; }
-        /* 灯泡主体 */
         .bulb { width: 10px; height: 16px; border-radius: 50%; background: #fff; position: relative; top: 14px; z-index: 1; border-top: 2px solid #666; opacity: 0.9; }
 
         /* --- 颜色定义 --- */
@@ -83,8 +79,8 @@
         h1 { color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2; font-family: 'Microsoft YaHei', sans-serif; }
         .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
 
-        /* --- 说明区域 (取消折叠动画，保留基础样式) --- */
-        .instructions-section { margin: 0 15px 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 8px; border-left: 4px solid var(--color-accent-green); }
+        /* --- 说明区域 --- */
+        .instructions-section { margin: 0 15px 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 8px; border-left: 4px solid var(--color-accent-green); flex-shrink: 0; }
 
         .board-container { flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow-y: auto; scroll-behavior: smooth; }
         .board-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px; }
@@ -166,15 +162,29 @@
         /* --- 强制手机布局断点 1100px --- */
         @media (max-width: 1100px) {
             .sidebar, .desktop-board-container { display: none !important; }
-            .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
-            .main-content { overflow: visible; padding-bottom: 20px; }
             
-            /* 修改：手机端Header吸顶效果 */
+            /* 1. 容器不再限制高度，允许页面自然滚动 */
+            .container { 
+                flex-direction: column; 
+                height: auto; 
+                min-height: 100vh; 
+                padding: 10px; 
+                overflow: visible; /* 关键：取消容器剪裁 */
+            }
+            
+            /* 2. 主内容区也不限制高度 */
+            .main-content { 
+                overflow: visible; 
+                height: auto;
+                padding-bottom: 20px; 
+            }
+            
+            /* 3. Header 吸顶：下滑时吸附在顶部 */
             header {
                 position: sticky;
                 top: 0;
-                z-index: 999; /* 确保在内容之上，但在弹窗之下 */
-                background-color: var(--color-bg-container); /* 防止背景透明导致内容重叠 */
+                z-index: 999; 
+                background-color: var(--color-bg-container); 
                 box-shadow: 0 2px 5px rgba(20, 107, 58, 0.1);
             }
 
@@ -242,6 +252,7 @@
             <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
             <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
         </div>
+
         <div class="mobile-layout">
             <div class="board-header"><div class="board-title">书写板</div></div>
             <div class="mobile-add-grid-section">
@@ -309,11 +320,11 @@
         <input type="text" id="exportName" placeholder="请输入姓名 | Въведете име" style="width:80%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; font-size:1rem; text-align:center;">
         <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | Генерирай</button>
         <div id="exportPreviewArea" style="margin-top:15px; display:none;">
-            <p style="font-size:0.9rem; color:#666; margin-bottom:10px; font-weight:bold;">
-                长按或右键图片即可保存<br>
-                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително или десен бутон върху снимката за запазване</span>
+            <p style="font-size:1rem; color:#D42426; margin-bottom:10px; font-weight:bold; background:#fffbf0; padding:8px; border-radius:4px; border:1px dashed #D42426;">
+                请长按图片或右键即可保存<br>
+                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително изображението или десен бутон, за да запазите</span>
             </p>
-            <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px;">
+            <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px; display:block; margin:0 auto;">
         </div>
     </div>
 </div>
@@ -359,7 +370,6 @@
         initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
         renderDesktopGrids(); renderMobilePreview(); setupMobileEvents();
         updateUI(); setupButtons();
-        // 已移除自动折叠逻辑
     };
 
     // 初始化素雅小彩灯
