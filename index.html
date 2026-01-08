@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习（圣诞版）- 最终完美版</title>
+    <title>汉字书写练习（圣诞版）</title>
     <style>
         :root {
             /* --- 圣诞配色方案 --- */
@@ -60,7 +60,7 @@
         @keyframes fall { 0% { top: -10%; } 100% { top: 110%; } }
         @keyframes sway { 0%, 100% { transform: translateX(0px) rotate(0deg); } 50% { transform: translateX(30px) rotate(180deg); } }
 
-        /* --- 布局容器 (电脑端默认) --- */
+        /* --- 布局容器 --- */
         .container { max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 1; }
 
         /* 侧边栏 */
@@ -133,7 +133,7 @@
         .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
         .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
-        /* 加载遮罩层 */
+        /* 加载遮罩 (带保加利亚语) */
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); z-index: 2000;
@@ -167,7 +167,7 @@
             .container { 
                 display: block; 
                 width: 100%;
-                height: auto !important;
+                height: auto !important; 
                 min-height: 100vh; 
                 padding: 10px; 
                 overflow: visible !important;
@@ -705,12 +705,12 @@
         ctx.restore();
     }
 
-    // --- 导出逻辑 (包含 Loading 状态和 异步处理) ---
+    // --- 导出逻辑 (智能防崩溃 + 异步加载) ---
     function startExportProcess() {
         // 1. 显示 Loading 遮罩
         elLoadingOverlay.style.display = 'flex';
         
-        // 2. 利用 setTimeout 将繁重的画图任务放到下一个时间片执行，给 UI 渲染 Loading 的机会
+        // 2. 利用 setTimeout 将繁重的画图任务放到下一个时间片执行，确保 Loading 动画能渲染出来
         setTimeout(() => {
             try {
                 doExport();
@@ -718,15 +718,29 @@
                 alert('导出失败，请重试或减少格子数量。错误: ' + e.message);
                 elLoadingOverlay.style.display = 'none';
             }
-        }, 50);
+        }, 50); // 50ms 延迟足够让浏览器渲染出 loading 界面
     }
 
     function doExport() {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
         
-        // 安全起见，手机端或大格数时降低 DPR
-        const isMobile = window.innerWidth < 800;
-        const dpr = (isMobile && vt > 15) ? 2 : 2.5; 
+        // --- 智能安全缩放计算 (Smart Scaling) ---
+        // 目的：防止图片尺寸（像素）超过手机显卡限制 (通常 4096px 或 8192px)
+        const baseHeight = 40 + 60 + 40 + rows * (120 + 10); // 基础高度 (DPR=1)
+        let safeDPR = 2.5; // 默认高清倍率
+        
+        // 如果是手机端，或者基础高度本身就很大
+        if (window.innerWidth < 800 || baseHeight > 2000) {
+            // 计算如果用 2.5倍 是否会爆显存 (4096px 是安全线)
+            if (baseHeight * 2.5 > 4096) {
+                safeDPR = 4096 / baseHeight; // 自动降低倍率以适应 4096px 限制
+                if(safeDPR < 1.5) safeDPR = 1.5; // 最低保底 1.5倍，不能太模糊
+            } else {
+                safeDPR = 2; // 手机端默认 2倍 足够
+            }
+        }
+        
+        const dpr = safeDPR;
         
         const gridSize = 120;
         const gap=10, padding=40, hH=60, fH=40;
