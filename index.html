@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习（圣诞版）- 终极修复版</title>
+    <title>汉字书写练习（圣诞版）- 最终完美版</title>
     <style>
         :root {
             /* --- 圣诞配色方案 --- */
@@ -37,7 +37,7 @@
             background-position: 0 0, 25px 25px;
             background-size: 50px 50px;
             background-attachment: fixed;
-            padding-top: 50px; /* 为彩灯留出空间 */
+            padding-top: 50px;
         }
 
         /* --- 彩灯 --- */
@@ -60,7 +60,7 @@
         @keyframes fall { 0% { top: -10%; } 100% { top: 110%; } }
         @keyframes sway { 0%, 100% { transform: translateX(0px) rotate(0deg); } 50% { transform: translateX(30px) rotate(180deg); } }
 
-        /* --- 布局容器 (Desktop) --- */
+        /* --- 布局容器 (电脑端默认) --- */
         .container { max-width: 1600px; margin: 0 auto; display: flex; gap: 15px; height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 1; }
 
         /* 侧边栏 */
@@ -69,7 +69,7 @@
         .right-sidebar { order: 3; }
         .sidebar h2 { color: var(--color-accent-green); margin-bottom: 10px; font-size: 1.1rem; padding-bottom: 6px; border-bottom: 2px dashed var(--color-accent-gold); text-align: center; font-weight: bold; }
 
-        /* 主内容区 (Desktop: 固定高度，内部滚动) */
+        /* 主内容区 */
         .main-content { flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%; background-color: var(--color-bg-container); border-radius: 12px; border: 2px solid var(--color-border-main); box-shadow: 0 4px 15px rgba(20, 107, 58, 0.1); overflow: hidden; }
 
         header { text-align: center; margin-bottom: 0; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main); flex-shrink: 0; background-image: linear-gradient(to right, transparent, rgba(212, 36, 38, 0.05), transparent); background-color: var(--color-bg-container); }
@@ -133,6 +133,20 @@
         .modal-content { background-color: #fff; padding: 20px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; border: 3px solid var(--color-accent); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; }
         .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
+        /* 加载遮罩层 */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 2000;
+            display: none; justify-content: center; align-items: center; flex-direction: column;
+            color: #fff; font-size: 1.1rem; font-weight: bold; text-align: center; padding: 20px;
+        }
+        .loading-spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #fff; border-top: 5px solid var(--color-accent);
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         .overview-grid-wrapper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; padding: 10px; justify-items: center; }
         .overview-item { width: 100%; max-width: 120px; display: flex; flex-direction: column; align-items: center; }
         .overview-canvas-box { width: 100%; padding-bottom: 100%; position: relative; border: 1px solid var(--color-border-main); background-color: #fff; border-radius: 4px; }
@@ -151,12 +165,12 @@
             }
 
             .container { 
-                display: block; /* 改为 block */
+                display: block; 
                 width: 100%;
-                height: auto !important; /* 强制自适应 */
+                height: auto !important;
                 min-height: 100vh; 
                 padding: 10px; 
-                overflow: visible !important; /* 关键：允许溢出滚动 */
+                overflow: visible !important;
             }
             
             .main-content { 
@@ -167,7 +181,6 @@
                 padding-bottom: 20px; 
             }
             
-            /* Header 吸顶 */
             header {
                 position: sticky;
                 top: 0;
@@ -200,6 +213,12 @@
     </style>
 </head>
 <body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div>正在生成高清图片...<br><span style="font-size:1rem; opacity:0.9; margin-top:5px; display:inline-block;">Генериране на изображение...</span></div>
+    <div style="font-size:0.85rem; margin-top:15px; font-weight:normal; opacity:0.8;">(处理大量笔画可能需要几秒钟)<br>(Обработката може да отнеме няколко секунди)</div>
+</div>
 
 <div class="light-rope-container">
     <ul class="light-rope" id="lightRope"></ul>
@@ -349,6 +368,7 @@
     const elDesktopWrapper = document.getElementById('desktopGridWrapper');
     const elMobileCanvas = document.getElementById('mobileCanvas');
     const elMobilePreviewBar = document.getElementById('mobilePreviewBar');
+    const elLoadingOverlay = document.getElementById('loadingOverlay');
     
     // 基础尺寸
     const BASE_SIZE = 300;
@@ -614,7 +634,10 @@
         const cla=()=>{ if(confirm('清空所有?')) {strokesData={}; gridColorState={}; currentGridIdx=0; renderDesktopGrids(); renderMobilePreview(); updateUI(); switchGrid(0);} };
         document.getElementById('btnClearAll').onclick=cla; document.getElementById('btnClearAllMobile').onclick=cla;
         document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1); document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
-        const ex=()=>{document.getElementById('exportModal').style.display='flex'; document.getElementById('exportPreviewArea').style.display='none';};
+        const ex=()=>{
+            document.getElementById('exportModal').style.display='flex'; 
+            document.getElementById('exportPreviewArea').style.display='none';
+        };
         document.getElementById('btnExport').onclick=ex; document.getElementById('btnExportMobile').onclick=ex;
         const ov=()=>{
             const m=document.getElementById('overviewModal'), l=document.getElementById('overviewList'); l.innerHTML='';
@@ -641,7 +664,7 @@
             } m.style.display='flex';
         };
         document.getElementById('btnOverview').onclick=ov; document.getElementById('btnOverviewMobile').onclick=ov;
-        document.getElementById('btnConfirmExport').onclick=doExport;
+        document.getElementById('btnConfirmExport').onclick=startExportProcess;
     }
 
     function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
@@ -682,10 +705,29 @@
         ctx.restore();
     }
 
-    // --- 核心修复：夸克/UC浏览器兼容性导出 (Blob + JPEG) ---
+    // --- 导出逻辑 (包含 Loading 状态和 异步处理) ---
+    function startExportProcess() {
+        // 1. 显示 Loading 遮罩
+        elLoadingOverlay.style.display = 'flex';
+        
+        // 2. 利用 setTimeout 将繁重的画图任务放到下一个时间片执行，给 UI 渲染 Loading 的机会
+        setTimeout(() => {
+            try {
+                doExport();
+            } catch (e) {
+                alert('导出失败，请重试或减少格子数量。错误: ' + e.message);
+                elLoadingOverlay.style.display = 'none';
+            }
+        }, 50);
+    }
+
     function doExport() {
         const name=document.getElementById('exportName').value, vt=calculateVisualTotal(), cols=3, rows=vt/3;
-        const dpr = 3;
+        
+        // 安全起见，手机端或大格数时降低 DPR
+        const isMobile = window.innerWidth < 800;
+        const dpr = (isMobile && vt > 15) ? 2 : 2.5; 
+        
         const gridSize = 120;
         const gap=10, padding=40, hH=60, fH=40;
         const exportLineWidth = gridSize * LINE_RATIO;
@@ -758,6 +800,7 @@
                 URL.revokeObjectURL(img.src);
             }
             img.src = url;
+            elLoadingOverlay.style.display = 'none'; // 隐藏遮罩
             document.getElementById('exportPreviewArea').style.display='block';
         }, 'image/jpeg', 0.9);
     }
