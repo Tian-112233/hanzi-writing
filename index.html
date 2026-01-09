@@ -183,17 +183,16 @@
             font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2;
             font-family: 'Microsoft YaHei', sans-serif;
         }
-        .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px;
-            font-family: serif; }
+        .title-translation { font-size: 0.9rem; color: var(--color-accent-green); font-style: italic; display: block; margin-top: 5px; font-family: serif; }
 
-        /* --- 说明区域 (简化版，无折叠逻辑) --- */
+        /* --- 说明区域 --- */
         .instructions-section {
             margin: 0 15px 10px;
             background: rgba(255, 255, 255, 0.8); 
             padding: 10px; 
             border-radius: 8px; 
             border-left: 4px solid var(--color-accent-green);
-            flex-shrink: 0; /* 防止被挤压 */
+            flex-shrink: 0;
         }
 
         /* 滚动容器 */
@@ -206,8 +205,7 @@
             text-align: center;
             margin-bottom: 10px; flex-shrink: 0; padding-top: 10px;
         }
-        .board-title { color: var(--color-accent-green); font-size: 1.3rem;
-            font-weight: bold; }
+        .board-title { color: var(--color-accent-green); font-size: 1.3rem; font-weight: bold; }
 
         .board {
             background-color: var(--color-bg-board);
@@ -254,22 +252,17 @@
             content: '';
             position: absolute; background-color: var(--color-grid-line);
         }
-        .grid-background::before { top: 50%; left: 0; width: 100%;
-            height: 1px; transform: translateY(-50%); }
-        .grid-background::after { left: 50%; top: 0; width: 1px;
-            height: 100%; transform: translateX(-50%); }
-        .diagonal-1 { width: 100%; height: 1px; top: 50%;
-            left: 0; transform: translateY(-50%) rotate(45deg); }
-        .diagonal-2 { width: 100%; height: 1px;
-            top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
+        .grid-background::before { top: 50%; left: 0; width: 100%; height: 1px; transform: translateY(-50%); }
+        .grid-background::after { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
+        .diagonal-1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
+        .diagonal-2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
         
         /* 星星点装饰 */
         .grid-dot { 
             position: absolute;
             width: 8px; height: 8px; 
             background-color: var(--color-grid-dot); 
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            /* 五角星形状 */
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); /* 五角星形状 */
         }
         .dot-tl { top: 8%; left: 8%; } .dot-tr { top: 8%; right: 8%; }
         .dot-bl { bottom: 8%; left: 8%; } .dot-br { bottom: 8%; right: 8%; }
@@ -278,7 +271,9 @@
         .grid-canvas {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; cursor: crosshair; touch-action: none;
+            z-index: 10; cursor: crosshair; 
+            /* 关键修改：强制禁止浏览器默认手势，解决写竖画页面滚动问题 */
+            touch-action: none !important; 
         }
 
         /* 序号 */
@@ -297,10 +292,8 @@
             padding: 10px; border-radius: 8px;
             margin-bottom: 15px; border: 1px solid var(--color-border-main); text-align: center;
         }
-        .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold;
-        }
-        .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
-        }
+        .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
+        .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
         
         .color-dot { 
             width: 22px;
@@ -310,19 +303,13 @@
             text-shadow: 0 0 2px rgba(0,0,0,0.5); 
             border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        .color-dot.current { transform: scale(1.3); border-color: var(--color-accent-gold); z-index: 2;
-        }
-        .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8;
-        }
-        .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9);
-        }
+        .color-dot.current { transform: scale(1.3); border-color: var(--color-accent-gold); z-index: 2; }
+        .color-dot.next { border: 1px dashed var(--color-accent); opacity: 0.8; }
+        .color-dot:not(.current):not(.next) { opacity: 0.3; transform: scale(0.9); }
         
-        .color-display-row { display: flex;
-            justify-content: space-around; align-items: center; margin-top: 5px; }
-        .color-box-wrapper { display: flex; flex-direction: column;
-            align-items: center; }
-        .small-color-box { width: 30px; height: 30px; border-radius: 6px;
-            border: 2px solid var(--color-border-main); }
+        .color-display-row { display: flex; justify-content: space-around; align-items: center; margin-top: 5px; }
+        .color-box-wrapper { display: flex; flex-direction: column; align-items: center; }
+        .small-color-box { width: 30px; height: 30px; border-radius: 6px; border: 2px solid var(--color-border-main); }
 
         /* 按钮通用样式 - 圣诞风格 */
         .button {
@@ -335,29 +322,18 @@
             text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
-        .button span { font-size: 0.75rem; opacity: 0.9;
-            font-weight: normal; margin-top: 2px; }
-        .button:active { transform: translateY(2px);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .button span { font-size: 0.75rem; opacity: 0.9; font-weight: normal; margin-top: 2px; }
+        .button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        .button-primary { background-color: var(--color-accent);
-        } /* 红色按钮 */
-        .button-utility { background-color: #8b4513;
-        } /* 棕色按钮 */
-        .button-secondary { background-color: #c0392b;
-        } /* 深红 */
-        .button-clear-all { background-color: #d35400;
-        } /* 橙红 */
-        .button-success { background-color: var(--color-accent-green);
-        }   /* 绿色按钮 */
-        .button-warning { background-color: var(--color-accent-gold); color: #8b4513;
-            text-shadow: none; }   /* 金色按钮 */
+        .button-primary { background-color: var(--color-accent); } /* 红色按钮 */
+        .button-utility { background-color: #8b4513; } /* 棕色按钮 */
+        .button-secondary { background-color: #c0392b; } /* 深红 */
+        .button-clear-all { background-color: #d35400; } /* 橙红 */
+        .button-success { background-color: var(--color-accent-green); }   /* 绿色按钮 */
+        .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }   /* 金色按钮 */
         
-        .add-grid-control { display: flex;
-            gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
-        .add-grid-control input { width: 50px;
-            text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold;
-        }
+        .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
+        .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-accent-green); font-weight: bold; }
 
         /* 弹窗 */
         .modal {
@@ -374,29 +350,9 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
         }
-        .close-btn { position: absolute;
-            top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent);
-        }
+        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
 
-        /* 整体预览列表 */
-        .overview-grid-wrapper {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 强制3列 */
-            gap: 15px;
-            padding: 10px;
-            justify-items: center;
-        }
-        .overview-item {
-            width: 100%;
-            max-width: 120px; display: flex; flex-direction: column; align-items: center;
-        }
-        .overview-canvas-box {
-            width: 100%;
-            padding-bottom: 100%; position: relative; border: 1px solid var(--color-border-main);
-            background-color: #fff; border-radius: 4px;
-        }
-        .overview-canvas-box canvas { width: 100%; height: 100%; position: absolute; top: 0;
-            left: 0; z-index: 5; }
+        /* 整体预览列表 (删除) */
         
         /* 手机端独有样式 */
         .mobile-layout { display: none; }
@@ -404,12 +360,9 @@
         /* --- 强制手机布局断点 1100px --- */
         @media (max-width: 1100px) {
             .sidebar, .desktop-board-container { display: none !important; }
-            .container { flex-direction: column; height: auto; min-height: 100vh;
-                padding: 10px; overflow-y: auto; }
-            .main-content { overflow: visible;
-                padding-bottom: 20px; }
-            .mobile-layout { display: flex; flex-direction: column;
-                width: 100%; }
+            .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
+            .main-content { overflow: visible; padding-bottom: 20px; }
+            .mobile-layout { display: flex; flex-direction: column; width: 100%; }
 
             .mobile-add-grid-section {
                 display: flex;
@@ -417,17 +370,15 @@
                 margin-bottom: 15px; padding: 10px; 
                 background-color: var(--color-active-bg); border-radius: 8px; border: 1px solid var(--color-border-main);
             }
-            .mobile-add-grid-section .add-grid-control { margin-bottom: 0;
-            }
-            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary);
-                margin-left: 10px;}
+            .mobile-add-grid-section .add-grid-control { margin-bottom: 0; }
+            .mobile-add-grid-section .total-info { font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 10px;}
 
+            /* 关键修改：由于删除了预览按钮，只剩下4个按钮，直接用2x2网格，不需要让最后一个按钮跨行 */
             .mobile-function-buttons {
                 display: grid;
                 grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 15px 15px 15px;
             }
-            .mobile-function-buttons .button:last-child { grid-column: span 2;
-            }
+            /* .mobile-function-buttons .button:last-child { grid-column: span 2; }  <-- 删除了这行 */
 
             .mobile-color-section {
                 margin: 0 15px 15px;
@@ -448,8 +399,7 @@
                 box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; border-radius: 4px;
             }
 
-            .mobile-nav { display: flex; justify-content: space-between; width: 280px;
-                margin-bottom: 20px; }
+            .mobile-nav { display: flex; justify-content: space-between; width: 280px; margin-bottom: 20px; }
             
             .mobile-preview-bar {
                 margin: 0 15px;
@@ -464,18 +414,15 @@
                 border: 1px solid var(--color-border-main); background: #fff;
                 flex-shrink: 0; position: relative; border-radius: 4px;
             }
-            .mobile-preview-item.active { border-color: var(--color-accent-gold);
-                box-shadow: 0 0 0 2px var(--color-accent-gold); }
-            .mobile-preview-item canvas { width: 100%;
-                height: 100%; position: absolute; z-index: 2; top:0; left:0; }
+            .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
+            .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
         }
     </style>
 </head>
 <body>
 
 <div class="light-rope-container">
-    <ul class="light-rope" id="lightRope">
-       </ul>
+    <ul class="light-rope" id="lightRope"></ul>
 </div>
 
 <div class="snow-container" id="snowContainer"></div>
@@ -533,14 +480,13 @@
                      <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0; padding:6px 12px;">+</button>
                  </div>
                  <div class="total-info">总数: <span id="totalGridNumMobile">9</span></div>
-             </div>
+            </div>
             <div class="mobile-function-buttons">
                 <button id="btnUndoMobile" class="button button-utility">撤销上一笔<span>Отмени</span></button>
                 <button id="btnClearMobile" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
                 <button id="btnClearAllMobile" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
                 <button id="btnExportMobile" class="button button-success">导出图片<span>Експорт</span></button>
-                 <button id="btnOverviewMobile" class="button button-warning">整体预览<span>Преглед</span></button>
-            </div>
+                </div>
             <div class="mobile-color-section">
                 <div class="info-label" style="text-align:center; margin-bottom:5px;">颜色顺序 | Цветова последователност</div>
                 <div class="color-sequence" id="colorSeqMobile" style="margin-bottom:10px;"></div>
@@ -556,12 +502,12 @@
                     <div class="grid-background"><div class="diagonal-1"></div><div class="diagonal-2"></div><div class="grid-dot dot-tl"></div><div class="grid-dot dot-tr"></div><div class="grid-dot dot-bl"></div><div class="grid-dot dot-br"></div></div>
                     <canvas class="grid-canvas" id="mobileCanvas"></canvas>
                 </div>
-                 <div class="mobile-nav">
+                <div class="mobile-nav">
                     <button class="button button-primary" id="btnPrevMobile" style="width:48%;">上一格 | Предишна</button>
                     <button class="button button-primary" id="btnNextMobile" style="width:48%;">下一格 | Следваща</button>
                 </div>
             </div>
-             <div style="margin:0 15px 5px; font-weight:bold; color:var(--color-text-secondary); font-size:0.9rem;">快速预览 | Бърз преглед</div>
+            <div style="margin:0 15px 5px; font-weight:bold; color:var(--color-text-secondary); font-size:0.9rem;">快速预览 | Бърз преглед</div>
             <div class="mobile-preview-bar" id="mobilePreviewBar"></div>
         </div>
     </div>
@@ -580,8 +526,7 @@
         <button id="btnClear" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
         <button id="btnClearAll" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
         <button id="btnExport" class="button button-success">导出图片<span>Експорт</span></button>
-        <button id="btnOverview" class="button button-warning">整体预览<span>Преглед</span></button>
-    </div>
+        </div>
 </div>
 
 <div class="modal" id="exportModal">
@@ -597,16 +542,6 @@
             </p>
             <img id="exportImgResult" style="max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px;">
         </div>
-    </div>
-</div>
-<div class="modal" id="overviewModal">
-    <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-            <h3 style="color:var(--color-accent);">整体预览 | Преглед</h3>
-            <button class="close-btn" style="position:static;" onclick="document.getElementById('overviewModal').style.display='none'">&times;</button>
-        </div>
-        <div id="overviewList" class="overview-grid-wrapper"></div>
-        <div style="margin-top:10px; color:var(--color-text-secondary); font-size:0.9rem;">显示布局 | оформление: <span id="ovLayout">3x3</span></div>
     </div>
 </div>
 
@@ -738,6 +673,8 @@
             const cvs=document.createElement('canvas'); 
             cvs.width=BASE_SIZE; cvs.height=BASE_SIZE; cvs.id=`d-canvas-${i}`;
             cvs.className='grid-canvas'; 
+            // 确保JS也设置touch-action
+            cvs.style.touchAction = 'none';
             setupCanvasEvents(cvs, i); div.appendChild(bg); div.appendChild(lbl); div.appendChild(cvs); elDesktopWrapper.appendChild(div);
             redrawCanvas(cvs, i);
         }
@@ -772,15 +709,13 @@
         
         // 桌面端高亮更新
         document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active', i===idx));
-        // 移动端预览条更新 - 修改此处以避免整体页面滚动
+        // 移动端预览条更新
         const previewContainer = document.getElementById('mobilePreviewBar');
         document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{ 
             e.classList.toggle('active', i===idx); 
             if(i===idx) {
                 // 计算需要滚动的距离，使选中的元素在容器内居中
-                // 仅滚动容器 (previewContainer)，而不调用 e.scrollIntoView() 避免触发全屏滚动
                 const scrollLeft = e.offsetLeft - (previewContainer.clientWidth / 2) + (e.clientWidth / 2);
-        
                 previewContainer.scrollTo({
                     left: scrollLeft,
                     behavior: 'smooth'
@@ -798,14 +733,19 @@
             const t=e.touches?e.touches[0]:e;
             return {x:(t.clientX-r.left)*(canvas.width/r.width), y:(t.clientY-r.top)*(canvas.height/r.height)};
         };
-        const start=(e)=>{ e.preventDefault(); if(gridIdx!==currentGridIdx)switchGrid(gridIdx); isDown=true; points=[getPos(e)]; };
+        const start=(e)=>{ 
+            e.preventDefault(); 
+            if(gridIdx!==currentGridIdx)switchGrid(gridIdx); 
+            isDown=true; points=[getPos(e)]; 
+        };
         const move=(e)=>{
-            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
+            if(!isDown)return; 
+            e.preventDefault(); 
+            const p=getPos(e); points.push(p);
             const cIdx=gridColorState[gridIdx]||0;
             ctx.beginPath();
             if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
-            else { ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x, p.y); }
+            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
             ctx.strokeStyle=COLORS[cIdx%5].s; 
             ctx.lineWidth=BASE_LINE_WIDTH; 
             ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
@@ -822,25 +762,36 @@
         };
         canvas.addEventListener('mousedown', start);
         canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-        canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
+        
+        // 确保 touchstart 也 preventDefault，防止某些浏览器在点击瞬间触发滚动
+        canvas.addEventListener('touchstart', start, {passive: false}); 
+        canvas.addEventListener('touchmove', move, {passive: false}); 
+        canvas.addEventListener('touchend', end);
     }
 
     function setupMobileEvents() {
         elMobileCanvas.width=BASE_SIZE; elMobileCanvas.height=BASE_SIZE;
+        // 确保JS动态创建的mobile canvas也有样式
+        elMobileCanvas.style.touchAction = 'none';
+        
         let isDown=false; let points=[];
         const ctx=elMobileCanvas.getContext('2d');
         const getPos=(e)=>{
             const r=elMobileCanvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e;
             return {x:(t.clientX-r.left)*(BASE_SIZE/r.width), y:(t.clientY-r.top)*(BASE_SIZE/r.height)};
         };
-        const start=(e)=>{ e.preventDefault(); isDown=true; points=[getPos(e)]; };
+        const start=(e)=>{ 
+            e.preventDefault(); 
+            isDown=true; points=[getPos(e)]; 
+        };
         const move=(e)=>{
-            if(!isDown)return; e.preventDefault(); const p=getPos(e); points.push(p);
+            if(!isDown)return; 
+            e.preventDefault(); // 关键：防止滚动
+            const p=getPos(e); points.push(p);
             const cIdx=gridColorState[currentGridIdx]||0;
             ctx.beginPath();
             if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
-            else { ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x, p.y); }
+            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y); }
             ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
         };
         const end=(e)=>{
@@ -854,17 +805,16 @@
             }
         };
         elMobileCanvas.addEventListener('touchstart', start, {passive:false});
-        elMobileCanvas.addEventListener('touchmove', move, {passive:false}); elMobileCanvas.addEventListener('touchend', end);
+        elMobileCanvas.addEventListener('touchmove', move, {passive:false}); 
+        elMobileCanvas.addEventListener('touchend', end);
     }
 
-    function redrawGrid(idx) { const d=document.getElementById(`d-canvas-${idx}`); if(d) redrawCanvas(d, idx); if(idx===currentGridIdx) redrawMobileCanvas();
-    }
+    function redrawGrid(idx) { const d=document.getElementById(`d-canvas-${idx}`); if(d) redrawCanvas(d, idx); if(idx===currentGridIdx) redrawMobileCanvas(); }
     function redrawCanvas(canvas, idx) {
         const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height);
         (strokesData[idx]||[]).forEach(s=>drawGradientStroke(ctx, s.points, s.colorIdx, BASE_LINE_WIDTH));
     }
-    function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx);
-    }
+    function redrawMobileCanvas() { redrawCanvas(elMobileCanvas, currentGridIdx); }
     
     // --- 核心修复：完美线性渐变算法 ---
     function drawGradientStroke(ctx, points, cIdx, lineWidth) {
@@ -875,8 +825,7 @@
         ctx.lineWidth = lineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowBlur = 0;
-        // 关闭阴影，让渐变更清晰
+        ctx.shadowBlur = 0; // 关闭阴影，让渐变更清晰
 
         const totalPoints = points.length - 1;
         for(let i=0; i<totalPoints; i++) {
@@ -925,33 +874,9 @@
         document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1); document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
         const ex=()=>{document.getElementById('exportModal').style.display='flex'; document.getElementById('exportPreviewArea').style.display='none';};
         document.getElementById('btnExport').onclick=ex; document.getElementById('btnExportMobile').onclick=ex;
-        const ov=()=>{
-            const m=document.getElementById('overviewModal'), l=document.getElementById('overviewList'); l.innerHTML='';
-            const vt=calculateVisualTotal();
-            document.getElementById('ovLayout').innerText=`${vt/3}行 x 3列`;
-            for(let i=0; i<vt; i++){
-                const d=document.createElement('div');
-                d.className='overview-item';
-                const b=document.createElement('div'); b.className='overview-canvas-box'; 
-                b.innerHTML=getGridBgHTML();
-                if(i<totalGrids){
-                    const c=document.createElement('canvas');
-                    const prevSize = 100; c.width=prevSize; c.height=prevSize; 
-                    const x=c.getContext('2d');
-                    const ovLineWidth = prevSize * LINE_RATIO;
-                    (strokesData[i]||[]).forEach(s=>{
-                        const sc = prevSize / BASE_SIZE;
-                        const sp = s.points.map(p=>({x:p.x*sc, y:p.y*sc}));
-                        drawGradientStroke(x, sp, s.colorIdx, ovLineWidth);
-                
-                    });
-                    b.appendChild(c); d.innerHTML=`<div style="margin-top:5px;font-weight:bold;color:#146B3A">${i+1}</div>`;
-                } else { b.style.opacity='0.5'; d.innerHTML='<div style="margin-top:5px;color:#ccc">-</div>';
-                }
-                d.insertBefore(b, d.firstChild); l.appendChild(d);
-            } m.style.display='flex';
-        };
-        document.getElementById('btnOverview').onclick=ov; document.getElementById('btnOverviewMobile').onclick=ov;
+        
+        // --- 整体预览功能已删除 ---
+        
         document.getElementById('btnConfirmExport').onclick=doExport;
     }
 
@@ -1031,8 +956,15 @@
         ctx.fillText(name?`姓名: ${name}`:'Merry Christmas!', padding, padding + 25);
         
         ctx.fillStyle='#D42426'; ctx.font='14px serif'; ctx.textAlign='right'; 
-        const now = new Date();
-        ctx.fillText(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`, width-padding, padding + 25);
+        
+        // --- 关键修改：获取保加利亚时间 (Europe/Sofia) 并格式化为 YYYY/M/D ---
+        const d = new Date();
+        const y = d.toLocaleDateString('en-US', { timeZone: 'Europe/Sofia', year: 'numeric' });
+        const m = d.toLocaleDateString('en-US', { timeZone: 'Europe/Sofia', month: 'numeric' });
+        const da = d.toLocaleDateString('en-US', { timeZone: 'Europe/Sofia', day: 'numeric' });
+        const bgDateStr = `${y}/${m}/${da}`;
+        
+        ctx.fillText(bgDateStr, width-padding, padding + 25);
         
         // 装饰线
         ctx.beginPath(); ctx.moveTo(padding, padding+40); ctx.lineTo(width-padding, padding+40); 
