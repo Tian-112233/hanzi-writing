@@ -1,458 +1,373 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>汉字书写练习板（中国新年版）</title>
+    <title>汉字书写练习板（三月节迎春版）</title>
     <style>
         :root {
-            /* --- 基础配色（更偏正红/金） --- */
-            --color-bg-body: #8A0015; /* 喜庆正红底（更亮一些） */
-            --color-bg-container: rgba(255, 251, 240, 0.92); /* 暖米色容器（略透明，露出红幕） */
-            --color-bg-board: #fff; /* 纯白书写纸 */
+            --color-bg-body: #F5FAF5;
+            --color-bg-container: #E8F0E6;
+            --color-bg-board: #fff;
             
-            --color-text-main: #3b1015; /* 深枣红文字 */
-            --color-text-secondary: #7a2a14;/* 深檀木色文字 */
+            --color-text-main: #2E7D32;
+            --color-text-secondary: #388E3C;
             
-            --color-accent: #d0021b; /* 正红 */
-            --color-accent-gold: #ffd24d; /* 金 */
-            --color-accent-gold-dark: #b8860b; /* 暗金 */
+            --color-accent: #E91E63;
+            --color-accent-gold: #FFFFFF;
+            --color-accent-gold-dark: #7CB342;
             
-            --color-border-main: #7a2a14; /* 檀木边框 */
-            --color-border-board: #d0021b; /* 红纸边框 */
+            --color-border-main: #81C784;
+            --color-border-board: #66BB6A;
             
-            /* 网格线颜色：0.2透明度 */
-            --color-grid-line: rgba(122, 42, 20, 0.2);
-            --color-mark: #b8860b;          /* L型折角颜色 */
-            --color-active-bg: #fff1df;
-
-            /* 背景：红幕 + 祥云暗纹 + 金粉噪点 */
-            --bg-red-top: #C4001A;
-            --bg-red-mid: #8A0015;
-            --bg-red-bot: #5A0010;
-            --cloud-color: rgba(255, 210, 77, 0.10);
-            --gold-noise: rgba(255, 210, 77, 0.22);
+            --color-grid-line: rgba(129, 199, 132, 0.3);
+            --color-mark: #43A047;
+            --color-active-bg: #DFF0DC;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'KaiTi', 'SimSun', serif; /* 楷体 */
-            background-color: var(--color-bg-body);
+            font-family: 'KaiTi', '楷体', 'Times New Roman', 'SimSun', serif;
+            background: linear-gradient(180deg, #D6EAD8 0%, #E6F0E3 50%, #CCDEC2 100%);
             color: var(--color-text-main);
             min-height: 100vh;
             touch-action: manipulation;
-            /* 背景纹理 */
-            background-image: radial-gradient(#E6D0A0 1px, transparent 1px);
-            background-position: 0 0;
-            background-size: 30px 30px;
-            background-attachment: fixed;
             overflow-x: hidden;
             padding-top: 52px;
+            position: relative;
         }
 
-        /* 祥云暗纹层 */
-        body::before {
-            content: '';
+        /* Martenitsa 装饰条 */
+        .martenitsa-bar {
             position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 1;
-            background-image:
-                radial-gradient(circle at 12px 12px, var(--cloud-color) 0 10px, transparent 11px),
-                radial-gradient(circle at 36px 12px, var(--cloud-color) 0 10px, transparent 11px),
-                radial-gradient(circle at 24px 24px, var(--cloud-color) 0 12px, transparent 13px);
-            background-size: 72px 48px;
-            background-position: 0 0;
-            filter: blur(0.2px);
-        }
-
-        /* 金粉噪点层已移除：改为“下元宝”（避免影响书写专注） */
-
-        /* 让主体内容压在背景层之上 */
-        .lantern-container,
-        .flower-container,
-        .container {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* 横批（参考图：红底 + 金边 + 四角花纹） */
-        .hengpi {
-            display: inline-block;
-            margin-top: 0;
-            padding: 10px 28px;
-            position: relative;
-            
-            background:
-                /* 细纹理 */
-                repeating-linear-gradient(135deg,
-                    rgba(255, 210, 77, 0.06) 0 2px,
-                    rgba(0,0,0,0) 2px 8px
-                ),
-                /* 光泽 */
-                radial-gradient(circle at 20% 35%, rgba(255,255,255,0.18), transparent 48%),
-                radial-gradient(circle at 82% 65%, rgba(0,0,0,0.14), transparent 58%),
-                /* 红底 */
-                linear-gradient(to bottom, #E32134 0%, #B30018 100%);
-
-            border: 3px solid rgba(255, 210, 77, 0.95);
-            border-radius: 4px;
-            color: #FFD24D;
-            font-weight: 900;
-            font-size: 1.05rem;
-            letter-spacing: 0.28em;
-            text-indent: 0.28em;
-
-            box-shadow:
-                0 10px 18px rgba(0,0,0,0.18),
-                inset 0 0 0 2px rgba(139, 69, 19, 0.18),
-                inset 0 -10px 18px rgba(0,0,0,0.14);
-        }
-        /* 内框 */
-        .hengpi::before {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            border: 1.5px solid rgba(255, 210, 77, 0.75);
-            pointer-events: none;
-        }
-        /* 四角装饰（用渐变拼一个“角花”感觉） */
-        .hengpi::after {
-            content: '';
-            position: absolute;
-            inset: 6px;
-            pointer-events: none;
-            background:
-                /* 左上 */
-                linear-gradient(135deg, rgba(255,210,77,0.9) 0 2px, transparent 2px 100%) left top / 18px 18px no-repeat,
-                linear-gradient(45deg, rgba(255,210,77,0.55) 0 2px, transparent 2px 100%) left top / 18px 18px no-repeat,
-                /* 右上 */
-                linear-gradient(225deg, rgba(255,210,77,0.9) 0 2px, transparent 2px 100%) right top / 18px 18px no-repeat,
-                linear-gradient(315deg, rgba(255,210,77,0.55) 0 2px, transparent 2px 100%) right top / 18px 18px no-repeat,
-                /* 左下 */
-                linear-gradient(45deg, rgba(255,210,77,0.9) 0 2px, transparent 2px 100%) left bottom / 18px 18px no-repeat,
-                linear-gradient(135deg, rgba(255,210,77,0.55) 0 2px, transparent 2px 100%) left bottom / 18px 18px no-repeat,
-                /* 右下 */
-                linear-gradient(315deg, rgba(255,210,77,0.9) 0 2px, transparent 2px 100%) right bottom / 18px 18px no-repeat,
-                linear-gradient(225deg, rgba(255,210,77,0.55) 0 2px, transparent 2px 100%) right bottom / 18px 18px no-repeat;
-        }
-
-        /* 横批 */
-        .hengpi-row {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 14px;
-            margin-top: 10px;
-        }
-
-        /* --- 灯笼样式 --- */
-        .lantern-container {
-            position: fixed; top: -2px; left: 0; width: 100%; 
-            z-index: 9998; pointer-events: none;
-            height: 56px; display: flex; justify-content: space-evenly;
-        }
-        .lantern-box {
-            position: relative;
-            width: 56px;
-            height: 92px;
-            transform-origin: top center;
-            animation: swing 4s ease-in-out infinite alternate;
-            filter: drop-shadow(0 6px 8px rgba(139, 69, 19, 0.14));
-            scale: 0.82;
-        }
-        .lantern-line {
-            position: absolute;
             top: 0;
-            left: 50%;
-            width: 2px;
-            height: 16px;
-            background: rgba(40, 40, 40, 0.7);
-            transform: translateX(-50%);
+            left: 0;
+            width: 100%;
+            height: 62px;
+            pointer-events: none;
+            z-index: 9999;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(214,38,49,0.08) 0%, transparent 100%);
+            overflow: visible;
         }
+        .martenitsa-bar svg { width: 100%; height: 62px; overflow: visible; }
 
-        /* 更传统“胖胖灯笼”：中间更鼓、上下略收 */
-        .lantern-body {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 52px;
-            height: 52px;
-            border-radius: 34px / 28px;
+        /* 马尔蒂尼察单元（红白双股绳+球）*/
+        @keyframes mSwing {
+            0%, 100% { transform: rotate(-4deg); }
+            50%       { transform: rotate(4deg); }
+        }
+        .m-unit {
+            transform-origin: top center;
+            animation: mSwing 3s ease-in-out infinite;
+        }
+        .m-unit:nth-child(2n)   { animation-delay: -1s; }
+        .m-unit:nth-child(3n)   { animation-delay: -2s; }
+        .m-unit:nth-child(5n)   { animation-delay: -0.5s; }
+
+        /* 飘落迎春花动画 - 满屏飘落 */
+        .flowers-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
             overflow: hidden;
-            background:
-                radial-gradient(ellipse at 50% 52%, rgba(0,0,0,0.16), transparent 62%),
-                radial-gradient(circle at 32% 22%, rgba(255,255,255,0.42), transparent 56%),
-                radial-gradient(circle at 72% 70%, rgba(0,0,0,0.14), transparent 58%),
-                repeating-linear-gradient(90deg,
-                    rgba(255, 255, 255, 0.18) 0 1px,
-                    rgba(0, 0, 0, 0) 1px 6px,
-                    rgba(80, 10, 20, 0.18) 6px 7px,
-                    rgba(0, 0, 0, 0) 7px 12px
-                ),
-                linear-gradient(to bottom, #F06A7C 0%, #C41E3A 48%, #7E071A 100%);
-            box-shadow:
-                0 10px 14px rgba(196, 30, 58, 0.22),
-                inset 0 0 0 1px rgba(90, 20, 20, 0.26),
-                inset 0 -14px 18px rgba(0, 0, 0, 0.16);
-            z-index: 2;
         }
-        /* 顶/底金箍 */
-        .lantern-body::before,
-        .lantern-body::after {
-            content: '';
+        
+        .flower {
             position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 76%;
-            height: 8px;
-            border-radius: 5px;
-            background: linear-gradient(to bottom, #FFF2B8 0%, #FFD700 55%, #B8860B 100%);
-            box-shadow:
-                inset 0 0 0 1px rgba(139, 69, 19, 0.28),
-                0 2px 6px rgba(0,0,0,0.08);
+            width: 30px;
+            height: 30px;
+            opacity: 0;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
         }
-        .lantern-body::before { top: -4px; }
-        .lantern-body::after { bottom: -4px; }
-
-        /* 中间“贴纸” */
-        .lantern-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: auto;
-            height: auto;
-            border-radius: 0;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            display: block;
-            color: rgba(255, 235, 200, 0.95);
-            font-weight: bold;
-            font-size: 22px;
-            line-height: 1;
-            text-shadow:
-                0 1px 0 rgba(0,0,0,0.25),
-                0 0 6px rgba(255, 215, 0, 0.35);
+        .flower svg { width: 100%; height: 100%; }
+        
+        @keyframes fall {
+            0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+            8% { opacity: 0.6; }
+            92% { opacity: 0.6; }
+            100% { transform: translateY(110vh) rotate(1080deg); opacity: 0; }
         }
-
-        /* 中国结 */
-        .lantern-knot {
-            position: absolute;
-            top: 86px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 16px;
-            height: 10px;
-            border-radius: 6px;
-            background: linear-gradient(to bottom, #FFE79A 0%, #FFD700 60%, #B8860B 100%);
-            box-shadow: inset 0 0 0 1px rgba(139, 69, 19, 0.25);
-            z-index: 3;
-        }
-
-        /* 灯笼底座（更接近参考图的金色底托） */
-        .lantern-base {
-            position: absolute;
-            top: 78px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 10px;
-            border-radius: 10px;
-            background: linear-gradient(to bottom, #FFF2B8 0%, #FFD700 55%, #B8860B 100%);
-            box-shadow:
-                inset 0 0 0 1px rgba(139, 69, 19, 0.28),
-                0 3px 8px rgba(0,0,0,0.10);
-            z-index: 3;
-        }
-
-        /* 须须/流苏（拉长一点，像图里的流苏） */
-        .lantern-tassel {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 34px;
-            height: 44px;
-            z-index: 2;
-        }
-        .lantern-tassel::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 34px;
-            background: #C41E3A;
-            border-radius: 2px;
-            box-shadow:
-                -12px 0 0 #C41E3A,
-                -8px 0 0 #C41E3A,
-                -4px 0 0 #C41E3A,
-                4px 0 0 #C41E3A,
-                8px 0 0 #C41E3A,
-                12px 0 0 #C41E3A;
-            opacity: 0.95;
-        }
-        .lantern-tassel::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: linear-gradient(to bottom, #FFF2B8 0%, #FFD700 55%, #B8860B 100%);
-            box-shadow: inset 0 0 0 1px rgba(139, 69, 19, 0.25);
-        }
-        @keyframes swing { 0% { transform: rotate(-4deg); } 100% { transform: rotate(4deg); } }
-
-        /* --- 飘落梅花（不遮挡书写：更低层级 + 更低透明度） --- */
-        .flower-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 4;
-        }
-        .falling-flower {
-            position: absolute; top: -50px; background-size: contain; background-repeat: no-repeat;
-            opacity: 0.62;
-            filter: saturate(1.18) contrast(1.12) drop-shadow(0 4px 10px rgba(0,0,0,0.18));
-            animation-name: fall, sway; animation-timing-function: linear, ease-in-out;
-            animation-iteration-count: infinite, infinite;
-            will-change: transform;
-        }
-        body.flowers-paused .falling-flower { animation-play-state: paused; }
-        @keyframes fall { 0% { top: -10%; } 100% { top: 110%; } }
+        
         @keyframes sway {
-            0%, 100% { transform: translateX(0px) rotate(var(--rot, 0deg)); }
-            50% { transform: translateX(22px) rotate(calc(var(--rot, 0deg) + 40deg)); }
+            0%, 100% { margin-left: 0; }
+            25% { margin-left: 35px; }
+            75% { margin-left: -35px; }
         }
+        
+        .flower:nth-child(1) { left: 2%; animation: fall 13s linear infinite, sway 4s ease-in-out infinite; animation-delay: 0s; }
+        .flower:nth-child(2) { left: 7%; animation: fall 16s linear infinite, sway 5s ease-in-out infinite; animation-delay: 1s; }
+        .flower:nth-child(3) { left: 12%; animation: fall 11s linear infinite, sway 3s ease-in-out infinite; animation-delay: 3s; }
+        .flower:nth-child(4) { left: 17%; animation: fall 15s linear infinite, sway 4.5s ease-in-out infinite; animation-delay: 0.5s; }
+        .flower:nth-child(5) { left: 22%; animation: fall 12s linear infinite, sway 3.5s ease-in-out infinite; animation-delay: 2s; }
+        .flower:nth-child(6) { left: 27%; animation: fall 14s linear infinite, sway 5s ease-in-out infinite; animation-delay: 4s; }
+        .flower:nth-child(7) { left: 32%; animation: fall 10s linear infinite, sway 4s ease-in-out infinite; animation-delay: 1.5s; }
+        .flower:nth-child(8) { left: 37%; animation: fall 17s linear infinite, sway 3s ease-in-out infinite; animation-delay: 2.5s; }
+        .flower:nth-child(9) { left: 42%; animation: fall 13s linear infinite, sway 4.5s ease-in-out infinite; animation-delay: 0.8s; }
+        .flower:nth-child(10) { left: 47%; animation: fall 11s linear infinite, sway 5s ease-in-out infinite; animation-delay: 3.5s; }
+        .flower:nth-child(11) { left: 52%; animation: fall 15s linear infinite, sway 3.5s ease-in-out infinite; animation-delay: 1.2s; }
+        .flower:nth-child(12) { left: 57%; animation: fall 12s linear infinite, sway 4s ease-in-out infinite; animation-delay: 2.8s; }
+        .flower:nth-child(13) { left: 62%; animation: fall 16s linear infinite, sway 5s ease-in-out infinite; animation-delay: 0.3s; }
+        .flower:nth-child(14) { left: 67%; animation: fall 10s linear infinite, sway 3s ease-in-out infinite; animation-delay: 4.5s; }
+        .flower:nth-child(15) { left: 72%; animation: fall 14s linear infinite, sway 4.5s ease-in-out infinite; animation-delay: 1.8s; }
+        .flower:nth-child(16) { left: 77%; animation: fall 11s linear infinite, sway 3.5s ease-in-out infinite; animation-delay: 3.2s; }
+        .flower:nth-child(17) { left: 82%; animation: fall 15s linear infinite, sway 5s ease-in-out infinite; animation-delay: 0.6s; }
+        .flower:nth-child(18) { left: 87%; animation: fall 13s linear infinite, sway 4s ease-in-out infinite; animation-delay: 2.2s; }
+        .flower:nth-child(19) { left: 92%; animation: fall 12s linear infinite, sway 3s ease-in-out infinite; animation-delay: 3.8s; }
+        .flower:nth-child(20) { left: 97%; animation: fall 16s linear infinite, sway 4.5s ease-in-out infinite; animation-delay: 1s; }
+        .flower:nth-child(21) { left: 5%; animation: fall 14s linear infinite, sway 5s ease-in-out infinite; animation-delay: 5s; }
+        .flower:nth-child(22) { left: 15%; animation: fall 11s linear infinite, sway 3.5s ease-in-out infinite; animation-delay: 4.2s; }
+        .flower:nth-child(23) { left: 25%; animation: fall 15s linear infinite, sway 4s ease-in-out infinite; animation-delay: 2.3s; }
+        .flower:nth-child(24) { left: 35%; animation: fall 12s linear infinite, sway 5s ease-in-out infinite; animation-delay: 0.9s; }
+        .flower:nth-child(25) { left: 45%; animation: fall 10s linear infinite, sway 3s ease-in-out infinite; animation-delay: 3.7s; }
 
-        /* --- 烟花特效 --- */
-        .firework-particle {
-            position: fixed; pointer-events: none; border-radius: 50%; z-index: 10000;
-            animation: explode 1s ease-out forwards;
-        }
-        @keyframes explode { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
-
-        /* --- 布局容器 --- */
         .container {
-            max-width: 1600px; margin: 0 auto; display: flex; gap: 15px;
-            height: 100vh; padding: 15px; overflow: hidden; position: relative; z-index: 2;
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 15px;
+            height: 100vh;
+            padding: 15px;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
         }
 
-        /* --- 侧边栏 --- */
+        /* 侧边栏 */
         .sidebar {
-            width: 240px; flex-shrink: 0;
-            background-color: var(--color-bg-container); 
-            border-radius: 12px; padding: 0; 
-            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1); 
+            width: 240px;
+            flex-shrink: 0;
+            background-color: var(--color-bg-container);
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 4px 15px rgba(129, 199, 132, 0.2);
             border: 2px solid var(--color-border-main);
-            display: flex; flex-direction: column; overflow: visible;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
         }
         .sidebar-content { padding: 15px; overflow-y: auto; flex: 1; }
         
         .sidebar h2 {
-            background-color: var(--color-accent); /* 红背景 */
-            color: var(--color-accent-gold); /* 金文字 */
-            margin: 0; padding: 15px 0;
-            font-size: 1.1rem; text-align: center; font-weight: bold;
+            background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%);
+            color: white;
+            margin: 0;
+            padding: 15px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-weight: bold;
             border-bottom: 3px solid var(--color-accent-gold-dark);
             border-radius: 10px 10px 0 0;
-            position: relative; z-index: 2;
         }
 
         .left-sidebar { order: 1; }
         .right-sidebar { order: 3; }
 
-        /* 主内容区 */
         .main-content {
-            flex: 1; order: 2; min-width: 0; display: flex; flex-direction: column; height: 100%;
-            background-color: var(--color-bg-container); 
-            border-radius: 12px; border: 2px solid var(--color-border-main);
-            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1);
+            flex: 1;
+            order: 2;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background-color: var(--color-bg-container);
+            border-radius: 12px;
+            border: 2px solid var(--color-border-main);
+            box-shadow: 0 4px 15px rgba(129, 199, 132, 0.2);
         }
 
         header {
-            text-align: center; margin-bottom: 5px; padding: 10px 0 5px 0; border-bottom: 2px solid var(--color-border-main);
+            text-align: center;
+            margin-bottom: 5px;
+            padding: 10px 0 5px 0;
+            border-bottom: 2px solid var(--color-border-main);
             flex-shrink: 0;
-            background-image: linear-gradient(to right, transparent, rgba(196, 30, 58, 0.05), transparent);
         }
         h1 {
-            color: var(--color-accent); font-size: 1.8rem; font-weight: bold; text-shadow: 1px 1px 0 #fff; line-height: 1.2;
-            font-family: 'KaiTi', 'SimSun', serif;
+            color: var(--color-accent);
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #fff;
+            line-height: 1.2;
+            font-family: 'KaiTi', '楷体', 'Times New Roman', 'SimSun', serif;
         }
         .title-translation { 
-            font-size: 0.9rem; color: var(--color-text-secondary); 
-            font-style: italic; display: block; margin-top: 5px; font-family: serif;
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            display: block;
+            margin-top: 5px;
+            font-family: KaiTi, '楷体', serif;
         }
 
-        /* 说明区域 */
+        /* 三月节祝福卡片：竖三色白绿红，文字无阴影 */
+        .blessing-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-top: 5px;
+        }
+        .blessing-card {
+            background: linear-gradient(to bottom, 
+                #FFFFFF 0%, #FFFFFF 33%, 
+                #00966E 33%, #00966E 66%, 
+                #D62631 66%, #D62631 100%);
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border: 2px solid white;
+            text-align: center;
+            color: #AA2F3C;
+            text-shadow: none;
+        }
+        .blessing-card .bg-text {
+            font-size: 0.9rem;
+            font-weight: normal;
+            display: block;
+            margin-top: 4px;
+            color: #4B0082;
+            text-shadow: none;
+        }
+
         .instructions-section {
-            margin: 0 15px 10px; background: rgba(255, 255, 255, 0.8); 
-            padding: 10px; border-radius: 8px; 
-            border-left: none; flex-shrink: 0;
-        }
-
-        /* 桌面端：说明区宽度与下方红框书写区一致（不再额外缩进） */
-        .desktop-board-container .instructions-section {
-            margin: 0 0 10px;
+            margin: 0 15px 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            flex-shrink: 0;
         }
 
         .board-container {
-            flex: 1; display: flex; flex-direction: column; padding: 0 15px 15px 15px;
-            overflow-y: auto; scroll-behavior: smooth; z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 15px 15px 15px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            z-index: 2;
         }
         .board-header { text-align: center; margin-bottom: 10px; flex-shrink: 0; padding-top: 10px; }
         .board-title { color: var(--color-text-secondary); font-size: 1.3rem; font-weight: bold; }
 
-        .board {
-            background-color: var(--color-bg-board); border: 8px solid var(--color-border-board);
-            border-radius: 4px; padding: 20px; flex: 1;
-            box-shadow: inset 0 0 20px rgba(196, 30, 58, 0.05);
+        /* 藤蔓大框：全框缠绕 */
+        .board-wrapper {
+            position: relative;
+            padding: 25px;
+            background: #fff;
+            border-radius: 16px;
+        }
+        .board-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            background: linear-gradient(135deg, #81C784 0%, #66BB6A 50%, #4CAF50 100%);
+            border-radius: 20px;
+            z-index: -2;
         }
 
-        /* 桌面网格布局 */
+        /* 全框缠绕藤蔓：坐在board-wrapper上，viewBox扩展到绿边框，overflow:visible溢出 */
+        .vine-frame {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        /* 藤蔓轻微摇曳动画 */
+        @keyframes vineBreeze {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            33% { transform: translateX(0.5px) translateY(-0.5px); }
+            66% { transform: translateX(-0.5px) translateY(0.3px); }
+        }
+        .vine-leaf-group {
+            animation: vineBreeze 4s ease-in-out infinite;
+            transform-origin: center;
+        }
+        .vine-leaf-group:nth-child(odd) { animation-delay: -2s; }
+        .vine-leaf-group:nth-child(3n) { animation-delay: -1.3s; }
+
+        .board {
+            background-color: var(--color-bg-board);
+            border: 3px solid #81C784;
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            box-shadow: inset 0 0 20px rgba(129, 199, 132, 0.1);
+            position: relative;
+        }
+
         .desktop-grid-wrapper {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 20px; width: 100%; max-width: 700px; margin: 0 auto; align-content: start;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            align-content: start;
         }
 
         .grid-container {
-            position: relative; width: 100%; aspect-ratio: 1 / 1; 
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
             background-color: #fff;
-            border: 1px solid var(--color-border-main); border-radius: 2px;
+            border: 1px solid var(--color-border-main);
+            border-radius: 2px;
         }
-        
         .grid-container.grid-active {
-            box-shadow: 0 0 0 3px var(--color-accent-gold), 0 0 10px var(--color-accent-gold);
-            border-color: var(--color-accent-gold); z-index: 2;
+            box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 5px #66BB6A, 0 0 14px rgba(102,187,106,0.4);
+            border-color: #43A047;
+            z-index: 2;
+            animation: gridPulse 2s ease-in-out infinite;
         }
 
-        /* --- 网格背景 --- */
-        .grid-bg-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;
+        @keyframes gridPulse {
+            0%, 100% { box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #66BB6A, 0 0 10px rgba(102,187,106,0.35); }
+            50%       { box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 6px #43A047, 0 0 18px rgba(76,175,80,0.55); }
         }
-        
-        .g-line { position: absolute; background-color: var(--color-grid-line); }
-        
+
+        .grid-container.spring-burst {
+            animation: gridPulse 2s ease-in-out infinite !important;
+        }
+
+        .grid-bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .g-line {
+            position: absolute;
+            background-color: var(--color-grid-line);
+        }
         .gl-h { top: 50%; left: 0; width: 100%; height: 1px; transform: translateY(-50%); }
         .gl-v { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
         .gl-d1 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(45deg); }
         .gl-d2 { width: 100%; height: 1px; top: 50%; left: 0; transform: translateY(-50%) rotate(-45deg); }
 
-        /* L型折角 */
         .corner-mark {
-            position: absolute; width: 12px; height: 12px;
-            border-color: var(--color-mark); border-style: solid; border-width: 0;
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-color: var(--color-mark);
+            border-style: solid;
+            border-width: 0;
             opacity: 0.9;
         }
         .cm-tl { top: 4px; left: 4px; border-top-width: 2px; border-left-width: 2px; }
@@ -461,20 +376,35 @@
         .cm-br { bottom: 4px; right: 4px; border-bottom-width: 2px; border-right-width: 2px; }
 
         .grid-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; cursor: crosshair; touch-action: none !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: crosshair;
+            touch-action: none !important;
         }
 
         .grid-number-label {
-            position: absolute; bottom: 2px; right: 5px; 
-            font-size: 12px; color: var(--color-accent); z-index: 5; pointer-events: none; font-weight: bold;
+            position: absolute;
+            bottom: 2px;
+            right: 5px;
+            font-size: 12px;
+            color: #43A047;
+            z-index: 5;
+            pointer-events: none;
+            font-weight: bold;
         }
-        .grid-container.grid-active .grid-number-label { color: var(--color-accent-gold); }
 
-        /* 颜色面板 - 使用圣诞版逻辑 */
+        /* 颜色面板 */
         .info-panel-item {
-            background-color: #fff; padding: 10px; border-radius: 8px;
-            margin-bottom: 15px; border: 1px solid var(--color-border-main); text-align: center;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--color-border-main);
+            text-align: center;
         }
         .info-label { font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 5px; font-weight: bold; }
         .color-sequence { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -485,18 +415,17 @@
             color: #fff; font-size: 10px; font-weight: bold;
             text-shadow: 0 0 2px rgba(0,0,0,0.5); 
             border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            /* 默认非激活状态，参照圣诞版 */
             opacity: 0.3; transform: scale(0.9);
             transition: all 0.2s ease;
         }
         .color-dot.current { 
             transform: scale(1.3);
-            border-color: var(--color-accent-gold); 
+            border-color: #7CB342; 
             z-index: 2; 
             opacity: 1; 
         }
         .color-dot.next { 
-            border: 1px dashed var(--color-accent);
+            border: 1px dashed #81C784;
             opacity: 0.8; 
             transform: scale(1);
         }
@@ -507,23 +436,34 @@
 
         /* 按钮 */
         .button {
-            padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            width: 100%; margin-bottom: 8px;
-            color: #fff; transition: transform 0.1s, box-shadow 0.1s;
-            font-size: 0.9rem; line-height: 1.2;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'KaiTi', '楷体', 'Times New Roman', 'SimSun', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 8px;
+            color: #fff;
+            transition: transform 0.1s, box-shadow 0.1s;
+            font-size: 0.9rem;
+            line-height: 1.2;
             text-shadow: 0 1px 1px rgba(0,0,0,0.2);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
         .button span { font-size: 0.75rem; opacity: 0.9; font-weight: normal; margin-top: 2px; }
         .button:active { transform: translateY(2px); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        .button-primary { background-color: var(--color-accent); } 
-        .button-utility { background-color: #8b4513; } 
-        .button-secondary { background-color: #A52A2A; } 
-        .button-clear-all { background-color: #D2691E; } 
-        .button-success { background-color: #008558; } 
-        .button-warning { background-color: var(--color-accent-gold); color: #8b4513; text-shadow: none; }
+        .button-primary { background: linear-gradient(135deg, #66BB6A 0%, #43A047 100%); } 
+        .button-utility { background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%); } 
+        .button-secondary { background: linear-gradient(135deg, #EC407A 0%, #D81B60 100%); } 
+        .button-clear-all { background: linear-gradient(135deg, #FFA726 0%, #F57C00 100%); } 
+        .button-success { background: linear-gradient(135deg, #66BB6A 0%, #388E3C 100%); } 
+        .button-warning { background: linear-gradient(135deg, #FFCA28 0%, #FFB300 100%); color: #5D4037; text-shadow: none; }
         
         .add-grid-control { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; align-items: center; }
         .add-grid-control input { width: 50px; text-align: center; padding: 6px; border-radius: 4px; border: 1px solid var(--color-border-main); font-size: 1rem; color: var(--color-text-secondary); font-weight: bold; }
@@ -531,24 +471,25 @@
         /* 弹窗 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(60, 30, 10, 0.4); backdrop-filter: blur(3px);
+            background-color: rgba(46, 125, 50, 0.3); backdrop-filter: blur(3px);
             display: none; z-index: 500; justify-content: center; align-items: center;
         }
         .modal-content {
             background-color: #fff; padding: 20px; border-radius: 15px;
             width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; 
-            border: 3px solid var(--color-accent); text-align: center;
+            border: 3px solid #81C784; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
         }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-accent); }
+        .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #43A047; }
 
         /* 移动端 */
         .mobile-layout { display: none; }
         @media (max-width: 1100px) {
-            body { padding-top: 36px; background-attachment: scroll; }
-            .lantern-container { height: 40px; }
-            .lantern-box { scale: 0.62; }
-            .falling-flower { filter: none !important; }
+            body { padding-top: 36px; }
+            .martenitsa-bar { height: 40px; }
+            .martenitsa-tassel { transform: scale(0.7); }
+            .flowers-container { height: 100vh; }
+            .flower { transform: scale(0.8); }
 
             .sidebar, .desktop-board-container { display: none !important; }
             .container { flex-direction: column; height: auto; min-height: 100vh; padding: 10px; overflow-y: auto; }
@@ -575,32 +516,788 @@
             }
             .mobile-nav { display: flex; justify-content: space-between; width: 280px; margin-bottom: 20px; }
             .mobile-preview-bar {
-                margin: 0 15px; background: var(--color-active-bg);
+                margin: 0 10px; background: var(--color-active-bg);
                 border: 1px solid var(--color-border-main); border-radius: 8px;
-                padding: 10px; overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; position: relative;
+                padding: 8px; overflow-x: auto; white-space: nowrap; display: flex; gap: 7px; position: relative;
             }
             .mobile-preview-item {
-                display: inline-block; width: 60px; height: 60px;
+                display: inline-block; width: 50px; height: 50px;
                 border: 1px solid var(--color-border-main); background: #fff;
                 flex-shrink: 0; position: relative; border-radius: 4px;
             }
-            .mobile-preview-item.active { border-color: var(--color-accent-gold); box-shadow: 0 0 0 2px var(--color-accent-gold); }
+            .mobile-preview-item.active { border-color: #43A047; box-shadow: 0 0 0 2px #66BB6A; }
             .mobile-preview-item canvas { width: 100%; height: 100%; position: absolute; z-index: 2; top:0; left:0; }
         }
-
+        /* 强制所有元素使用楷体+新罗马，覆盖浏览器默认 */
+        *, input, select, textarea, button, h1, h2, h3, h4, h5, h6, label, span, div, p {
+            font-family: 'KaiTi', '楷体', 'Times New Roman', 'SimSun', serif;
+        }
     </style>
+<base target="_blank">
 </head>
 <body>
 
-<div class="lantern-container" id="lanternContainer"></div>
-<div class="flower-container" id="flowerContainer"></div>
+<!-- Martenitsa 装饰条：保加利亚传统马尔蒂尼察红白双股绳 + 两端迎春花枝 -->
+<div class="martenitsa-bar">
+<svg viewBox="0 0 1000 62" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 红绳渐变 -->
+    <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C0152A"/>
+      <stop offset="50%" stop-color="#E8233A"/>
+      <stop offset="100%" stop-color="#C0152A"/>
+    </linearGradient>
+    <!-- 白绳渐变 -->
+    <linearGradient id="wg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E8E0DC"/>
+      <stop offset="50%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E8E0DC"/>
+    </linearGradient>
+    <!-- 红球渐变 -->
+    <radialGradient id="rb" cx="35%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#FF4D5E"/>
+      <stop offset="100%" stop-color="#A50F20"/>
+    </radialGradient>
+    <!-- 白球渐变 -->
+    <radialGradient id="wb" cx="35%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#C8BEB8"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 横向挂绳（红白双股） -->
+  <line x1="0" y1="5.5" x2="1000" y2="5.5" stroke="#CC1122" stroke-width="1.4" opacity="0.9"/>
+  <line x1="0" y1="7.0" x2="1000" y2="7.0" stroke="#F5F5F5" stroke-width="1.4" opacity="0.9" stroke-dasharray="6,6"/>
+  <line x1="3" y1="7.0" x2="1003" y2="7.0" stroke="#CC1122" stroke-width="1.4" opacity="0.5" stroke-dasharray="6,6"/>
+
+  <!-- 左端迎春花枝束 -->
+  <g transform="translate(8,2)">
+    <path d="M4,50 C10,38 18,28 30,18 C42,8 54,10 68,6" stroke="#558B2F" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M4,50 C8,40 16,31 28,22 C40,13 52,14 66,10" stroke="#7CB342" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <!-- 叶片 -->
+    <ellipse cx="16" cy="34" rx="6" ry="2.8" fill="#4CAF50" transform="rotate(-42,16,34)" opacity="0.88"/>
+    <ellipse cx="16" cy="34" rx="3.5" ry="1.4" fill="#A5D6A7" transform="rotate(-42,16,34)" opacity="0.65"/>
+    <ellipse cx="36" cy="17" rx="5.5" ry="2.4" fill="#66BB6A" transform="rotate(-28,36,17)" opacity="0.9"/>
+    <ellipse cx="56" cy="10" rx="5" ry="2.2" fill="#4CAF50" transform="rotate(-18,56,10)" opacity="0.85"/>
+    <!-- 迎春花1 -->
+    <g transform="translate(25,24) scale(0.68)">
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="1.0" fill="#FFEE58"/>
+    </g>
+    <!-- 迎春花2 -->
+    <g transform="translate(47,13) scale(0.58)">
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/>
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="1.0" fill="#FFEE58"/>
+    </g>
+    <!-- 迎春花3 小 -->
+    <g transform="translate(63,8) scale(0.48)">
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92"/>
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(60,0,0)"/>
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(120,0,0)"/>
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(180,0,0)"/>
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(240,0,0)"/>
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="0.85" fill="#FFEE58"/>
+    </g>
+  </g>
+
+  <!-- 右端迎春花枝束（镜像） -->
+  <g transform="translate(992,2) scale(-1,1)">
+    <path d="M4,50 C10,38 18,28 30,18 C42,8 54,10 68,6" stroke="#558B2F" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M4,50 C8,40 16,31 28,22 C40,13 52,14 66,10" stroke="#7CB342" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <ellipse cx="16" cy="34" rx="6" ry="2.8" fill="#4CAF50" transform="rotate(-42,16,34)" opacity="0.88"/>
+    <ellipse cx="16" cy="34" rx="3.5" ry="1.4" fill="#A5D6A7" transform="rotate(-42,16,34)" opacity="0.65"/>
+    <ellipse cx="36" cy="17" rx="5.5" ry="2.4" fill="#66BB6A" transform="rotate(-28,36,17)" opacity="0.9"/>
+    <ellipse cx="56" cy="10" rx="5" ry="2.2" fill="#4CAF50" transform="rotate(-18,56,10)" opacity="0.85"/>
+    <g transform="translate(25,24) scale(0.68)">
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="1.0" fill="#FFEE58"/>
+    </g>
+    <g transform="translate(47,13) scale(0.58)">
+      <ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5.2" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="1.0" fill="#FFEE58"/>
+    </g>
+    <g transform="translate(63,8) scale(0.48)">
+      <ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92"/><ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-6.5" rx="2" ry="4.8" fill="#FFEE58" opacity="0.92" transform="rotate(300,0,0)"/>
+      <circle cx="0" cy="0" r="0.85" fill="#FFEE58"/>
+    </g>
+  </g>
+
+  <!-- Пижо и Пенда：7对，白男+红女，有表情，间距140px -->
+  <!-- Пижо и Пенда：7对线扎娃娃 -->
+  <!-- 娃娃对 cx=80 -->
+  <g class="m-unit" style="transform-origin:80px 8px">
+    <line x1="79.3" y1="8" x2="79.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="80.7" y1="8" x2="80.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="80" y1="13" x2="72" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="80" y1="13" x2="88" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="72" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="77.5" y1="20.0" x2="79.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="76.8" y1="22.8" x2="78.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="74.8" y1="24.8" x2="75.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="72.0" y1="25.5" x2="72.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="69.2" y1="24.8" x2="68.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="67.2" y1="22.8" x2="65.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="66.5" y1="20.0" x2="64.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="67.2" y1="17.2" x2="65.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="69.2" y1="15.2" x2="68.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="72.0" y1="14.5" x2="72.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="74.8" y1="15.2" x2="75.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="76.8" y1="17.2" x2="78.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="69.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="74.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="70.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="75.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M69.8,22.5 Q72,24.5 74.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="68.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="75.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="69" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="67" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="68.5" y1="29" x2="68.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="70.5" y1="29" x2="70.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="72.5" y1="29" x2="72.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="74.5" y1="29" x2="74.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="66.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="67" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="67.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="59" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="58" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="77" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="84" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="67" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="66.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="66.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="65.5" y1="62" x2="65.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="67" y1="62" x2="67.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="68.5" y1="62" x2="68.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="73.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="73.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="73.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="73.5" y1="62" x2="73.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="75" y1="62" x2="75.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="76.5" y1="62" x2="76.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="88" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="93.5" y1="20.0" x2="95.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="92.8" y1="22.8" x2="94.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="90.8" y1="24.8" x2="91.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="88.0" y1="25.5" x2="88.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="85.2" y1="24.8" x2="84.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="83.2" y1="22.8" x2="81.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="82.5" y1="20.0" x2="80.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="83.2" y1="17.2" x2="81.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="85.2" y1="15.2" x2="84.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="88.0" y1="14.5" x2="88.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="90.8" y1="15.2" x2="91.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="92.8" y1="17.2" x2="94.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="85.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="90.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="86.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="91.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M85.8,22.5 Q88,24.5 90.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="84.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="91.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="85" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="83" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="84.5" y1="29" x2="84.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="86.5" y1="29" x2="86.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="88.5" y1="29" x2="88.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="90.5" y1="29" x2="90.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="82.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="83" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="75" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="74" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="93" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="100" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="83.0" y1="40.5" x2="78.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="84.7" y1="40.5" x2="81.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="86.3" y1="40.5" x2="84.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="88.0" y1="40.5" x2="88.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="89.7" y1="40.5" x2="91.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="91.3" y1="40.5" x2="94.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="93.0" y1="40.5" x2="97.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="77" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="78" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="81.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=220 -->
+  <g class="m-unit" style="transform-origin:220px 8px">
+    <line x1="219.3" y1="8" x2="219.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="220.7" y1="8" x2="220.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="220" y1="13" x2="212" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="220" y1="13" x2="228" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="212" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="217.5" y1="20.0" x2="219.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="216.8" y1="22.8" x2="218.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="214.8" y1="24.8" x2="215.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="212.0" y1="25.5" x2="212.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="209.2" y1="24.8" x2="208.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="207.2" y1="22.8" x2="205.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="206.5" y1="20.0" x2="204.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="207.2" y1="17.2" x2="205.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="209.2" y1="15.2" x2="208.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="212.0" y1="14.5" x2="212.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="214.8" y1="15.2" x2="215.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="216.8" y1="17.2" x2="218.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="209.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="214.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="210.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="215.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M209.8,22.5 Q212,24.5 214.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="208.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="215.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="209" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="207" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="208.5" y1="29" x2="208.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="210.5" y1="29" x2="210.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="212.5" y1="29" x2="212.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="214.5" y1="29" x2="214.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="206.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="207" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="207.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="199" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="198" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="217" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="224" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="207" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="206.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="206.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="205.5" y1="62" x2="205.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="207" y1="62" x2="207.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="208.5" y1="62" x2="208.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="213.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="213.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="213.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="213.5" y1="62" x2="213.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="215" y1="62" x2="215.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="216.5" y1="62" x2="216.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="228" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="233.5" y1="20.0" x2="235.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="232.8" y1="22.8" x2="234.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="230.8" y1="24.8" x2="231.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="228.0" y1="25.5" x2="228.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="225.2" y1="24.8" x2="224.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="223.2" y1="22.8" x2="221.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="222.5" y1="20.0" x2="220.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="223.2" y1="17.2" x2="221.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="225.2" y1="15.2" x2="224.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="228.0" y1="14.5" x2="228.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="230.8" y1="15.2" x2="231.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="232.8" y1="17.2" x2="234.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="225.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="230.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="226.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="231.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M225.8,22.5 Q228,24.5 230.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="224.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="231.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="225" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="223" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="224.5" y1="29" x2="224.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="226.5" y1="29" x2="226.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="228.5" y1="29" x2="228.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="230.5" y1="29" x2="230.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="222.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="223" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="215" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="214" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="233" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="240" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="223.1" y1="40.5" x2="218.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="224.7" y1="40.5" x2="221.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="226.3" y1="40.5" x2="224.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="228.0" y1="40.5" x2="228.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="229.7" y1="40.5" x2="231.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="231.3" y1="40.5" x2="234.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="232.9" y1="40.5" x2="237.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="217" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="218" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="221.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=360 -->
+  <g class="m-unit" style="transform-origin:360px 8px">
+    <line x1="359.3" y1="8" x2="359.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="360.7" y1="8" x2="360.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="360" y1="13" x2="352" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="360" y1="13" x2="368" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="352" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="357.5" y1="20.0" x2="359.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="356.8" y1="22.8" x2="358.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="354.8" y1="24.8" x2="355.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="352.0" y1="25.5" x2="352.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="349.2" y1="24.8" x2="348.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="347.2" y1="22.8" x2="345.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="346.5" y1="20.0" x2="344.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="347.2" y1="17.2" x2="345.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="349.2" y1="15.2" x2="348.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="352.0" y1="14.5" x2="352.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="354.8" y1="15.2" x2="355.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="356.8" y1="17.2" x2="358.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="349.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="354.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="350.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="355.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M349.8,22.5 Q352,24.5 354.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="348.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="355.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="349" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="347" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="348.5" y1="29" x2="348.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="350.5" y1="29" x2="350.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="352.5" y1="29" x2="352.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="354.5" y1="29" x2="354.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="346.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="347" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="347.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="339" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="338" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="357" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="364" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="347" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="346.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="346.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="345.5" y1="62" x2="345.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="347" y1="62" x2="347.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="348.5" y1="62" x2="348.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="353.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="353.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="353.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="353.5" y1="62" x2="353.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="355" y1="62" x2="355.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="356.5" y1="62" x2="356.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="368" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="373.5" y1="20.0" x2="375.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="372.8" y1="22.8" x2="374.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="370.8" y1="24.8" x2="371.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="368.0" y1="25.5" x2="368.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="365.2" y1="24.8" x2="364.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="363.2" y1="22.8" x2="361.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="362.5" y1="20.0" x2="360.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="363.2" y1="17.2" x2="361.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="365.2" y1="15.2" x2="364.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="368.0" y1="14.5" x2="368.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="370.8" y1="15.2" x2="371.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="372.8" y1="17.2" x2="374.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="365.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="370.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="366.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="371.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M365.8,22.5 Q368,24.5 370.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="364.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="371.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="365" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="363" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="364.5" y1="29" x2="364.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="366.5" y1="29" x2="366.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="368.5" y1="29" x2="368.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="370.5" y1="29" x2="370.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="362.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="363" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="355" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="354" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="373" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="380" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="363.1" y1="40.5" x2="358.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="364.7" y1="40.5" x2="361.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="366.4" y1="40.5" x2="364.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="368.0" y1="40.5" x2="368.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="369.6" y1="40.5" x2="371.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="371.3" y1="40.5" x2="374.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="372.9" y1="40.5" x2="377.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="357" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="358" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="361.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=500 -->
+  <g class="m-unit" style="transform-origin:500px 8px">
+    <line x1="499.3" y1="8" x2="499.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="500.7" y1="8" x2="500.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="500" y1="13" x2="492" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="500" y1="13" x2="508" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="492" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="497.5" y1="20.0" x2="499.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="496.8" y1="22.8" x2="498.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="494.8" y1="24.8" x2="495.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="492.0" y1="25.5" x2="492.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="489.2" y1="24.8" x2="488.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="487.2" y1="22.8" x2="485.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="486.5" y1="20.0" x2="484.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="487.2" y1="17.2" x2="485.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="489.2" y1="15.2" x2="488.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="492.0" y1="14.5" x2="492.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="494.8" y1="15.2" x2="495.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="496.8" y1="17.2" x2="498.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="489.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="494.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="490.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="495.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M489.8,22.5 Q492,24.5 494.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="488.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="495.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="489" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="487" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="488.5" y1="29" x2="488.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="490.5" y1="29" x2="490.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="492.5" y1="29" x2="492.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="494.5" y1="29" x2="494.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="486.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="487" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="487.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="479" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="478" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="497" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="504" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="487" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="486.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="486.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="485.5" y1="62" x2="485.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="487" y1="62" x2="487.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="488.5" y1="62" x2="488.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="493.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="493.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="493.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="493.5" y1="62" x2="493.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="495" y1="62" x2="495.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="496.5" y1="62" x2="496.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="508" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="513.5" y1="20.0" x2="515.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="512.8" y1="22.8" x2="514.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="510.8" y1="24.8" x2="511.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="508.0" y1="25.5" x2="508.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="505.2" y1="24.8" x2="504.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="503.2" y1="22.8" x2="501.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="502.5" y1="20.0" x2="500.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="503.2" y1="17.2" x2="501.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="505.2" y1="15.2" x2="504.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="508.0" y1="14.5" x2="508.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="510.8" y1="15.2" x2="511.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="512.8" y1="17.2" x2="514.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="505.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="510.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="506.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="511.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M505.8,22.5 Q508,24.5 510.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="504.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="511.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="505" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="503" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="504.5" y1="29" x2="504.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="506.5" y1="29" x2="506.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="508.5" y1="29" x2="508.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="510.5" y1="29" x2="510.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="502.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="503" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="495" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="494" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="513" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="520" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="503.1" y1="40.5" x2="498.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="504.7" y1="40.5" x2="501.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="506.4" y1="40.5" x2="504.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="508.0" y1="40.5" x2="508.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="509.6" y1="40.5" x2="511.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="511.3" y1="40.5" x2="514.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="513.0" y1="40.5" x2="517.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="497" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="498" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="501.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=640 -->
+  <g class="m-unit" style="transform-origin:640px 8px">
+    <line x1="639.3" y1="8" x2="639.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="640.7" y1="8" x2="640.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="640" y1="13" x2="632" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="640" y1="13" x2="648" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="632" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="637.5" y1="20.0" x2="639.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="636.8" y1="22.8" x2="638.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="634.8" y1="24.8" x2="635.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="632.0" y1="25.5" x2="632.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="629.2" y1="24.8" x2="628.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="627.2" y1="22.8" x2="625.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="626.5" y1="20.0" x2="624.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="627.2" y1="17.2" x2="625.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="629.2" y1="15.2" x2="628.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="632.0" y1="14.5" x2="632.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="634.8" y1="15.2" x2="635.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="636.8" y1="17.2" x2="638.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="629.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="634.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="630.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="635.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M629.8,22.5 Q632,24.5 634.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="628.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="635.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="629" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="627" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="628.5" y1="29" x2="628.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="630.5" y1="29" x2="630.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="632.5" y1="29" x2="632.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="634.5" y1="29" x2="634.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="626.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="627" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="627.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="619" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="618" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="637" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="644" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="627" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="626.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="626.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="625.5" y1="62" x2="625.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="627" y1="62" x2="627.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="628.5" y1="62" x2="628.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="633.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="633.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="633.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="633.5" y1="62" x2="633.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="635" y1="62" x2="635.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="636.5" y1="62" x2="636.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="648" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="653.5" y1="20.0" x2="655.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="652.8" y1="22.8" x2="654.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="650.8" y1="24.8" x2="651.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="648.0" y1="25.5" x2="648.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="645.2" y1="24.8" x2="644.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="643.2" y1="22.8" x2="641.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="642.5" y1="20.0" x2="640.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="643.2" y1="17.2" x2="641.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="645.2" y1="15.2" x2="644.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="648.0" y1="14.5" x2="648.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="650.8" y1="15.2" x2="651.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="652.8" y1="17.2" x2="654.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="645.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="650.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="646.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="651.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M645.8,22.5 Q648,24.5 650.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="644.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="651.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="645" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="643" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="644.5" y1="29" x2="644.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="646.5" y1="29" x2="646.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="648.5" y1="29" x2="648.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="650.5" y1="29" x2="650.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="642.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="643" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="635" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="634" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="653" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="660" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="643.0" y1="40.5" x2="638.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="644.7" y1="40.5" x2="641.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="646.4" y1="40.5" x2="644.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="648.0" y1="40.5" x2="648.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="649.6" y1="40.5" x2="651.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="651.3" y1="40.5" x2="654.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="653.0" y1="40.5" x2="657.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="637" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="638" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="641.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=780 -->
+  <g class="m-unit" style="transform-origin:780px 8px">
+    <line x1="779.3" y1="8" x2="779.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="780.7" y1="8" x2="780.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="780" y1="13" x2="772" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="780" y1="13" x2="788" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="772" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="777.5" y1="20.0" x2="779.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="776.8" y1="22.8" x2="778.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="774.8" y1="24.8" x2="775.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="772.0" y1="25.5" x2="772.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="769.2" y1="24.8" x2="768.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="767.2" y1="22.8" x2="765.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="766.5" y1="20.0" x2="764.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="767.2" y1="17.2" x2="765.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="769.2" y1="15.2" x2="768.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="772.0" y1="14.5" x2="772.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="774.8" y1="15.2" x2="775.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="776.8" y1="17.2" x2="778.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="769.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="774.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="770.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="775.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M769.8,22.5 Q772,24.5 774.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="768.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="775.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="769" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="767" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="768.5" y1="29" x2="768.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="770.5" y1="29" x2="770.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="772.5" y1="29" x2="772.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="774.5" y1="29" x2="774.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="766.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="767" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="767.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="759" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="758" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="777" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="784" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="767" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="766.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="766.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="765.5" y1="62" x2="765.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="767" y1="62" x2="767.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="768.5" y1="62" x2="768.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="773.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="773.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="773.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="773.5" y1="62" x2="773.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="775" y1="62" x2="775.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="776.5" y1="62" x2="776.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="788" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="793.5" y1="20.0" x2="795.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="792.8" y1="22.8" x2="794.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="790.8" y1="24.8" x2="791.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="788.0" y1="25.5" x2="788.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="785.2" y1="24.8" x2="784.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="783.2" y1="22.8" x2="781.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="782.5" y1="20.0" x2="780.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="783.2" y1="17.2" x2="781.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="785.2" y1="15.2" x2="784.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="788.0" y1="14.5" x2="788.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="790.8" y1="15.2" x2="791.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="792.8" y1="17.2" x2="794.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="785.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="790.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="786.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="791.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M785.8,22.5 Q788,24.5 790.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="784.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="791.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="785" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="783" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="784.5" y1="29" x2="784.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="786.5" y1="29" x2="786.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="788.5" y1="29" x2="788.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="790.5" y1="29" x2="790.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="782.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="783" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="775" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="774" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="793" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="800" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="783.0" y1="40.5" x2="778.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="784.7" y1="40.5" x2="781.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="786.4" y1="40.5" x2="784.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="788.0" y1="40.5" x2="788.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="789.6" y1="40.5" x2="791.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="791.3" y1="40.5" x2="794.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="793.0" y1="40.5" x2="797.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="777" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="778" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="781.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+  <!-- 娃娃对 cx=920 -->
+  <g class="m-unit" style="transform-origin:920px 8px">
+    <line x1="919.3" y1="8" x2="919.3" y2="13" stroke="#CC1122" stroke-width="1.4"/><line x1="920.7" y1="8" x2="920.7" y2="13" stroke="#F5F5F5" stroke-width="1.4"/><line x1="920" y1="13" x2="912" y2="16" stroke="#F5F5F5" stroke-width="1.4"/><line x1="920" y1="13" x2="928" y2="16" stroke="#CC1122" stroke-width="1.4"/>
+    <!-- ПИЖО 白男 -->
+    <circle cx="912" cy="20" r="7" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="917.5" y1="20.0" x2="919.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="916.8" y1="22.8" x2="918.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="914.8" y1="24.8" x2="915.8" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="912.0" y1="25.5" x2="912.0" y2="27.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="909.2" y1="24.8" x2="908.2" y2="26.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="907.2" y1="22.8" x2="905.5" y2="23.8" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="906.5" y1="20.0" x2="904.5" y2="20.0" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="907.2" y1="17.2" x2="905.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="909.2" y1="15.2" x2="908.2" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="912.0" y1="14.5" x2="912.0" y2="12.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="914.8" y1="15.2" x2="915.8" y2="13.5" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <line x1="916.8" y1="17.2" x2="918.5" y2="16.2" stroke="#E0E0E0" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="909.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="914.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="910.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="915.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M909.8,22.5 Q912,24.5 914.2,22.5" stroke="#888" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="908.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <ellipse cx="915.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFBBBB" opacity="0.4"/>
+    <rect x="909" y="26" width="6" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="907" y="28" width="10" height="10" rx="2.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <line x1="908.5" y1="29" x2="908.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="910.5" y1="29" x2="910.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="912.5" y1="29" x2="912.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <line x1="914.5" y1="29" x2="914.5" y2="37" stroke="#E0E0E0" stroke-width="0.7" opacity="0.6"/>
+    <rect x="906.5" y="38" width="11" height="2.5" rx="1" fill="#CC1122" opacity="0.9"/>
+    <rect x="907" y="38.5" width="10" height="1.5" rx="0.7" fill="#E8283A" opacity="0.7"/>
+    <rect x="907.5" y="40.5" width="9" height="6.5" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.8"/>
+    <rect x="899" y="31" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="898" y="31.5" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="917" y="30.5" width="8" height="4" rx="2" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.7"/>
+    <rect x="924" y="31" width="2.5" height="3" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="907" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="906.8" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="906.8" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="905.5" y1="62" x2="905.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="907" y1="62" x2="907.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="908.5" y1="62" x2="908.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <rect x="913.5" y="48" width="3.5" height="12" rx="1.5" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="0.6"/>
+    <rect x="913.3" y="53" width="4" height="2" rx="1" fill="#CC1122" opacity="0.85"/>
+    <rect x="913.3" y="58" width="4" height="2.5" rx="1" fill="#CC1122" opacity="0.85"/>
+    <line x1="913.5" y1="62" x2="913.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="915" y1="62" x2="915.3" y2="64" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="916.5" y1="62" x2="916.8" y2="63" stroke="#F5F5F5" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- ПЕНДА 红女 -->
+    <circle cx="928" cy="20" r="7" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="933.5" y1="20.0" x2="935.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="932.8" y1="22.8" x2="934.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="930.8" y1="24.8" x2="931.8" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="928.0" y1="25.5" x2="928.0" y2="27.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="925.2" y1="24.8" x2="924.2" y2="26.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="923.2" y1="22.8" x2="921.5" y2="23.8" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="922.5" y1="20.0" x2="920.5" y2="20.0" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="923.2" y1="17.2" x2="921.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="925.2" y1="15.2" x2="924.2" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="928.0" y1="14.5" x2="928.0" y2="12.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="930.8" y1="15.2" x2="931.8" y2="13.5" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <line x1="932.8" y1="17.2" x2="934.5" y2="16.2" stroke="#E8283A" stroke-width="0.7" opacity="0.7"/>
+    <circle cx="925.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="930.5" cy="19.5" r="1.2" fill="#111"/>
+    <circle cx="926.0" cy="19.1" r="0.45" fill="white"/>
+    <circle cx="931.0" cy="19.1" r="0.45" fill="white"/>
+    <path d="M925.8,22.5 Q928,24.5 930.2,22.5" stroke="#8B0010" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    <ellipse cx="924.2" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <ellipse cx="931.8" cy="21.5" rx="2.2" ry="1.4" fill="#FFD0D0" opacity="0.4"/>
+    <rect x="925" y="26" width="6" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="923" y="28" width="10" height="10" rx="2.5" fill="#CC1122" stroke="#8B0010" stroke-width="0.8"/>
+    <line x1="924.5" y1="29" x2="924.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="926.5" y1="29" x2="926.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="928.5" y1="29" x2="928.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <line x1="930.5" y1="29" x2="930.5" y2="37" stroke="#E8283A" stroke-width="0.7" opacity="0.6"/>
+    <rect x="922.5" y="38" width="11" height="2.5" rx="1" fill="#F5F5F5" opacity="0.9"/>
+    <rect x="923" y="38.5" width="10" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.7"/>
+    <rect x="915" y="30.5" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="914" y="31" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="933" y="31" width="8" height="4" rx="2" fill="#CC1122" stroke="#8B0010" stroke-width="0.7"/>
+    <rect x="940" y="31.5" width="2.5" height="3" rx="1" fill="#F5F5F5" opacity="0.85"/>
+    <line x1="923.0" y1="40.5" x2="918.1" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="924.7" y1="40.5" x2="921.4" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="926.4" y1="40.5" x2="924.7" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="928.0" y1="40.5" x2="928.0" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="929.6" y1="40.5" x2="931.3" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="931.3" y1="40.5" x2="934.6" y2="62" stroke="#E8283A" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <line x1="933.0" y1="40.5" x2="937.9" y2="62" stroke="#CC1122" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+    <rect x="917" y="61" width="22" height="2.5" rx="1.2" fill="#F5F5F5" opacity="0.85"/>
+    <rect x="918" y="63" width="20" height="1.5" rx="0.7" fill="#E0E0E0" opacity="0.6"/>
+    <rect x="921.4" y="51.2" width="13.2" height="2" rx="1" fill="#CC1122" opacity="0.7"/>
+  </g>
+</svg>
+</div>
+
+<!-- 飘落迎春花 - 满屏飘落（25朵） -->
+<div class="flowers-container" id="flowersContainer"></div>
 
 <div class="container">
     <div class="sidebar left-sidebar">
         <h2>状态面板 | Статус</h2>
         <div class="sidebar-content">
             <div class="info-panel-item">
-                <div class="info-label">颜色顺序 | Цветова последователност</div>
+                <div class="info-label">颜色顺序 | Цветове</div>
                 <div class="color-sequence" id="colorSeqDesktop"></div>
                 <div class="color-display-row" style="margin-top:15px;">
                     <div class="color-box-wrapper"><div class="info-label">当前 | Текущ</div><div id="curColorBox" class="small-color-box"></div></div>
@@ -609,42 +1306,82 @@
             </div>
             <div class="info-panel-item">
                 <div class="info-label">当前位置 | Позиция</div>
-                <div style="font-size:1.1rem; font-weight:bold; color:var(--color-accent); margin-bottom:5px;">格子 <span id="curGridNum">1</span></div>
-                <div style="font-size:0.9rem; color:var(--color-text-secondary);">笔画数: <span id="curStrokeNum">0</span></div>
+                <div class="info-label">格子 Клетка <span id="curGridNum">1</span></div>
+                <div class="info-label">笔画 Щрихи: <span id="curStrokeNum">0</span></div>
             </div>
         </div>
     </div>
 
     <div class="main-content">
         <header>
-            <h1>汉字书写练习板（中国新年版）<br>
-            <span class="title-translation">Дъска за писане на китайски йероглифи (Версия за Китайската нова година)</span></h1>
-            <div class="hengpi-row">
-                <div class="hengpi">恭贺新春</div>
+            <h1>汉字书写练习板（三月节迎春版）<br>
+            <span class="title-translation">Дъска за писане на йероглифи (Мартеница — Посрещане на пролетта)</span></h1>
+            <div class="blessing-row">
+                <div class="blessing-card">
+                    三月节快乐！祝您健康幸福！
+                    <span class="bg-text">Честита Баба Марта! Бъдете здрави и щастливи!</span>
+                </div>
             </div>
         </header>
         
         <div class="desktop-board-container board-container" id="boardScrollContainer">
             <div class="instructions-section" id="instSection">
                 <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
-                    🧨 节日渐变：朱砂→赤金→翡翠→景泰蓝→紫檀 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
-                    🧧 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
-                    🐟 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
+                    🌸 颜色顺序：桃红→迎春黄→嫩绿→天蓝→紫藤 (Розово → Жълто → Зелено → Синьо → Лилаво)<br>
+                    🌱 每个新格子从桃红色开始 (Всяка нова клетка започва от розово)<br>
+                    🌺 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
                 </div>
             </div>
 
-            <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
-            <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
+            <div class="board-header">
+              <div class="board-title" style="display:inline-flex; align-items:center; gap:8px;">
+                <svg width="52" height="28" viewBox="0 0 52 28" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                  <path d="M2,26 C8,20 16,15 26,10 C36,5 44,8 50,5" stroke="#558B2F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                  <path d="M10,20 C8,15 6,13 4,14" stroke="#66BB6A" stroke-width="1" fill="none" stroke-linecap="round"/>
+                  <ellipse cx="3.5" cy="13.5" rx="4" ry="2" fill="#4CAF50" transform="rotate(-35,3.5,13.5)" opacity="0.85"/>
+                  <path d="M28,10 C27,5 25,4 23,5" stroke="#558B2F" stroke-width="1" fill="none" stroke-linecap="round"/>
+                  <ellipse cx="22" cy="4.5" rx="4" ry="1.8" fill="#66BB6A" transform="rotate(-20,22,4.5)" opacity="0.9"/>
+                  <g transform="translate(18,14) scale(0.44)"><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/><circle cx="0" cy="0" r="1.14" fill="#FFEE58"/></g>
+                  <g transform="translate(40,7) scale(0.38)"><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(300,0,0)"/><circle cx="0" cy="0" r="0.95" fill="#FFEE58"/></g>
+                </svg>
+                书写板 | Писмена дъска
+                <svg width="52" height="28" viewBox="0 0 52 28" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0; transform:scaleX(-1);">
+                  <path d="M2,26 C8,20 16,15 26,10 C36,5 44,8 50,5" stroke="#558B2F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                  <path d="M10,20 C8,15 6,13 4,14" stroke="#66BB6A" stroke-width="1" fill="none" stroke-linecap="round"/>
+                  <ellipse cx="3.5" cy="13.5" rx="4" ry="2" fill="#4CAF50" transform="rotate(-35,3.5,13.5)" opacity="0.85"/>
+                  <path d="M28,10 C27,5 25,4 23,5" stroke="#558B2F" stroke-width="1" fill="none" stroke-linecap="round"/>
+                  <ellipse cx="22" cy="4.5" rx="4" ry="1.8" fill="#66BB6A" transform="rotate(-20,22,4.5)" opacity="0.9"/>
+                  <g transform="translate(18,14) scale(0.44)"><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(300,0,0)"/><circle cx="0" cy="0" r="1.14" fill="#FFEE58"/></g>
+                  <g transform="translate(40,7) scale(0.38)"><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(60,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(120,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(180,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(240,0,0)"/><ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.9" transform="rotate(300,0,0)"/><circle cx="0" cy="0" r="0.95" fill="#FFEE58"/></g>
+                </svg>
+              </div>
+            </div>
+            <div class="board-wrapper">
+                <!-- 全框缠绕藤蔓：JS完全动态绘制，花叶始终保持真实像素大小 -->
+                <svg class="vine-frame" id="vineFrameSVG" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="leafGrad" cx="40%" cy="40%" r="60%">
+                      <stop offset="0%" stop-color="#81C784"/>
+                      <stop offset="100%" stop-color="#388E3C"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- 四边藤蔓主枝（JS绘制） -->
+                  <g id="vineBranches"></g>
+                  <!-- 花叶装饰（JS绘制，像素坐标） -->
+                  <g id="vineTopExtra"></g>
+                </svg>
+                <div class="board" id="desktopBoard"><div class="desktop-grid-wrapper" id="desktopGridWrapper"></div></div>
+            </div>
         </div>
 
         <div class="mobile-layout">
-            <div class="board-header"><div class="board-title">书写板</div></div>
+            <div class="board-header"><div class="board-title">书写板 | Писмена дъска</div></div>
             
             <div class="instructions-section">
                 <div style="font-size: 0.85rem; color: var(--color-text-main); line-height:1.6;">
-                    🧨 节日渐变：朱砂→赤金→翡翠→景泰蓝→紫檀 (Червено → Златисто → Зелено → Синьо → Лилаво)<br>
-                    🧧 每个新格子从红色开始 (Всяка нова клетка започва от червено)<br>
-                    🐟 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
+                    🌸 颜色顺序：桃红→迎春黄→嫩绿→天蓝→紫藤 (Розово → Жълто → Зелено → Синьо → Лилаво)<br>
+                    🌱 每个新格子从桃红色开始 (Всяка нова клетка започва от розово)<br>
+                    🌺 每笔都是完整的从深到浅渐变 (Всеки щрих е пълен градиент от тъмно към светло)
                 </div>
              </div>
 
@@ -654,16 +1391,16 @@
                      <input type="number" id="gridCountMobile" value="9" min="1" max="50">
                      <button class="button button-primary" id="btnGenGridMobile" style="width:auto; margin:0; padding:6px 12px;">+</button>
                  </div>
-                 <div class="total-info">总数: <span id="totalGridNumMobile">9</span></div>
+                 <div class="total-info" style="text-align:center;line-height:1.4;">总数<br><span style="white-space:nowrap;">Общо: <span id="totalGridNumMobile">9</span></span></div>
             </div>
             <div class="mobile-function-buttons">
                 <button id="btnUndoMobile" class="button button-utility">撤销上一笔<span>Отмени</span></button>
-                <button id="btnClearMobile" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
+                <button id="btnClearMobile" class="button button-secondary">清空所选<span>Изчисти</span></button>
                 <button id="btnClearAllMobile" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
                 <button id="btnExportMobile" class="button button-success">导出图片<span>Експорт</span></button>
             </div>
             <div class="mobile-color-section">
-                <div class="info-label" style="text-align:center; margin-bottom:5px;">颜色顺序 | Цветова последователност</div>
+                <div class="info-label" style="text-align:center; margin-bottom:5px;">颜色顺序 | Цветове</div>
                 <div class="color-sequence" id="colorSeqMobile" style="margin-bottom:10px;"></div>
                 <div class="color-display-row">
                     <div class="color-box-wrapper"><div class="info-label">当前 | Текущ</div><div id="mobileCurColorBox" class="small-color-box"></div></div>
@@ -671,7 +1408,7 @@
                 </div>
             </div>
             <div class="mobile-board-area">
-                <div style="margin-bottom:5px; font-weight:bold; color:var(--color-accent);">格子 <span id="mobileCurGridNum">1</span> (笔画: <span id="mobileCurStroke">0</span>)</div>
+                <div class="info-label">格子 Клетка <span id="mobileCurGridNum">1</span>　笔画 Щрихи: <span id="mobileCurStroke">0</span></div>
                 <div class="mobile-current-grid" id="mobileGridTarget">
                     <div class="grid-bg-layer">
                         <div class="g-line gl-d1"></div><div class="g-line gl-d2"></div>
@@ -700,16 +1437,17 @@
                     <input type="number" id="gridCount" value="9" min="1" max="50">
                     <button id="btnGenGrid" class="button button-primary" style="width:auto; margin:0;">+</button>
                 </div>
-                <div style="font-size:0.8rem; color:var(--color-text-secondary);">总数 | Общо: <span id="totalGridNum">9</span></div>
+                <div class="info-label">总数 Общо: <span id="totalGridNum">9</span></div>
             </div>
             <button id="btnUndo" class="button button-utility">撤销上一笔<span>Отмени</span></button>
-            <button id="btnClear" class="button button-secondary">清空所选格子<span>Изчисти избраното</span></button>
+            <button id="btnClear" class="button button-secondary">清空所选格子<span>Изчисти</span></button>
             <button id="btnClearAll" class="button button-clear-all">清空所有<span>Изчисти всичко</span></button>
             <button id="btnExport" class="button button-success">导出图片<span>Експорт</span></button>
         </div>
     </div>
 </div>
 
+<!-- 导出弹窗 -->
 <div class="modal" id="exportModal">
     <div class="modal-content">
         <button class="close-btn" onclick="document.getElementById('exportModal').style.display='none'">&times;</button>
@@ -718,8 +1456,8 @@
         <button class="button button-success" id="btnConfirmExport" style="width:50%; margin:10px auto;">生成 | Генерирай</button>
         <div id="exportPreviewArea" style="margin-top:15px; display:none;">
             <p style="font-size:0.9rem; color:#666; margin-bottom:10px; font-weight:bold;">
-                长按或右键图片即可保存<br>
-                <span style="font-size:0.8rem; font-style:italic; font-weight:normal;">Натиснете продължително или десен бутон върху снимката за запазване</span>
+                <span style="color:#2E7D32;font-weight:bold;">长按或右键图片即可保存</span><br>
+                <span style="font-size:0.8rem; font-style:italic; font-weight:normal; color:#388E3C;">Натиснете продължително или десен бутон върху снимката за запазване</span>
             </p>
             <div id="exportImgList"></div>
         </div>
@@ -727,12 +1465,13 @@
 </div>
 
 <script>
+    // 春天五色渐变
     const COLORS = [
-        { s: '#C41E3A', e: '#FFCCCC' }, // 朱砂
-        { s: '#D4AF37', e: '#FFF8D0' }, // 赤金
-        { s: '#008558', e: '#C0EBD7' }, // 翡翠
-        { s: '#174577', e: '#D0E3FF' }, // 景泰蓝
-        { s: '#4B0082', e: '#E6D0FF' }  // 紫檀
+        { s: '#E91E63', e: '#FCE4EC' }, // 桃红
+        { s: '#FFC107', e: '#FFF8E1' }, // 迎春黄
+        { s: '#8BC34A', e: '#F1F8E9' }, // 嫩绿
+        { s: '#03A9F4', e: '#E1F5FE' }, // 天蓝
+        { s: '#9C27B0', e: '#F3E5F5' }  // 紫藤
     ];
     let totalGrids = 9; 
     let currentGridIdx = 0; 
@@ -746,229 +1485,89 @@
     const BASE_SIZE = 300;
     const BASE_LINE_WIDTH = 12;
     const LINE_RATIO = BASE_LINE_WIDTH / BASE_SIZE; 
-    let plumBlossomImgUrl = null;
 
     window.onload = function() {
-        plumBlossomImgUrl = createPlumBlossomURL();
-        initLanterns();
-        initFallingPlumBlossom();
-        setupFlowerScrollOptimization();
-        initColorUI('colorSeqDesktop'); initColorUI('colorSeqMobile');
-        renderDesktopGrids(); renderMobilePreview();
+        initFlowers();
+        initColorUI('colorSeqDesktop');
+        initColorUI('colorSeqMobile');
+
+        renderDesktopGrids();
+        renderMobilePreview();
         setupMobileEvents();
-        updateUI(); setupButtons();
+        updateUI();
+        setupButtons();
+        // 初始绘制藤蔓（等布局完成）
+        setTimeout(drawVine, 100);
     };
+    // 窗口缩放时重绘藤蔓
+    window.addEventListener('resize', () => setTimeout(drawVine, 100));
 
-    function initLanterns() {
-        const container = document.getElementById('lanternContainer');
-        for(let i=0; i<6; i++) {
-            const box = document.createElement('div');
-            box.className = 'lantern-box';
-            box.style.animationDelay = `${Math.random() * 2}s`;
-            box.innerHTML = `<div class="lantern-line"></div><div class="lantern-body"><div class="lantern-center">福</div></div><div class="lantern-base"></div><div class="lantern-knot"></div><div class="lantern-tassel"></div>`;
-            container.appendChild(box);
+    // 飘落迎春花SVG：椭圆花瓣（与藤蔓花一致），花心仅亮黄小点
+    let _flowerIdCounter = 0;
+    function makeYingchunSVG() {
+        const id = _flowerIdCounter++;
+        const petalSets = [
+            ['#FFEE58','#FFF176','#FFEE58','#FFEE58','#FFF9C4','#FFEE58'],
+            ['#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58'],
+            ['#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58'],
+        ];
+        const ps = petalSets[Math.floor(Math.random() * petalSets.length)];
+        // 椭圆尺寸轻微随机
+        const rx = 2.0 + Math.random() * 0.5;
+        const ry = 4.8 + Math.random() * 0.8;
+        const cy_off = -(6.5 + Math.random() * 1.0); // 花瓣中心偏移
+        const cx = 15, cy = 15;
+
+        let svg = `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">`;
+
+        // 6片椭圆花瓣，以花心为旋转中心
+        for (let i = 0; i < 6; i++) {
+            svg += `<ellipse cx="${cx}" cy="${cy + cy_off}" rx="${rx}" ry="${ry}" fill="${ps[i]}" opacity="0.95" transform="rotate(${i*60},${cx},${cy})"/>`;
         }
+
+        // 花心：仅亮黄小点，由花瓣自然围合形成空心
+        svg += `<circle cx="${cx}" cy="${cy}" r="1.1" fill="#FFEE58"/>`;
+
+        svg += `</svg>`;
+        return svg;
     }
 
-    function createPlumBlossomURL() {
-        const size = 128;
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        ctx.clearRect(0, 0, size, size);
-        ctx.translate(size / 2, size / 2);
-
-        // 轻微旋转，避免所有花朵角度一致
-        ctx.rotate((Math.random() * 20 - 10) * Math.PI / 180);
-
-        // 花瓣：更饱和一点（避免太浅看不清）
-        const petalGrad = ctx.createRadialGradient(-10, -20, 6, 0, -10, 60);
-        petalGrad.addColorStop(0, 'rgba(255, 210, 225, 0.98)');
-        petalGrad.addColorStop(0.45, 'rgba(255, 150, 180, 0.94)');
-        petalGrad.addColorStop(1, 'rgba(210, 70, 110, 0.90)');
-
-        // 花瓣阴影层（让花更立体）
-        ctx.save();
-        ctx.fillStyle = 'rgba(120, 30, 55, 0.10)';
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -34, 15, 30, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.rotate((Math.PI * 2) / 5);
+    // 初始化迎春花
+    function initFlowers() {
+        const container = document.getElementById('flowersContainer');
+        const flowerCount = 28;
+        
+        for(let i = 0; i < flowerCount; i++) {
+            const flower = document.createElement('div');
+            flower.className = 'flower';
+            flower.style.left = (2 + Math.random() * 96) + '%';
+            const fallDur = (10 + Math.random() * 9).toFixed(1);
+            const swayDur = (3 + Math.random() * 3).toFixed(1);
+            const fallDelay = (Math.random() * 12).toFixed(1);
+            const swayDelay = (Math.random() * 3).toFixed(1);
+            const size = 22 + Math.floor(Math.random()*12);
+            flower.style.width = size + 'px';
+            flower.style.height = size + 'px';
+            flower.style.animationDuration = `${fallDur}s, ${swayDur}s`;
+            flower.style.animationDelay = `${fallDelay}s, ${swayDelay}s`;
+            flower.style.animation = `fall ${fallDur}s linear ${fallDelay}s infinite, sway ${swayDur}s ease-in-out ${swayDelay}s infinite`;
+            flower.innerHTML = makeYingchunSVG();
+            container.appendChild(flower);
         }
-        ctx.restore();
-
-        // 主花瓣层
-        ctx.fillStyle = petalGrad;
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -36, 16, 32, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.rotate((Math.PI * 2) / 5);
-        }
-
-        // 细描边（低透明度）
-        ctx.strokeStyle = 'rgba(210, 90, 120, 0.22)';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -36, 16, 32, 0, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.rotate((Math.PI * 2) / 5);
-        }
-
-        // 花心（暖金）
-        const cGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, 14);
-        cGrad.addColorStop(0, 'rgba(255, 248, 210, 0.95)');
-        cGrad.addColorStop(1, 'rgba(255, 215, 0, 0.55)');
-        ctx.fillStyle = cGrad;
-        ctx.beginPath();
-        ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 花蕊点点（更明显一些：更亮、更大、再加一层深金点）
-        ctx.fillStyle = 'rgba(255, 200, 40, 0.95)';
-        for (let i = 0; i < 10; i++) {
-            const a = (Math.PI * 2) * (i / 10);
-            const r = 9 + Math.random() * 3;
-            ctx.beginPath();
-            ctx.arc(Math.cos(a) * r, Math.sin(a) * r, 1.9, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.fillStyle = 'rgba(180, 105, 0, 0.55)';
-        for (let i = 0; i < 10; i++) {
-            const a = (Math.PI * 2) * (i / 10) + 0.12;
-            const r = 8 + Math.random() * 2;
-            ctx.beginPath();
-            ctx.arc(Math.cos(a) * r, Math.sin(a) * r, 1.1, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        return canvas.toDataURL();
-    }
-
-    function drawPlumBlossomPretty(ctx, x, y, size, rot, alpha) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rot || 0);
-        ctx.globalAlpha = alpha == null ? 1 : alpha;
-
-        // 花瓣渐变（与飘落梅花同风格）
-        const petalGrad = ctx.createRadialGradient(-size*0.3, -size*0.35, size*0.12, 0, -size*0.15, size*1.2);
-        petalGrad.addColorStop(0, 'rgba(255, 210, 225, 0.98)');
-        petalGrad.addColorStop(0.45, 'rgba(255, 150, 180, 0.94)');
-        petalGrad.addColorStop(1, 'rgba(210, 70, 110, 0.90)');
-
-        // 阴影层
-        ctx.save();
-        ctx.fillStyle = 'rgba(120, 30, 55, 0.10)';
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size*0.95, size*0.42, size*0.80, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.rotate((Math.PI * 2) / 5);
-        }
-        ctx.restore();
-
-        // 主花瓣层
-        ctx.fillStyle = petalGrad;
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size, size*0.45, size*0.86, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.rotate((Math.PI * 2) / 5);
-        }
-
-        // 细描边
-        ctx.strokeStyle = 'rgba(210, 90, 120, 0.22)';
-        ctx.lineWidth = Math.max(0.8, size * 0.05);
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size, size*0.45, size*0.86, 0, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.rotate((Math.PI * 2) / 5);
-        }
-
-        // 花心（暖金）
-        const cGrad = ctx.createRadialGradient(0, 0, 1, 0, 0, size * 0.45);
-        cGrad.addColorStop(0, 'rgba(255, 248, 210, 0.95)');
-        cGrad.addColorStop(1, 'rgba(255, 215, 0, 0.55)');
-        ctx.fillStyle = cGrad;
-        ctx.beginPath();
-        ctx.arc(0, 0, size * 0.32, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 花蕊点点（更明显一些）
-        ctx.fillStyle = 'rgba(255, 200, 40, 0.92)';
-        for (let i = 0; i < 10; i++) {
-            const a = (Math.PI * 2) * (i / 10);
-            const r = size * (0.30 + Math.random() * 0.12);
-            ctx.beginPath();
-            ctx.arc(Math.cos(a) * r, Math.sin(a) * r, Math.max(1.0, size * 0.06), 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.fillStyle = 'rgba(180, 105, 0, 0.45)';
-        for (let i = 0; i < 10; i++) {
-            const a = (Math.PI * 2) * (i / 10) + 0.12;
-            const r = size * (0.27 + Math.random() * 0.08);
-            ctx.beginPath();
-            ctx.arc(Math.cos(a) * r, Math.sin(a) * r, Math.max(0.8, size * 0.04), 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        ctx.restore();
-    }
-
-    function initFallingPlumBlossom() {
-        const container = document.getElementById('flowerContainer');
-        container.innerHTML = '';
-        const isMobile = window.matchMedia('(max-width: 1100px)').matches;
-        const count = isMobile ? 10 : 26;
-        for (let i = 0; i < count; i++) {
-            const div = document.createElement('div');
-            div.className = 'falling-flower';
-            div.style.backgroundImage = `url(${plumBlossomImgUrl})`;
-            div.style.left = Math.random() * 100 + 'vw';
-
-            const size = Math.random() * 14 + 18;
-            div.style.width = size + 'px';
-            div.style.height = size + 'px';
-
-            div.style.opacity = (Math.random() * 0.20 + 0.48).toFixed(2);
-            div.style.animationDuration = `${Math.random() * 8 + 10}s, ${Math.random() * 3 + 4}s`;
-            div.style.animationDelay = Math.random() * 4 + 's';
-
-            // 给每朵一个不同的起始旋转角（由CSS keyframes读取）
-            div.style.setProperty('--rot', `${Math.random() * 360}deg`);
-
-            // 移动端去掉filter（滚动更顺），桌面端保留轻微景深
-            if(isMobile) {
-                div.style.filter = 'none';
-            } else {
-                const blur = Math.random() * 0.25;
-                div.style.filter = `saturate(1.18) contrast(1.12) blur(${blur.toFixed(2)}px) drop-shadow(0 4px 10px rgba(0,0,0,0.18))`;
-            }
-
-            container.appendChild(div);
-        }
-    }
-
-    function setupFlowerScrollOptimization() {
-        let t = null;
-        window.addEventListener('scroll', () => {
-            document.body.classList.add('flowers-paused');
-            if (t) clearTimeout(t);
-            t = setTimeout(() => document.body.classList.remove('flowers-paused'), 120);
-        }, { passive: true });
     }
 
     function initColorUI(cid) {
         const c = document.getElementById(cid);
-        if(c) { c.innerHTML=''; COLORS.forEach((col,i)=>{ const d=document.createElement('div'); d.className='color-dot'; d.style.background=col.s; d.innerText=i+1; d.id=(cid==='colorSeqMobile'?'m-':'')+`c-dot-${i}`; c.appendChild(d); });
+        if(c) {
+            c.innerHTML='';
+            COLORS.forEach((col,i)=>{
+                const d=document.createElement('div');
+                d.className='color-dot';
+                d.style.background=col.s;
+                d.innerText=i+1;
+                d.id=(cid==='colorSeqMobile'?'m-':'')+`c-dot-${i}`;
+                c.appendChild(d);
+            });
         }
     }
     
@@ -984,7 +1583,6 @@
         return `rgb(${r},${g},${b})`;
     }
 
-    // --- HTML字符串：标准米字格 + L折角 ---
     function getGridBgHTML() {
         return `<div class="grid-bg-layer">
                     <div class="g-line gl-d1"></div><div class="g-line gl-d2"></div>
@@ -997,28 +1595,42 @@
     function renderDesktopGrids() {
         elDesktopWrapper.innerHTML='';
         for(let i=0; i<totalGrids; i++){
-            const div=document.createElement('div'); div.className=`grid-container ${i===currentGridIdx?'grid-active':''}`; div.onclick=()=>switchGrid(i);
+            const div=document.createElement('div');
+            div.className=`grid-container ${i===currentGridIdx?'grid-active':''}`;
+            div.onclick=()=>switchGrid(i);
             div.innerHTML = getGridBgHTML();
-            const lbl=document.createElement('div'); lbl.className='grid-number-label'; lbl.innerText=i+1;
+            const lbl=document.createElement('div');
+            lbl.className='grid-number-label';
+            lbl.innerText=i+1;
             const cvs=document.createElement('canvas'); 
-            cvs.width=BASE_SIZE; cvs.height=BASE_SIZE; cvs.id=`d-canvas-${i}`;
-            cvs.className='grid-canvas'; cvs.style.touchAction = 'none';
+            cvs.width=BASE_SIZE;
+            cvs.height=BASE_SIZE;
+            cvs.id=`d-canvas-${i}`;
+            cvs.className='grid-canvas';
+            cvs.style.touchAction = 'none';
             setupCanvasEvents(cvs, i); 
-            div.appendChild(lbl); div.appendChild(cvs);
+            div.appendChild(lbl);
+            div.appendChild(cvs);
             elDesktopWrapper.appendChild(div);
             redrawCanvas(cvs, i);
         }
-        document.getElementById('totalGridNum').innerText=totalGrids; document.getElementById('totalGridNumMobile').innerText=totalGrids;
+        document.getElementById('totalGridNum').innerText=totalGrids;
+        document.getElementById('totalGridNumMobile').innerText=totalGrids;
     }
 
     function renderMobilePreview() {
         elMobilePreviewBar.innerHTML='';
         for(let i=0; i<totalGrids; i++){
-            const div=document.createElement('div'); div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`; div.onclick=()=>switchGrid(i);
-            const bg=document.createElement('div'); bg.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%; transform:scale(0.3); transform-origin:0 0; width:333%; height:333%;"; 
+            const div=document.createElement('div');
+            div.className=`mobile-preview-item ${i===currentGridIdx?'active':''}`;
+            div.onclick=()=>switchGrid(i);
+            const bg=document.createElement('div');
+            bg.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%; transform:scale(0.3); transform-origin:0 0; width:333%; height:333%;"; 
             bg.innerHTML=getGridBgHTML(); 
             const cvs=document.createElement('canvas'); 
-            const previewSize = 100; cvs.width=previewSize; cvs.height=previewSize;
+            const previewSize = 100;
+            cvs.width=previewSize;
+            cvs.height=previewSize;
             
             const ctx=cvs.getContext('2d');
             const s=strokesData[i]||[]; 
@@ -1028,15 +1640,34 @@
                 const sp = st.points.map(p => ({x:p.x*scale, y:p.y*scale}));
                 drawGradientStroke(ctx, sp, st.colorIdx, previewLineWidth);
             });
-            const lbl=document.createElement('div'); lbl.style.cssText="position:absolute;bottom:2px;right:2px;font-size:10px;color:#999;"; lbl.innerText=i+1;
-            div.appendChild(bg); div.appendChild(cvs); div.appendChild(lbl); elMobilePreviewBar.appendChild(div);
+            const lbl=document.createElement('div');
+            lbl.style.cssText="position:absolute;bottom:2px;right:2px;font-size:10px;color:#999;";
+            lbl.innerText=i+1;
+            div.appendChild(bg);
+            div.appendChild(cvs);
+            div.appendChild(lbl);
+            elMobilePreviewBar.appendChild(div);
+        }
+    }
+
+    function triggerSpringBurst(gridIdx) {
+        const containers = document.querySelectorAll('.grid-container');
+        if(containers[gridIdx]) {
+            containers[gridIdx].classList.remove('spring-burst');
+            void containers[gridIdx].offsetWidth; // reflow
+            containers[gridIdx].classList.add('spring-burst');
+            setTimeout(()=>containers[gridIdx].classList.remove('spring-burst'), 750);
         }
     }
 
     function switchGrid(idx) {
         if(idx<0||idx>=totalGrids)return;
         currentGridIdx=idx;
-        document.querySelectorAll('.grid-container').forEach((e,i)=>e.classList.toggle('grid-active', i===idx));
+        document.querySelectorAll('.grid-container').forEach((e,i)=>{
+            e.classList.toggle('grid-active', i===idx);
+            // 选中时触发春光，无跳动
+            if(i===idx) triggerSpringBurst(i);
+        });
         const previewContainer = document.getElementById('mobilePreviewBar');
         document.querySelectorAll('.mobile-preview-item').forEach((e,i)=>{ 
             e.classList.toggle('active', i===idx); 
@@ -1045,12 +1676,14 @@
                 previewContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
             }
         });
-        redrawMobileCanvas(); updateUI();
+        redrawMobileCanvas();
+        updateUI();
     }
 
     function setupCanvasEvents(canvas, gridIdx) {
         let isDown=false;
-        let points=[]; const ctx=canvas.getContext('2d');
+        let points=[];
+        const ctx=canvas.getContext('2d');
         const getPos=(e)=>{
             const r=canvas.getBoundingClientRect();
             const t=e.touches?e.touches[0]:e;
@@ -1058,43 +1691,79 @@
         };
         const start=(e)=>{ 
             e.preventDefault();
-            if(gridIdx!==currentGridIdx)switchGrid(gridIdx); 
-            isDown=true; points=[getPos(e)]; 
+            if(gridIdx!==currentGridIdx) switchGrid(gridIdx); 
+            isDown=true;
+            points=[getPos(e)];
         };
         const move=(e)=>{
-            if(!isDown)return; e.preventDefault();
-            const p=getPos(e); points.push(p);
-            
-            // 确保有状态
-            if(gridColorState[gridIdx] === undefined) gridColorState[gridIdx] = 0;
-            const cIdx = gridColorState[gridIdx]; // 当前笔画颜色
+            if(!isDown)return;
+            e.preventDefault();
+            const p=getPos(e);
+            points.push(p);
 
-            ctx.beginPath();
-            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y); }
-            else { ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x, p.y); }
-            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+            if(gridColorState[gridIdx] === undefined) gridColorState[gridIdx] = 0;
+            const cIdx = gridColorState[gridIdx];
+
+            ctx.strokeStyle=COLORS[cIdx%5].s;
+            ctx.lineWidth=BASE_LINE_WIDTH;
+            ctx.lineCap='round';
+            ctx.lineJoin='round';
+
+            const len = points.length;
+            if(len >= 3) {
+                // 二次贝塞尔平滑：以前两点的中点为起点，前一点为控制点，当前点中点为终点
+                const prev2 = points[len-3];
+                const prev1 = points[len-2];
+                const cur   = points[len-1];
+                const midPrev = { x: (prev2.x+prev1.x)/2, y: (prev2.y+prev1.y)/2 };
+                const midCur  = { x: (prev1.x+cur.x)/2,  y: (prev1.y+cur.y)/2  };
+                ctx.beginPath();
+                ctx.moveTo(midPrev.x, midPrev.y);
+                ctx.quadraticCurveTo(prev1.x, prev1.y, midCur.x, midCur.y);
+                ctx.stroke();
+            } else if(len === 2) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+            }
         };
         const end=(e)=>{
-            if(!isDown)return; isDown=false;
+            if(!isDown)return;
+            isDown=false;
             if(points.length>1) {
                 if(!strokesData[gridIdx]) strokesData[gridIdx]=[];
                 if(gridColorState[gridIdx] === undefined) gridColorState[gridIdx] = 0;
                 const cIdx = gridColorState[gridIdx];
 
                 strokesData[gridIdx].push({points:[...points], colorIdx:cIdx%5});
-                // 笔画结束，颜色计数+1
                 gridColorState[gridIdx] = cIdx + 1;
-                redrawGrid(gridIdx); renderMobilePreview(); updateUI();
+                // 每笔完成换色，触发春光特效
+                triggerSpringBurst(gridIdx);
+                redrawGrid(gridIdx);
+                renderMobilePreview();
+                updateUI();
             }
         };
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-        canvas.addEventListener('touchstart', start, {passive: false}); canvas.addEventListener('touchmove', move, {passive: false}); canvas.addEventListener('touchend', end);
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', move);
+        canvas.addEventListener('mouseup', end);
+        canvas.addEventListener('mouseleave', end);
+        canvas.addEventListener('touchstart', start, {passive: false});
+        canvas.addEventListener('touchmove', move, {passive: false});
+        canvas.addEventListener('touchend', end);
+        // 防止写字时滚动页面
+        canvas.addEventListener('wheel', e => e.preventDefault(), {passive: false});
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
     }
 
     function setupMobileEvents() {
-        elMobileCanvas.width=BASE_SIZE; elMobileCanvas.height=BASE_SIZE; elMobileCanvas.style.touchAction = 'none';
-        let isDown=false; let points=[]; const ctx=elMobileCanvas.getContext('2d');
+        elMobileCanvas.width=BASE_SIZE;
+        elMobileCanvas.height=BASE_SIZE;
+        elMobileCanvas.style.touchAction = 'none';
+        let isDown=false;
+        let points=[];
+        const ctx=elMobileCanvas.getContext('2d');
         const getPos=(e)=>{
             const r=elMobileCanvas.getBoundingClientRect();
             const t=e.touches?e.touches[0]:e;
@@ -1108,11 +1777,18 @@
             const cIdx = gridColorState[currentGridIdx];
 
             ctx.beginPath();
-            if(points.length>1) { ctx.moveTo(points[points.length-2].x, points[points.length-2].y); ctx.lineTo(p.x, p.y);
+            if(points.length>1) {
+                ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
+                ctx.lineTo(p.x, p.y);
+            } else {
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y);
             }
-            else { ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y);
-            }
-            ctx.strokeStyle=COLORS[cIdx%5].s; ctx.lineWidth=BASE_LINE_WIDTH; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.stroke();
+            ctx.strokeStyle=COLORS[cIdx%5].s;
+            ctx.lineWidth=BASE_LINE_WIDTH;
+            ctx.lineCap='round';
+            ctx.lineJoin='round';
+            ctx.stroke();
         };
         const end=(e)=>{
             if(!isDown)return; isDown=false;
@@ -1122,19 +1798,28 @@
                 const cIdx = gridColorState[currentGridIdx];
 
                 strokesData[currentGridIdx].push({points:[...points], colorIdx:cIdx%5});
-                
                 gridColorState[currentGridIdx] = cIdx + 1;
+                // 每笔完成换色，触发春光特效
+                triggerSpringBurst(currentGridIdx);
 
-                redrawGrid(currentGridIdx); renderMobilePreview(); updateUI();
+                redrawGrid(currentGridIdx);
+                renderMobilePreview();
+                updateUI();
             }
         };
-        elMobileCanvas.addEventListener('touchstart', start, {passive:false}); elMobileCanvas.addEventListener('touchmove', move, {passive:false}); elMobileCanvas.addEventListener('touchend', end);
+        elMobileCanvas.addEventListener('touchstart', start, {passive:false});
+        elMobileCanvas.addEventListener('touchmove', move, {passive:false});
+        elMobileCanvas.addEventListener('touchend', end);
     }
 
-    function redrawGrid(idx) { const d=document.getElementById(`d-canvas-${idx}`); if(d) redrawCanvas(d, idx); if(idx===currentGridIdx) redrawMobileCanvas();
+    function redrawGrid(idx) {
+        const d=document.getElementById(`d-canvas-${idx}`);
+        if(d) redrawCanvas(d, idx);
+        if(idx===currentGridIdx) redrawMobileCanvas();
     }
     function redrawCanvas(canvas, idx) {
-        const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height);
+        const ctx=canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
         (strokesData[idx]||[]).forEach(s=>drawGradientStroke(ctx, s.points, s.colorIdx, BASE_LINE_WIDTH));
     }
 
@@ -1147,37 +1832,41 @@
     
     function drawGradientStroke(ctx, points, cIdx, lineWidth) {
         if(points.length < 2) return;
-        const cStart = hexToRgb(COLORS[cIdx].s); const cEnd = hexToRgb(COLORS[cIdx].e);
-        ctx.lineWidth = lineWidth; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.shadowBlur = 0;
+        const cStart = hexToRgb(COLORS[cIdx].s);
+        const cEnd = hexToRgb(COLORS[cIdx].e);
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowBlur = 0;
         const totalPoints = points.length - 1;
         for(let i=0; i<totalPoints; i++) {
             const p1 = points[i];
             const p2 = points[i+1];
-            const t1 = i / totalPoints; const t2 = (i + 1) / totalPoints;
+            const t1 = i / totalPoints;
+            const t2 = (i + 1) / totalPoints;
             const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x, p2.y);
             grad.addColorStop(0, getGradientColor(t1, cStart, cEnd));
             grad.addColorStop(1, getGradientColor(t2, cStart, cEnd));
-            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = grad; ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = grad;
+            ctx.stroke();
         }
     }
 
-    // --- 核心修改：使用圣诞版UI更新逻辑 ---
     function updateUI() {
         const idx = currentGridIdx;
         const count = (strokesData[idx]||[]).length;
         
-        // 确保状态存在
         if(gridColorState[idx] === undefined) gridColorState[idx] = 0;
         const nextC = gridColorState[idx] % 5;
 
-        // 更新文字
         document.getElementById('curGridNum').innerText = idx + 1; 
         document.getElementById('curStrokeNum').innerText = count;
         document.getElementById('mobileCurGridNum').innerText = idx + 1;
         document.getElementById('mobileCurStroke').innerText = count;
         
-        // 更新底部色块 (即时反应)
         const c1 = COLORS[nextC].s;
         const c2 = COLORS[(nextC + 1) % 5].s;
         
@@ -1186,24 +1875,168 @@
         document.getElementById('mobileCurColorBox').style.background = c1; 
         document.getElementById('mobileNextColorBox').style.background = c2;
         
-        // 核心修改：恢复圣诞版的逻辑，准确控制class切换
         const upd = (pf) => COLORS.forEach((_, x) => {
             const e = document.getElementById(`${pf}c-dot-${x}`);
             if (e) {
-                // 重置类名
                 e.className = 'color-dot'; 
-                // 判断逻辑：当前颜色 vs 下一颜色
                 if (x === nextC) e.classList.add('current');
                 else if (x === (nextC + 1) % 5) e.classList.add('next');
             }
         });
-        upd(''); upd('m-');
+        upd('');
+        upd('m-');
+    }
+
+    // 格子增加时动态往藤蔓上边追加花叶（viewBox 0-100坐标系）
+    // 全框藤蔓：用真实像素坐标绘制，花叶始终保持固定大小
+    function drawVine() {
+        const svg = document.getElementById('vineFrameSVG');
+        const branches = document.getElementById('vineBranches');
+        const extra = document.getElementById('vineTopExtra');
+        if (!svg || !branches || !extra) return;
+
+        const wrapper = svg.parentElement;
+        const W = wrapper.offsetWidth;
+        const H = wrapper.offsetHeight;
+        if (!W || !H) return;
+
+        // viewBox扩展8px到绿框外侧，藤蔓画在绿框边缘（坐标0处=white wrapper边缘，-8=绿框外边）
+        const BRD = 8; // 绿边框宽度
+        svg.setAttribute('viewBox', `${-BRD} ${-BRD} ${W+BRD*2} ${H+BRD*2}`);
+
+        // 藤蔓主枝沿绿框中线（距白wrapper边缘-4px，即绿框中间）
+        const TY = -4, BY = H + 4, LX = -4, RX = W + 4;
+
+        // ── 四边主枝（波浪贝塞尔）──
+        const mk = (d, stroke, w, op='1') =>
+            `<path d="${d}" stroke="${stroke}" stroke-width="${w}" fill="none" stroke-linecap="round" opacity="${op}"/>`;
+
+        const topD    = `M${LX},${TY} C${W*.2},${TY-6} ${W*.4},${TY+6} ${W*.5},${TY} C${W*.6},${TY-6} ${W*.8},${TY+6} ${RX},${TY}`;
+        const botD    = `M${LX},${BY} C${W*.2},${BY+6} ${W*.4},${BY-6} ${W*.5},${BY} C${W*.6},${BY+6} ${W*.8},${BY-6} ${RX},${BY}`;
+        const leftD   = `M${LX},${TY} C${LX-6},${H*.25} ${LX+6},${H*.45} ${LX},${H*.5} C${LX-6},${H*.6} ${LX+6},${H*.8} ${LX},${BY}`;
+        const rightD  = `M${RX},${TY} C${RX+6},${H*.25} ${RX-6},${H*.45} ${RX},${H*.5} C${RX+6},${H*.6} ${RX-6},${H*.8} ${RX},${BY}`;
+
+        let b = '';
+        b += mk(topD,   '#558B2F', 2.2) + mk(topD,   '#7CB342', 1, '0.5');
+        b += mk(botD,   '#558B2F', 2.2) + mk(botD,   '#7CB342', 1, '0.5');
+        b += mk(leftD,  '#558B2F', 2.2) + mk(leftD,  '#7CB342', 1, '0.5');
+        b += mk(rightD, '#558B2F', 2.2) + mk(rightD, '#7CB342', 1, '0.5');
+        // 四角嫩叶
+        b += `<ellipse cx="${LX}" cy="${TY}" rx="5" ry="2.2" fill="#81C784" transform="rotate(-45,${LX},${TY})" opacity="0.9"/>`;
+        b += `<ellipse cx="${RX}" cy="${TY}" rx="5" ry="2.2" fill="#66BB6A" transform="rotate(45,${RX},${TY})" opacity="0.9"/>`;
+        b += `<ellipse cx="${LX}" cy="${BY}" rx="5" ry="2.2" fill="#4CAF50" transform="rotate(45,${LX},${BY})" opacity="0.9"/>`;
+        b += `<ellipse cx="${RX}" cy="${BY}" rx="5" ry="2.2" fill="#66BB6A" transform="rotate(-45,${RX},${BY})" opacity="0.9"/>`;
+        branches.innerHTML = b;
+
+        // ── 花朵和叶子生成函数（固定像素大小，不受框尺寸影响）──
+        // 花：6瓣椭圆，花瓣长11px（ry），中心到瓣尖约18px，整体直径约36px
+        const FSCALE = 2.0;
+        const flower = (x, y, rot=0) =>
+            `<g class="vine-leaf-group" transform="translate(${x},${y}) rotate(${rot}) scale(${FSCALE})">` +
+            [0,60,120,180,240,300].map(a =>
+                `<ellipse cx="0" cy="-7" rx="2.2" ry="5" fill="#FFEE58" opacity="0.95" transform="rotate(${a},0,0)"/>`
+            ).join('') +
+            `<circle cx="0" cy="0" r="1.1" fill="#FFEE58"/></g>`;
+
+        // 叶：椭圆14×6px，有高光
+        const leaf = (x, y, angle) =>
+            `<g class="vine-leaf-group">` +
+            `<ellipse cx="${x}" cy="${y}" rx="14" ry="6" fill="#4CAF50" transform="rotate(${angle},${x},${y})" opacity="0.88"/>` +
+            `<ellipse cx="${x}" cy="${y}" rx="8" ry="3" fill="#81C784" transform="rotate(${angle},${x},${y})" opacity="0.6"/>` +
+            `</g>`;
+
+        // 侧枝+装饰（从主枝上某点引出一根短枝，末端放花或叶）
+        const sprig = (ox, oy, dx, dy, isFlower, leafAngle=0) => {
+            const tx = ox + dx, ty = oy + dy;
+            const mx = (ox+tx)/2 - dy*0.4, my = (oy+ty)/2 + dx*0.4;
+            let s = `<path d="M${ox},${oy} Q${mx},${my} ${tx},${ty}" stroke="#66BB6A" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+            if (isFlower) s += flower(tx, ty, Math.atan2(dy,dx)*180/Math.PI - 90);
+            else s += leaf(tx, ty, leafAngle);
+            return s;
+        };
+
+        // ── 四边均匀放置花叶 ──
+        // 格子越多间距越小（最小28px），让花叶随格子数量增多
+        const density = Math.max(28, 65 - Math.floor(totalGrids / 9) * 7);
+        let html = '';
+
+        // 上边 (y = TY, 向上伸出)
+        const topStart = LX + 30, topEnd = RX - 30;
+        const topCount = Math.floor((topEnd - topStart) / density);
+        for (let i = 0; i <= topCount; i++) {
+            const x = topStart + i * ((topEnd - topStart) / Math.max(topCount, 1));
+            const t = i / Math.max(topCount, 1);
+            const branchY = TY + Math.sin(t * Math.PI * 2) * 4; // 跟着主枝波浪
+            if (i % 3 === 1) {
+                html += sprig(x, branchY, -8 + (i%3)*4, -18, false, -25 + (i%5)*10);
+            } else {
+                const sl = 15 + (i%3)*5;
+                const sa = (i%2===0) ? -70 : -110;
+                html += sprig(x, branchY, Math.cos(sa*Math.PI/180)*sl, Math.sin(sa*Math.PI/180)*sl, true);
+            }
+        }
+
+        // 下边 (y = BY, 向下伸出)
+        const botCount = Math.floor((topEnd - topStart) / density);
+        for (let i = 0; i <= botCount; i++) {
+            const x = topStart + i * ((topEnd - topStart) / Math.max(botCount, 1));
+            const t = i / Math.max(botCount, 1);
+            const branchY = BY + Math.sin(t * Math.PI * 2 + Math.PI) * 4;
+            if (i % 3 === 1) {
+                html += sprig(x, branchY, -8 + (i%3)*4, 18, false, 25 + (i%5)*10);
+            } else {
+                const sl = 15 + (i%3)*5;
+                const sa = (i%2===0) ? 70 : 110;
+                html += sprig(x, branchY, Math.cos(sa*Math.PI/180)*sl, Math.sin(sa*Math.PI/180)*sl, true);
+            }
+        }
+
+        // 左边 (x = LX, 向左伸出)
+        const leftStart = TY + 30, leftEnd = BY - 30;
+        const leftCount = Math.floor((leftEnd - leftStart) / density);
+        for (let i = 0; i <= leftCount; i++) {
+            const y = leftStart + i * ((leftEnd - leftStart) / Math.max(leftCount, 1));
+            const t = i / Math.max(leftCount, 1);
+            const branchX = LX + Math.sin(t * Math.PI * 2) * 4;
+            if (i % 3 === 1) {
+                html += sprig(branchX, y, -18, -8 + (i%3)*4, false, -65 + (i%5)*8);
+            } else {
+                const sl = 15 + (i%3)*5;
+                const sa = (i%2===0) ? 200 : 160;
+                html += sprig(branchX, y, Math.cos(sa*Math.PI/180)*sl, Math.sin(sa*Math.PI/180)*sl, true);
+            }
+        }
+
+        // 右边 (x = RX, 向右伸出)
+        const rightCount = leftCount;
+        for (let i = 0; i <= rightCount; i++) {
+            const y = leftStart + i * ((leftEnd - leftStart) / Math.max(rightCount, 1));
+            const t = i / Math.max(rightCount, 1);
+            const branchX = RX + Math.sin(t * Math.PI * 2 + Math.PI) * 4;
+            if (i % 3 === 1) {
+                html += sprig(branchX, y, 18, -8 + (i%3)*4, false, 65 + (i%5)*8);
+            } else {
+                const sl = 15 + (i%3)*5;
+                const sa = (i%2===0) ? -20 : 20;
+                html += sprig(branchX, y, Math.cos(sa*Math.PI/180)*sl, Math.sin(sa*Math.PI/180)*sl, true);
+            }
+        }
+
+        extra.innerHTML = html;
     }
 
     function setupButtons() {
-        const add=(m)=>{ const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1;
-        totalGrids+=v; renderDesktopGrids(); renderMobilePreview(); updateUI(); };
-        document.getElementById('btnGenGrid').onclick=()=>add(false); document.getElementById('btnGenGridMobile').onclick=()=>add(true);
+        const add=(m)=>{
+            const v=parseInt(document.getElementById(m?'gridCountMobile':'gridCount').value)||1;
+            totalGrids+=v;
+            renderDesktopGrids();
+            renderMobilePreview();
+            updateUI();
+            // 等DOM更新后重绘藤蔓
+            setTimeout(drawVine, 50);
+        };
+        document.getElementById('btnGenGrid').onclick=()=>add(false);
+        document.getElementById('btnGenGridMobile').onclick=()=>add(true);
         
         const undo=()=>{ 
             const s=strokesData[currentGridIdx];
@@ -1211,109 +2044,62 @@
                 s.pop(); 
                 if(gridColorState[currentGridIdx]>0) gridColorState[currentGridIdx]--; 
                 redrawGrid(currentGridIdx);
-                renderMobilePreview(); updateUI();
-            } 
-        };
-        document.getElementById('btnUndo').onclick=undo; document.getElementById('btnUndoMobile').onclick=undo;
-        const cls=()=>{ 
-            if(confirm('清空所选格子?')) {
-                strokesData[currentGridIdx]=[];
-                gridColorState[currentGridIdx]=0; // 重置为红色
-                redrawGrid(currentGridIdx); renderMobilePreview();
+                renderMobilePreview();
                 updateUI();
             } 
         };
-        document.getElementById('btnClear').onclick=cls; document.getElementById('btnClearMobile').onclick=cls;
+        document.getElementById('btnUndo').onclick=undo;
+        document.getElementById('btnUndoMobile').onclick=undo;
+        
+        const cls=()=>{ 
+            if(confirm('清空所选格子？ Изчисти избраното?')) {
+                strokesData[currentGridIdx]=[];
+                gridColorState[currentGridIdx]=0;
+                redrawGrid(currentGridIdx);
+                renderMobilePreview();
+                updateUI();
+            } 
+        };
+        document.getElementById('btnClear').onclick=cls;
+        document.getElementById('btnClearMobile').onclick=cls;
+        
         const cla=()=>{ 
-            if(confirm('清空所有?')) {
+            if(confirm('清空所有？ Изчисти всичко?')) {
                 strokesData={};
                 gridColorState={}; 
                 currentGridIdx=0; 
-                renderDesktopGrids(); renderMobilePreview(); updateUI(); 
+                renderDesktopGrids();
+                renderMobilePreview();
+                updateUI(); 
                 switchGrid(0);
             } 
         };
-        document.getElementById('btnClearAll').onclick=cla; document.getElementById('btnClearAllMobile').onclick=cla;
+        document.getElementById('btnClearAll').onclick=cla;
+        document.getElementById('btnClearAllMobile').onclick=cla;
         
-        document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1); document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
-        const ex=()=>{document.getElementById('exportModal').style.display='flex'; document.getElementById('exportPreviewArea').style.display='none';};
-        document.getElementById('btnExport').onclick=ex; document.getElementById('btnExportMobile').onclick=ex;
+        document.getElementById('btnPrevMobile').onclick=()=>switchGrid(currentGridIdx-1);
+        document.getElementById('btnNextMobile').onclick=()=>switchGrid(currentGridIdx+1);
+        
+        const ex=()=>{
+            document.getElementById('exportModal').style.display='flex';
+            document.getElementById('exportPreviewArea').style.display='none';
+        };
+        document.getElementById('btnExport').onclick=ex;
+        document.getElementById('btnExportMobile').onclick=ex;
+        
         document.getElementById('btnConfirmExport').onclick=doExport;
     }
 
-    // --- 连环烟花效果 (5波) ---
-    function launchFireworksSequence() {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        createFireworks(centerX, centerY);
-        setTimeout(() => createFireworks(centerX - 200, centerY - 100), 500);
-        setTimeout(() => createFireworks(centerX + 200, centerY - 100), 1000);
-        setTimeout(() => createFireworks(centerX - 100, centerY + 150), 1600);
-        setTimeout(() => createFireworks(centerX + 100, centerY + 150), 2200);
-    }
-
-    function createFireworks(x, y) {
-        const count = 30;
-        const colors = ['#C41E3A', '#FFD700', '#008558', '#FF69B4', '#1E90FF'];
-        for (let i = 0; i < count; i++) {
-            const p = document.createElement('div');
-            p.className = 'firework-particle';
-            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            p.style.left = x + 'px';
-            p.style.top = y + 'px';
-            p.style.width = Math.random() * 6 + 4 + 'px';
-            p.style.height = p.style.width;
-            
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 150 + 80;
-            const tx = Math.cos(angle) * velocity + 'px';
-            const ty = Math.sin(angle) * velocity + 'px';
-            
-            p.style.setProperty('--tx', tx);
-            p.style.setProperty('--ty', ty);
-            
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 1000);
-        }
-    }
-
-    function drawPlumBlossom(ctx, x, y, size, color) {
-        ctx.save();
-        ctx.translate(x, y); ctx.fillStyle = color || 'rgba(255, 183, 197, 0.4)';
-        const petalSize = size * 0.5;
-        for (let i = 0; i < 5; i++) {
-            ctx.beginPath();
-            ctx.ellipse(0, -size*0.4, petalSize*0.6, petalSize, 0, 0, Math.PI * 2);
-            ctx.fill(); ctx.rotate((Math.PI * 2) / 5);
-        }
-        ctx.beginPath(); ctx.arc(0, 0, size * 0.2, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.5)'; ctx.fill();
-        ctx.restore();
-    }
-
-    // --- L型折角 ---
-    function drawCornerMark(ctx, x, y, size, type) {
-        ctx.strokeStyle = '#B8860B';
-        ctx.lineWidth = 1.5; ctx.beginPath();
-        if(type===0) { ctx.moveTo(x, y+size); ctx.lineTo(x, y); ctx.lineTo(x+size, y);
-        }
-        if(type===1) { ctx.moveTo(x-size, y); ctx.lineTo(x, y); ctx.lineTo(x, y+size);
-        }
-        if(type===2) { ctx.moveTo(x, y-size); ctx.lineTo(x, y); ctx.lineTo(x-size, y);
-        }
-        if(type===3) { ctx.moveTo(x+size, y); ctx.lineTo(x, y); ctx.lineTo(x, y-size);
-        }
-        ctx.stroke();
-    }
-
+    // 导出图片功能（春天绿色背景，更多迎春花分布）
     function doExport() {
-        launchFireworksSequence();
         const name=document.getElementById('exportName').value;
         const gridsPerPage = 9;
         const cols = 3;
         
         let maxFilled = -1;
-        Object.keys(strokesData).forEach(idx => { if(strokesData[idx] && strokesData[idx].length>0) maxFilled=Math.max(maxFilled, parseInt(idx)); });
+        Object.keys(strokesData).forEach(idx => {
+            if(strokesData[idx] && strokesData[idx].length>0) maxFilled=Math.max(maxFilled, parseInt(idx));
+        });
         if (maxFilled < 0) {
             alert('当前没有可导出的笔画，请先写字再导出。\nНяма щрихи за експортиране. Моля, първо напишете нещо и след това експортирайте.');
             return;
@@ -1337,74 +2123,43 @@
             const ctx=cvs.getContext('2d');
             ctx.scale(dpr, dpr);
 
-            ctx.fillStyle='#FDFCF8';
+            // 护眼白背景
+            ctx.fillStyle = '#FAFFF8';
             ctx.fillRect(0,0,width,pageHeight);
 
-            // 边框
-            ctx.strokeStyle = '#C41E3A'; ctx.lineWidth = 4;
+            // 柔和绿色边框
+            ctx.strokeStyle = '#A5D6A7';
+            ctx.lineWidth = 4;
             ctx.strokeRect(10, 10, width - 20, pageHeight - 20);
-            ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2;
             ctx.strokeRect(16, 16, width - 32, pageHeight - 32);
 
-            // 梅花：保证“整朵在画布内”，且不落到格子区域
-            const blossomCount = 12;
-            for(let k=0; k<blossomCount; k++) {
-                const bSize = 6 + Math.random() * 10;
-                const safe = bSize * 2.4; // 旋转后也尽量不裁切
+            // 在页面各处随机生成迎春花（避开格子区域）
+            drawRandomFlowers(ctx, width, pageHeight, padding, headerH, gridSize, gap, cols);
 
-                let bx = safe + Math.random() * (width - safe*2);
-                let by = safe + Math.random() * (pageHeight - safe*2);
-
-                const gridAreaTop = padding + headerH;
-                const gridAreaBottom = gridAreaTop + 3 * (gridSize+gap);
-                const gridAreaLeft = padding;
-                const gridAreaRight = width - padding;
-
-                // 如果落在格子区域（包含安全边距），把它挪到头部或底部空白区域
-                if (bx > gridAreaLeft - safe && bx < gridAreaRight + safe && by > gridAreaTop - safe && by < gridAreaBottom + safe) {
-                    if(Math.random() > 0.5) {
-                        const topMax = Math.max(safe, padding + headerH - safe);
-                        by = safe + Math.random() * Math.max(1, topMax - safe);
-                    } else {
-                        const botMin = Math.min(pageHeight - safe, pageHeight - (padding + footerH) + safe);
-                        by = botMin + Math.random() * Math.max(1, (pageHeight - safe) - botMin);
-                    }
-                }
-
-                // 再次夹紧，确保整朵不出界
-                bx = Math.max(safe, Math.min(width - safe, bx));
-                by = Math.max(safe, Math.min(pageHeight - safe, by));
-
-                const rot = Math.random() * Math.PI * 2;
-                const a = 0.18 + Math.random() * 0.10;
-                drawPlumBlossomPretty(ctx, bx, by, bSize, rot, a);
-            }
-
-            // Header
-            ctx.fillStyle='#C41E3A';
-            ctx.font='bold 20px KaiTi, serif'; ctx.textAlign='left';
+            // 头部文字
+            ctx.fillStyle='#2E7D32';
+            ctx.font='bold 20px KaiTi, serif';
+            ctx.textAlign='left';
             ctx.fillText(name ? `姓名: ${name}` : '姓名: ______', padding, padding + 25);
-            const bgDate = new Date().toLocaleString("en-US", {timeZone: "Europe/Sofia"}); 
-            const bgObj = new Date(bgDate);
-            const y = bgObj.getFullYear();
-            const m = bgObj.getMonth() + 1;
-            const d = bgObj.getDate();
-            const dateStr = `${y}/${m}/${d}`; 
-            
-            const infoStr = `${dateStr}`;
 
-            ctx.fillStyle='#8B4513'; ctx.font='16px serif'; ctx.textAlign='right';
-            ctx.fillText(infoStr, width - padding, padding + 25);
+            const date = new Date(new Date().toLocaleString('en-US', {timeZone: 'Europe/Sofia'}));
+            const dateStr = `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`;
+            ctx.fillStyle='#388E3C';
+            ctx.font='16px serif';
+            ctx.textAlign='right';
+            ctx.fillText(dateStr, width - padding, padding + 25);
 
-            // Red Line
+            // 绿色分隔线
             ctx.beginPath();
             ctx.moveTo(padding, padding + 40);
             ctx.lineTo(width - padding, padding + 40);
-            ctx.strokeStyle = '#C41E3A';
+            ctx.strokeStyle = '#81C784';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Grids
+            // 绘制格子
             for(let i=0; i<9; i++){
                 let gridIndex = p * 9 + i;
                 const inRange = gridIndex < exportTotal;
@@ -1415,29 +2170,39 @@
                 const y = padding + headerH + r*(gridSize+gap);
                 
                 ctx.lineWidth=1;
-                ctx.strokeStyle='#8B4513'; ctx.strokeRect(x,y,gridSize,gridSize);
+                ctx.strokeStyle='#81C784';
+                ctx.strokeRect(x,y,gridSize,gridSize);
                 
+                // 米字格
                 ctx.beginPath();
                 ctx.moveTo(x,y+gridSize/2); ctx.lineTo(x+gridSize,y+gridSize/2); 
                 ctx.moveTo(x+gridSize/2,y); ctx.lineTo(x+gridSize/2,y+gridSize);
                 ctx.moveTo(x,y); ctx.lineTo(x+gridSize,y+gridSize); 
                 ctx.moveTo(x,y+gridSize); ctx.lineTo(x+gridSize,y);
-                ctx.strokeStyle='rgba(139,69,19,0.2)'; // 0.2 透明度
+                ctx.strokeStyle='rgba(129,199,132,0.3)';
                 ctx.stroke();
-                const mSize = 8;
-                drawCornerMark(ctx, x+4, y+4, mSize, 0); 
-                drawCornerMark(ctx, x+gridSize-4, y+4, mSize, 1); 
-                drawCornerMark(ctx, x+gridSize-4, y+gridSize-4, mSize, 2);
-                drawCornerMark(ctx, x+4, y+gridSize-4, mSize, 3); 
                 
+                // L型折角
+                const mSize = 8;
+                ctx.strokeStyle = '#43A047';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(x+4, y+4+mSize); ctx.lineTo(x+4, y+4); ctx.lineTo(x+4+mSize, y+4); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x+gridSize-4-mSize, y+4); ctx.lineTo(x+gridSize-4, y+4); ctx.lineTo(x+gridSize-4, y+4+mSize); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x+gridSize-4, y+gridSize-4-mSize); ctx.lineTo(x+gridSize-4, y+gridSize-4); ctx.lineTo(x+gridSize-4-mSize, y+gridSize-4); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x+4+mSize, y+gridSize-4); ctx.lineTo(x+4, y+gridSize-4); ctx.lineTo(x+4, y+gridSize-4-mSize); ctx.stroke();
+                
+                // 绘制笔画
                 const strokes = inRange ? (strokesData[gridIndex]||[]) : [];
                 const sc = gridSize / BASE_SIZE;
                 strokes.forEach(s=>{
                     const sp = s.points.map(p=>({x:p.x*sc+x, y:p.y*sc+y}));
                     drawGradientStroke(ctx, sp, s.colorIdx, gridSize * LINE_RATIO);
                 });
+                
                 if(inRange) {
-                    ctx.fillStyle='#C41E3A'; ctx.font='10px serif'; ctx.textAlign='right'; 
+                    ctx.fillStyle='#43A047';
+                    ctx.font='10px serif';
+                    ctx.textAlign='right'; 
                     ctx.fillText(gridIndex+1, x+gridSize-3, y+gridSize-3);
                 }
             }
@@ -1448,12 +2213,12 @@
             block.style.cssText = 'margin: 0 0 18px 0;';
 
             const title = document.createElement('div');
-            title.style.cssText = 'font-weight:bold;color:#666;margin:0 0 6px 0;';
-            title.innerText = `第 ${p+1} 页 / Страница ${p+1} от ${totalPages}`;
+            title.style.cssText = 'font-weight:bold;color:#2E7D32;margin:0 0 6px 0;';
+            title.innerText = `第 ${p+1} 页 | Страница ${p+1} от ${totalPages}`;
 
             const img = document.createElement('img');
             img.src = dataUrl;
-            img.style.cssText = 'max-width:100%; border:2px solid var(--color-accent-gold); border-radius:4px; display:block;';
+            img.style.cssText = 'max-width:100%; border:2px solid #81C784; border-radius:4px; display:block;';
 
             block.appendChild(title);
             block.appendChild(img);
@@ -1462,6 +2227,92 @@
 
         document.getElementById('exportPreviewArea').style.display='block';
     }
+    
+    // 在导出图片上绘制随机迎春花（全页随机分布，花朵整体不进入格子）
+    function drawRandomFlowers(ctx, width, pageHeight, padding, headerH, gridSize, gap, cols) {
+        const flowerCount = 28 + Math.floor(Math.random() * 10); // 28-38朵
+        const rows = 3;
+
+        // 预先计算每个格子的矩形（先不加margin，在碰撞时用花半径动态扩展）
+        const gridRects = [];
+        for(let r = 0; r < rows; r++) {
+            for(let c = 0; c < cols; c++) {
+                const gx = padding + c * (gridSize + gap);
+                const gy = padding + headerH + r * (gridSize + gap);
+                gridRects.push({ x1: gx, y1: gy, x2: gx + gridSize, y2: gy + gridSize });
+            }
+        }
+
+        // 检测花（以中心+半径表示的圆）是否与任意格子矩形有重叠
+        // 圆与矩形碰撞：找矩形上距圆心最近的点，判断距离是否小于半径
+        function flowerHitsGrid(x, y, radius) {
+            const r = radius + 4; // 额外4px缓冲
+            return gridRects.some(g => {
+                const nearX = Math.max(g.x1, Math.min(x, g.x2));
+                const nearY = Math.max(g.y1, Math.min(y, g.y2));
+                const dx = x - nearX;
+                const dy = y - nearY;
+                return (dx * dx + dy * dy) < (r * r);
+            });
+        }
+
+        for(let i = 0; i < flowerCount; i++) {
+            // 先确定大小，再用花的实际半径做碰撞
+            let size;
+            const rv = Math.random();
+            if (rv < 0.25) size = 18 + Math.random() * 14;    // 大花 18-32px
+            else if (rv < 0.7) size = 9 + Math.random() * 9;  // 中花 9-18px
+            else size = 4 + Math.random() * 5;                 // 小花 4-9px
+
+            // 花的视觉半径 ≈ dist + ph（花瓣中心距离 + 花瓣半高）
+            const flowerRadius = size * 0.37 + size * 0.46;
+
+            let x, y, attempts = 0;
+            do {
+                x = flowerRadius + Math.random() * (width - flowerRadius * 2);
+                y = flowerRadius + Math.random() * (pageHeight - flowerRadius * 2);
+                attempts++;
+            } while(attempts < 100 && flowerHitsGrid(x, y, flowerRadius));
+
+            if(flowerHitsGrid(x, y, flowerRadius)) continue; // 找不到位置就跳过
+
+            const rotation = Math.random() * Math.PI * 2;
+            drawFlower(ctx, x, y, size, rotation);
+        }
+    }
+    
+    function drawFlower(ctx, x, y, size, rotation) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+
+        // 椭圆花瓣（与藤蔓花一致）
+        const ry = size * 0.46;   // 花瓣半高
+        const rx = size * 0.20;   // 花瓣半宽
+        const cy_off = -size * 0.62; // 花瓣中心到花心的距离
+        const petalColors = ['#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58','#FFEE58'];
+
+        for (let i = 0; i < 6; i++) {
+            ctx.save();
+            ctx.rotate((i * 60) * Math.PI / 180);
+            ctx.beginPath();
+            ctx.ellipse(0, cy_off, rx, ry, 0, 0, Math.PI * 2);
+            ctx.fillStyle = petalColors[i];
+            ctx.globalAlpha = 0.95;
+            ctx.fill();
+            ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+
+        // 花心：仅亮黄小点，花瓣自然围合形成空心
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 0.09, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFEE58';
+        ctx.fill();
+
+        ctx.restore();
+    }
+
 </script>
 </body>
 </html>
